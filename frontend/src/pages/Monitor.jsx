@@ -151,24 +151,29 @@ export default function Monitor() {
         const isNotLocalhost = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
 
         if (isHttp && isNotLocalhost) {
-          const httpsUrl = window.location.href.replace('http:', 'https:');
+          const originUrl = `http://${window.location.hostname}:5173`;
           setErrorMsg(
-            <div className="space-y-2">
-              <div className="font-bold text-amber-300">Secure Context Required for Phone Camera</div>
-              <p className="text-xs text-slate-300">
-                Mobile Chrome prohibits camera hardware access over plain HTTP when connecting via local IP.
-              </p>
-              <div className="pt-1">
-                <a
-                  href={httpsUrl}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition shadow-lg"
-                >
-                  <Camera className="w-3.5 h-3.5" /> Tap Here to Switch to HTTPS
-                </a>
+            <div className="space-y-3 text-left">
+              <div className="font-bold text-amber-300 flex items-center gap-1.5 text-sm">
+                <span>⚠️</span> Camera Permission Blocked by Chrome
               </div>
-              <p className="text-[11px] text-slate-400">
-                (Tap <em>Advanced &rarr; Proceed to {window.location.hostname} (unsafe)</em> to accept the local dev certificate).
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Android Chrome blocks camera access over local Wi-Fi IP (<code className="text-emerald-400 font-mono text-[11px]">{window.location.hostname}</code>) without a one-time permission.
               </p>
+              <div className="p-3 bg-slate-900/90 border border-slate-700/60 rounded-xl space-y-2 text-xs text-slate-300">
+                <div className="font-semibold text-slate-200">Quick 30-Second Fix in Phone Chrome:</div>
+                <ol className="list-decimal list-inside space-y-1.5 text-[11px] text-slate-400">
+                  <li>
+                    Open a new tab and paste: <br />
+                    <code className="text-amber-400 select-all font-mono break-all text-[11px]">chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>
+                  </li>
+                  <li>
+                    Set flag to <strong className="text-emerald-400">Enabled</strong> and enter:<br />
+                    <code className="text-emerald-300 select-all font-mono font-bold text-xs">{originUrl}</code>
+                  </li>
+                  <li>Tap <strong className="text-sky-400">Relaunch</strong>, then refresh this page!</li>
+                </ol>
+              </div>
             </div>
           );
           setPermissionGranted(false);
