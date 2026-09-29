@@ -314,7 +314,9 @@ export default function Dashboard() {
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  const primaryIpUrl = networkInfo?.local_ips?.[0]?.url_phone_monitor || `http://${window.location.hostname}:5173/monitor`;
+  const currentProto = window.location.protocol;
+  const rawIpUrl = networkInfo?.local_ips?.[0]?.url_phone_monitor || `${currentProto}//${window.location.hostname}:5173/monitor`;
+  const primaryIpUrl = rawIpUrl.replace(/^https?:/, currentProto);
   const mobilePairingUrl = pairingCode ? `${primaryIpUrl}?code=${pairingCode}` : primaryIpUrl;
   const isMonitoringActive = cameraStatus === 'ONLINE' && health.ai_service === 'online';
 

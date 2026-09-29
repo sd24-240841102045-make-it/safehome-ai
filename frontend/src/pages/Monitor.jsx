@@ -145,6 +145,41 @@ export default function Monitor() {
         streamRef.current.getTracks().forEach((t) => t.stop());
       }
 
+      // Check for Secure Context / mediaDevices support
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        const isHttp = window.location.protocol === 'http:';
+        const isNotLocalhost = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+
+        if (isHttp && isNotLocalhost) {
+          const httpsUrl = window.location.href.replace('http:', 'https:');
+          setErrorMsg(
+            <div className="space-y-2">
+              <div className="font-bold text-amber-300">Secure Context Required for Phone Camera</div>
+              <p className="text-xs text-slate-300">
+                Mobile Chrome prohibits camera hardware access over plain HTTP when connecting via local IP.
+              </p>
+              <div className="pt-1">
+                <a
+                  href={httpsUrl}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 text-slate-950 font-bold text-xs hover:bg-emerald-400 transition shadow-lg"
+                >
+                  <Camera className="w-3.5 h-3.5" /> Tap Here to Switch to HTTPS
+                </a>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                (Tap <em>Advanced &rarr; Proceed to {window.location.hostname} (unsafe)</em> to accept the local dev certificate).
+              </p>
+            </div>
+          );
+          setPermissionGranted(false);
+          return;
+        }
+
+        setErrorMsg('Camera hardware API (navigator.mediaDevices) is not available in this browser context.');
+        setPermissionGranted(false);
+        return;
+      }
+
       const constraints = {
         video: {
           facingMode: facing,
