@@ -211,6 +211,48 @@ export class StreamWebSocketHandler {
             ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
             return;
           }
+
+          // 5. WebRTC P2P Signaling: Offer (from phone to dashboard)
+          if (msg.type === 'webrtc_offer') {
+            if (currentUserId) {
+              this.broadcastToUserDashboards(currentUserId, {
+                type: 'webrtc_offer',
+                device_id: currentDeviceId || msg.device_id,
+                sdp: msg.sdp
+              });
+            }
+            return;
+          }
+
+          // 6. WebRTC P2P Signaling: Answer (from dashboard to phone)
+          if (msg.type === 'webrtc_answer') {
+            if (currentUserId) {
+              this.sendToPhone(currentUserId, msg.device_id, {
+                type: 'webrtc_answer',
+                device_id: msg.device_id,
+                sdp: msg.sdp
+              });
+            }
+            return;
+          }
+
+          // 7. WebRTC P2P Signaling: ICE Candidate (bidirectional)
+          if (msg.type === 'webrtc_ice_candidate') {
+            if (clientRole === 'phone' && currentUserId) {
+              this.broadcastToUserDashboards(currentUserId, {
+                type: 'webrtc_ice_candidate',
+                device_id: currentDeviceId || msg.device_id,
+                candidate: msg.candidate
+              });
+            } else if (clientRole === 'dashboard' && currentUserId) {
+              this.sendToPhone(currentUserId, msg.device_id, {
+                type: 'webrtc_ice_candidate',
+                device_id: msg.device_id,
+                candidate: msg.candidate
+              });
+            }
+            return;
+          }
         } catch (err: any) {
           logger.error('[WS Error]', err.message);
         }
@@ -335,6 +377,26 @@ export class StreamWebSocketHandler {
     for (const session of userDashboards) {
       if (session.ws.readyState === WebSocket.OPEN) {
         session.ws.send(data);
+      }
+    }
+  }
+
+  // User-isolated send to phone helper (WebRTC signaling)
+  private sendToPhone(userId: string, deviceId: string | undefined, payload: any) {
+    const userPhones = this.phonesByUser.get(userId);
+    if (!userPhones || userPhones.size === 0) return;
+
+    const data = JSON.stringify(payload);
+    if (deviceId && userPhones.has(deviceId)) {
+      const session = userPhones.get(deviceId);
+      if (session && session.ws.readyState === WebSocket.OPEN) {
+        session.ws.send(data);
+      }
+    } else {
+      for (const session of userPhones.values()) {
+        if (session.ws.readyState === WebSocket.OPEN) {
+          session.ws.send(data);
+        }
       }
     }
   }

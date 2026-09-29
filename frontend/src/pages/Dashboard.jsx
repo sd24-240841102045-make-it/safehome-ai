@@ -47,10 +47,11 @@ export default function Dashboard() {
   const [pairingExpiresAt, setPairingExpiresAt] = useState(null);
   const [pairingSecondsLeft, setPairingSecondsLeft] = useState(0);
   const [isGeneratingCode, setIsGeneratingCode] = useState(false);
-  const [copied, setCopied] = useState(false);
-
   const wsRef = useRef(null);
   const canvasRef = useRef(null);
+  const webrtcVideoRef = useRef(null);
+  const pcRef = useRef(null);
+  const [webrtcActive, setWebrtcActive] = useState(false);
 
   // Load summary and system info
   const loadData = async () => {
@@ -118,7 +119,7 @@ export default function Dashboard() {
         ws.send(JSON.stringify({ type: 'register_dashboard', token }));
       };
 
-      ws.onmessage = (event) => {
+      ws.onmessage = async (event) => {
         try {
           const msg = JSON.parse(event.data);
 
@@ -137,11 +138,83 @@ export default function Dashboard() {
             drawBoundingBoxes(msg.image, msg.detections);
           }
 
+          if (msg.type === 'webrtc_offer' && msg.sdp) {
+            try {
+              if (pcRef.current) {
+                pcRef.current.close();
+              }
+
+              const pc = new RTCPeerConnection({
+                iceServers: [
+                  { urls: 'stun:stun.l.google.com:19302' },
+                  { urls: 'stun:stun1.l.google.com:19302' }
+                ]
+              });
+              pcRef.current = pc;
+
+              pc.ontrack = (event) => {
+                if (event.streams && event.streams[0]) {
+                  if (webrtcVideoRef.current) {
+                    webrtcVideoRef.current.srcObject = event.streams[0];
+                    webrtcVideoRef.current.play().catch(() => {});
+                  }
+                  setWebrtcActive(true);
+                }
+              };
+
+              pc.onicecandidate = (event) => {
+                if (event.candidate && wsRef.current?.readyState === WebSocket.OPEN) {
+                  wsRef.current.send(JSON.stringify({
+                    type: 'webrtc_ice_candidate',
+                    device_id: msg.device_id,
+                    candidate: event.candidate
+                  }));
+                }
+              };
+
+              pc.onconnectionstatechange = () => {
+                if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+                  setWebrtcActive(false);
+                }
+              };
+
+              await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+              const answer = await pc.createAnswer();
+              await pc.setLocalDescription(answer);
+
+              if (wsRef.current?.readyState === WebSocket.OPEN) {
+                wsRef.current.send(JSON.stringify({
+                  type: 'webrtc_answer',
+                  device_id: msg.device_id,
+                  sdp: pc.localDescription
+                }));
+              }
+            } catch (err) {
+              console.warn('[Dashboard WebRTC] Handshake error:', err);
+              setWebrtcActive(false);
+            }
+          }
+
+          if (msg.type === 'webrtc_ice_candidate' && msg.candidate) {
+            if (pcRef.current) {
+              try {
+                await pcRef.current.addIceCandidate(new RTCIceCandidate(msg.candidate));
+              } catch (e) {
+                console.warn('[Dashboard WebRTC] Candidate error:', e);
+              }
+            }
+          }
+
           if (msg.type === 'device_status_change') {
             const isOnline = msg.status === 'streaming' || msg.status === 'online';
             setCameraStatus(isOnline ? 'ONLINE' : 'OFFLINE');
             if (!isOnline) {
               setLiveStream((prev) => ({ ...prev, active: false }));
+              setWebrtcActive(false);
+              if (pcRef.current) {
+                pcRef.current.close();
+                pcRef.current = null;
+              }
             }
           }
 
@@ -162,6 +235,10 @@ export default function Dashboard() {
 
     return () => {
       if (ws) ws.close();
+      if (pcRef.current) {
+        pcRef.current.close();
+        pcRef.current = null;
+      }
     };
   }, []);
 
@@ -451,6 +528,14 @@ export default function Dashboard() {
               <div className="flex items-center gap-3">
                 {liveStream.active && (
                   <>
+                    <span className={`text-xs font-mono px-2 py-0.5 rounded border flex items-center gap-1 ${
+                      webrtcActive
+                        ? 'bg-purple-500/15 text-purple-300 border-purple-500/30'
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}>
+                      <Radio className="w-3 h-3 text-current" />
+                      {webrtcActive ? 'WebRTC P2P (30 FPS)' : 'WS Fallback (2 FPS)'}
+                    </span>
                     <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700 flex items-center gap-1">
                       <Zap className="w-3 h-3 text-emerald-400" />
                       {liveStream.accelerator === 'NVIDIA CUDA' ? 'CUDA:0' : 'SIMD:CPU'}
@@ -468,8 +553,20 @@ export default function Dashboard() {
 
             {/* Video Canvas Container */}
             <div className="relative aspect-video bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
-              {liveStream.active && liveStream.image ? (
-                <canvas ref={canvasRef} className="w-full h-full object-contain" />
+              {liveStream.active ? (
+                <>
+                  <video
+                    ref={webrtcVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className={`w-full h-full object-contain ${webrtcActive ? 'block' : 'hidden'}`}
+                  />
+                  <canvas
+                    ref={canvasRef}
+                    className={`w-full h-full object-contain ${webrtcActive ? 'absolute inset-0 pointer-events-none' : 'block'}`}
+                  />
+                </>
               ) : (
                 <div className="text-center p-6 space-y-3">
                   <Camera className="w-12 h-12 text-slate-700 mx-auto" />

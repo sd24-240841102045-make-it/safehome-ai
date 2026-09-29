@@ -37,6 +37,7 @@ export default function Monitor() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [wakeLockActive, setWakeLockActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [webrtcStatus, setWebrtcStatus] = useState('OFF');
 
   // Pairing state
   const [pairingCodeInput, setPairingCodeInput] = useState('');
@@ -60,6 +61,7 @@ export default function Monitor() {
   const shouldKeepReconnectingRef = useRef(false);
   const wakeLockSentinelRef = useRef(null);
   const containerRef = useRef(null);
+  const pcRef = useRef(null);
 
   // Read ?code=XXXXXX query parameter on load
   useEffect(() => {
@@ -266,14 +268,36 @@ export default function Monitor() {
         }));
 
         startFrameCaptureLoop(ws);
+        setupWebRTC(ws);
       };
 
-      ws.onmessage = (event) => {
+      ws.onmessage = async (event) => {
         try {
           const msg = JSON.parse(event.data);
 
           if (msg.type === 'registered') {
             setDeviceId(msg.device_id);
+          }
+
+          if (msg.type === 'webrtc_answer' && msg.sdp) {
+            if (pcRef.current) {
+              try {
+                await pcRef.current.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+                setWebrtcStatus('CONNECTED');
+              } catch (e) {
+                console.warn('[WebRTC Phone] Remote description error:', e);
+              }
+            }
+          }
+
+          if (msg.type === 'webrtc_ice_candidate' && msg.candidate) {
+            if (pcRef.current) {
+              try {
+                await pcRef.current.addIceCandidate(new RTCIceCandidate(msg.candidate));
+              } catch (e) {
+                console.warn('[WebRTC Phone] Add candidate error:', e);
+              }
+            }
           }
 
           if (msg.type === 'detection_result') {
@@ -339,6 +363,11 @@ export default function Monitor() {
     shouldKeepReconnectingRef.current = false;
     stopFrameCaptureLoop();
     releaseWakeLock();
+    if (pcRef.current) {
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+    setWebrtcStatus('OFF');
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
@@ -347,6 +376,62 @@ export default function Monitor() {
     setConnectionStatus('DISCONNECTED');
     setLastDetections([]);
     clearCanvas();
+  };
+
+  // WebRTC P2P Initiation
+  const setupWebRTC = async (ws) => {
+    if (!streamRef.current) return;
+    try {
+      if (pcRef.current) {
+        pcRef.current.close();
+      }
+
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      });
+      pcRef.current = pc;
+
+      // Add local camera tracks to WebRTC stream
+      streamRef.current.getTracks().forEach((track) => {
+        pc.addTrack(track, streamRef.current);
+      });
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate && ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'webrtc_ice_candidate',
+            device_id: deviceId,
+            candidate: event.candidate
+          }));
+        }
+      };
+
+      pc.onconnectionstatechange = () => {
+        if (pc.connectionState === 'connected') {
+          setWebrtcStatus('CONNECTED');
+        } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+          setWebrtcStatus('FALLBACK');
+        }
+      };
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'webrtc_offer',
+          device_id: deviceId,
+          sdp: pc.localDescription
+        }));
+        setWebrtcStatus('OFFERING');
+      }
+    } catch (err) {
+      console.warn('[WebRTC Phone] Setup error:', err);
+      setWebrtcStatus('FALLBACK');
+    }
   };
 
   // Frame capture loop sending base64 JPEG packets at 2 FPS (every 500ms)
@@ -585,9 +670,19 @@ export default function Monitor() {
           )}
 
           {monitoringActive && (
-            <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30">
-              {fps} FPS
-            </span>
+            <>
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                {fps} FPS
+              </span>
+              <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold border flex items-center gap-1 ${
+                webrtcStatus === 'CONNECTED'
+                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                  : 'bg-slate-900/60 text-slate-400 border-slate-800'
+              }`}>
+                <Radio className="w-3 h-3" />
+                P2P: {webrtcStatus}
+              </span>
+            </>
           )}
         </div>
 
