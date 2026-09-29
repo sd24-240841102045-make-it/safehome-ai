@@ -47,6 +47,7 @@ export default function Dashboard() {
   const [pairingExpiresAt, setPairingExpiresAt] = useState(null);
   const [pairingSecondsLeft, setPairingSecondsLeft] = useState(0);
   const [isGeneratingCode, setIsGeneratingCode] = useState(false);
+  const [copied, setCopied] = useState(false);
   const wsRef = useRef(null);
   const canvasRef = useRef(null);
   const webrtcVideoRef = useRef(null);
