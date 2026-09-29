@@ -9,7 +9,16 @@ import os from 'os';
 import { config } from './config.js';
 import { logger } from './services/logger.js';
 import { createDatabaseService } from './services/db.js';
+import { SafeHomeAuthService } from './services/supabase.js';
+import { createAuthMiddleware } from './middleware/auth.js';
 import { createHealthRouter } from './routes/health.js';
+import { createAuthRouter } from './routes/auth.js';
+import { createDashboardRouter } from './routes/dashboard.js';
+import { createEventsRouter } from './routes/events.js';
+import { createDevicesRouter } from './routes/devices.js';
+import { createAlertsRouter } from './routes/alerts.js';
+import { createSettingsRouter } from './routes/settings.js';
+import { createAnalyticsRouter } from './routes/analytics.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 
 export async function bootstrap() {
@@ -28,7 +37,11 @@ export async function bootstrap() {
   // 2. Initialize Database Service
   const db = await createDatabaseService();
 
-  // 3. Network IP Discovery for mobile pairing
+  // 3. Initialize Auth Service & Middleware
+  const authService = new SafeHomeAuthService(db);
+  const authMiddleware = createAuthMiddleware(authService);
+
+  // 4. Network IP Discovery for mobile pairing
   function getLocalIps() {
     const ifaces = os.networkInterfaces();
     const ips: Array<{ interface: string; ip: string }> = [];
@@ -50,8 +63,15 @@ export async function bootstrap() {
     });
   });
 
-  // 4. API Routes
+  // 5. API Routes
   app.use('/api', createHealthRouter(db));
+  app.use('/api/auth', createAuthRouter(authService, db, authMiddleware));
+  app.use('/api', createDashboardRouter(db, authMiddleware));
+  app.use('/api', createEventsRouter(db, authMiddleware));
+  app.use('/api', createDevicesRouter(db, authMiddleware));
+  app.use('/api', createAlertsRouter(db, authMiddleware));
+  app.use('/api', createSettingsRouter(db, authMiddleware));
+  app.use('/api', createAnalyticsRouter(db, authMiddleware));
 
   app.get('/', (req, res) => {
     res.json({
@@ -62,11 +82,11 @@ export async function bootstrap() {
     });
   });
 
-  // 5. Error Handlers
+  // 6. Error Handlers
   app.use(notFoundHandler);
   app.use(errorHandler);
 
-  // 6. WebSocket Server
+  // 7. WebSocket Server
   const wss = new WebSocketServer({ server, path: '/ws' });
   wss.on('connection', (ws) => {
     logger.info('[WS] Client connected');
@@ -82,16 +102,18 @@ export async function bootstrap() {
     });
   });
 
-  // 7. Start Server
-  server.listen(config.PORT, config.HOST, () => {
-    logger.info(`====================================================`);
-    logger.info(`🛡️  SafeHome AI Backend (TS) running on port ${config.PORT}`);
-    logger.info(`🩺 Health endpoint: http://localhost:${config.PORT}/api/health`);
-    logger.info(`📡 WebSocket endpoint: ws://${config.HOST}:${config.PORT}/ws`);
-    logger.info(`====================================================`);
-  });
+  // 8. Start Server (skip listening during automated tests)
+  if (process.env.NODE_ENV !== 'test') {
+    server.listen(config.PORT, config.HOST, () => {
+      logger.info(`====================================================`);
+      logger.info(`🛡️  SafeHome AI Backend (TS) running on port ${config.PORT}`);
+      logger.info(`🩺 Health endpoint: http://localhost:${config.PORT}/api/health`);
+      logger.info(`📡 WebSocket endpoint: ws://${config.HOST}:${config.PORT}/ws`);
+      logger.info(`====================================================`);
+    });
+  }
 
-  return { app, server, db, wss };
+  return { app, server, db, wss, authService };
 }
 
 // Start if executed directly

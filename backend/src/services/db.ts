@@ -38,6 +38,7 @@ class SqliteDatabaseService implements DatabaseService {
         email TEXT NOT NULL,
         full_name TEXT NOT NULL,
         role TEXT DEFAULT 'homeowner',
+        password_hash TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP
       )`,
@@ -129,6 +130,12 @@ class SqliteDatabaseService implements DatabaseService {
 
     for (const s of stmts) {
       await this.run(s);
+    }
+
+    try {
+      await this.run('ALTER TABLE profiles ADD COLUMN password_hash TEXT');
+    } catch {
+      // Column already exists
     }
 
     // Seed default demo profile for testing
