@@ -14,23 +14,29 @@ import {
   Key,
   QrCode,
   Radio,
-  WifiOff
+  WifiOff,
+  Maximize2,
+  Minimize2,
+  Lock,
+  Unlock,
+  Smartphone
 } from 'lucide-react';
 import { deviceService, WS_BASE } from '../services/api';
+import InstallPrompt from '../components/InstallPrompt';
 
 export default function Monitor() {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [monitoringActive, setMonitoringActive] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('DISCONNECTED'); // DISCONNECTED, CONNECTING, CONNECTED, RECONNECTING, ERROR
-  const [backendWsUrl, setBackendWsUrl] = useState(() => {
-    return WS_BASE;
-  });
+  const [backendWsUrl, setBackendWsUrl] = useState(() => WS_BASE);
   const [facingMode, setFacingMode] = useState('environment'); // 'environment' (back) or 'user' (front)
   const [fps, setFps] = useState(0);
   const [framesSent, setFramesSent] = useState(0);
   const [latencyMs, setLatencyMs] = useState(0);
   const [lastDetections, setLastDetections] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [wakeLockActive, setWakeLockActive] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Pairing state
   const [pairingCodeInput, setPairingCodeInput] = useState('');
@@ -52,6 +58,8 @@ export default function Monitor() {
   const frameCountRef = useRef(0);
   const reconnectTimeoutRef = useRef(null);
   const shouldKeepReconnectingRef = useRef(false);
+  const wakeLockSentinelRef = useRef(null);
+  const containerRef = useRef(null);
 
   // Read ?code=XXXXXX query parameter on load
   useEffect(() => {
@@ -62,7 +70,57 @@ export default function Monitor() {
     }
   }, []);
 
-  // Stop camera stream on unmount
+  // Screen Wake Lock API helpers
+  const requestWakeLock = async () => {
+    if ('wakeLock' in navigator) {
+      try {
+        const sentinel = await navigator.wakeLock.request('screen');
+        wakeLockSentinelRef.current = sentinel;
+        setWakeLockActive(true);
+
+        sentinel.addEventListener('release', () => {
+          setWakeLockActive(false);
+          wakeLockSentinelRef.current = null;
+        });
+      } catch (err) {
+        console.warn('[WakeLock] Unable to acquire screen wake lock:', err.message);
+        setWakeLockActive(false);
+      }
+    }
+  };
+
+  const releaseWakeLock = async () => {
+    if (wakeLockSentinelRef.current) {
+      try {
+        await wakeLockSentinelRef.current.release();
+      } catch {}
+      wakeLockSentinelRef.current = null;
+      setWakeLockActive(false);
+    }
+  };
+
+  // Re-acquire wake lock if phone tab visibility returns to visible while active
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && monitoringActive) {
+        await requestWakeLock();
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, [monitoringActive]);
+
+  // Stop camera stream & wake lock on unmount
   useEffect(() => {
     return () => {
       shouldKeepReconnectingRef.current = false;
@@ -73,6 +131,7 @@ export default function Monitor() {
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
+      releaseWakeLock();
     };
   }, []);
 
@@ -91,7 +150,7 @@ export default function Monitor() {
           height: { ideal: 480 },
           frameRate: { max: 15 }
         },
-        audio: false
+        audio: false // Strict Privacy: Audio is never recorded or transmitted
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -109,7 +168,7 @@ export default function Monitor() {
       setPermissionGranted(false);
       setErrorMsg(
         err.name === 'NotAllowedError'
-          ? 'Camera permission was denied. Please allow camera permissions in your mobile browser settings.'
+          ? 'Camera permission denied. Please allow camera permissions in Android browser settings.'
           : `Camera error: ${err.message}`
       );
     }
@@ -119,6 +178,26 @@ export default function Monitor() {
   const switchCamera = () => {
     const nextMode = facingMode === 'environment' ? 'user' : 'environment';
     initCamera(nextMode);
+  };
+
+  // Fullscreen Toggle
+  const toggleFullscreen = async () => {
+    const elem = containerRef.current || document.documentElement;
+    if (!document.fullscreenElement) {
+      try {
+        await elem.requestFullscreen();
+        setIsFullscreen(true);
+      } catch (err) {
+        console.warn('Fullscreen error:', err);
+      }
+    } else {
+      try {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      } catch (err) {
+        console.warn('Exit fullscreen error:', err);
+      }
+    }
   };
 
   // Exchange 6-digit pairing code with backend
@@ -139,64 +218,76 @@ export default function Monitor() {
         localStorage.setItem('safehome_device_id', res.data.device_id);
         setDeviceId(res.data.device_id);
         setIsPaired(true);
-        setPairingSuccessMsg('Device successfully paired to your SafeHome AI system!');
+        setPairingSuccessMsg('Phone paired successfully with SafeHome AI Hub!');
         setTimeout(() => setPairingSuccessMsg(null), 4000);
       }
     } catch (err) {
-      const msg = err.response?.data?.error || err.message || 'Failed to exchange pairing code.';
-      setErrorMsg(msg);
+      setErrorMsg(err.response?.data?.error || 'Invalid or expired pairing code. Please generate a new code.');
     } finally {
       setPairingLoading(false);
     }
   };
 
-  // Start Monitoring: Connect WebSocket and stream frames at 2 FPS
+  // Start Monitoring
   const startMonitoring = async () => {
-    shouldKeepReconnectingRef.current = true;
     if (!permissionGranted) {
       await initCamera();
     }
+
+    shouldKeepReconnectingRef.current = true;
     connectWebSocket();
+    await requestWakeLock();
+    setMonitoringActive(true);
   };
 
+  // Connect to Laptop Backend WebSocket
   const connectWebSocket = () => {
     try {
       setConnectionStatus('CONNECTING');
+      setErrorMsg(null);
+
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+
       const ws = new WebSocket(backendWsUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
         setConnectionStatus('CONNECTED');
-        setMonitoringActive(true);
-        setErrorMsg(null);
-        setReconnectCountdown(0);
 
-        const token =
-          localStorage.getItem('safehome_device_token') ||
-          localStorage.getItem('supabase_token') ||
-          localStorage.getItem('token');
-
-        // Register as a phone sensor node
+        // Send registration with device token
+        const deviceToken = localStorage.getItem('safehome_device_token');
         ws.send(JSON.stringify({
           type: 'register_phone',
-          device_name: 'Android Phone Sensor',
+          device_token: deviceToken,
           device_id: deviceId,
-          token
+          device_name: 'Android Phone Sensor'
         }));
 
-        // Start frame capture loop at 2 FPS (500ms interval) for edge AI processing
         startFrameCaptureLoop(ws);
       };
 
       ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
-          if (data.type === 'detection_result') {
-            setLastDetections(data.detections || []);
-            setLatencyMs(data.latency_ms || data.processing_time_ms || 0);
-            renderDetectionBoxes(data.detections || []);
+          const msg = JSON.parse(event.data);
+
+          if (msg.type === 'registered') {
+            setDeviceId(msg.device_id);
           }
-        } catch (e) {
+
+          if (msg.type === 'detection_result') {
+            setLastDetections(msg.detections || []);
+            setLatencyMs(msg.latency_ms || 0);
+            drawBoundingBoxes(msg.detections || []);
+          }
+
+          if (msg.type === 'error' && msg.code === 'AUTH_FAILED') {
+            setErrorMsg('Authentication expired. Please re-pair your phone.');
+            setIsPaired(false);
+            localStorage.removeItem('safehome_device_token');
+          }
+        } catch {
           // ignore
         }
       };
@@ -204,7 +295,7 @@ export default function Monitor() {
       ws.onerror = (e) => {
         console.error('WS Error:', e);
         setConnectionStatus('ERROR');
-        setErrorMsg('WebSocket connection error. Verify Wi-Fi and laptop backend address.');
+        setErrorMsg('WebSocket connection failed. Verify laptop address & local Wi-Fi connection.');
       };
 
       ws.onclose = () => {
@@ -215,6 +306,7 @@ export default function Monitor() {
         } else {
           setConnectionStatus('DISCONNECTED');
           setMonitoringActive(false);
+          releaseWakeLock();
         }
       };
     } catch (err) {
@@ -246,6 +338,7 @@ export default function Monitor() {
   const stopMonitoring = () => {
     shouldKeepReconnectingRef.current = false;
     stopFrameCaptureLoop();
+    releaseWakeLock();
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
@@ -301,40 +394,45 @@ export default function Monitor() {
       clearInterval(frameIntervalRef.current);
       frameIntervalRef.current = null;
     }
-    setFps(0);
   };
 
-  // Render AI detection overlays on the phone display
-  const renderDetectionBoxes = (detections) => {
+  // Draw real-time bounding box overlays received from backend AI detection
+  const drawBoundingBoxes = (detections) => {
     const canvas = canvasRef.current;
-    if (!canvas || !videoRef.current) return;
-    const ctx = canvas.getContext('2d');
+    const video = videoRef.current;
+    if (!canvas || !video) return;
 
-    canvas.width = videoRef.current.videoWidth || 640;
-    canvas.height = videoRef.current.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    detections.forEach((det) => {
-      const bb = det.bounding_box;
-      if (!bb) return;
+    for (const det of detections) {
+      const box = det.bounding_box;
+      if (!box) continue;
 
-      // Stroke bounding box
-      ctx.strokeStyle = '#38bdf8';
+      const x = box.x;
+      const y = box.y;
+      const w = box.width;
+      const h = box.height;
+
+      // Styled bounding box
+      ctx.strokeStyle = det.class === 'person' ? '#38bdf8' : '#34d399';
       ctx.lineWidth = 3;
-      ctx.strokeRect(bb.x, bb.y, bb.width, bb.height);
+      ctx.strokeRect(x, y, w, h);
 
       // Label background
-      const text = `${det.class.toUpperCase()} ${Math.round(det.confidence * 100)}%`;
-      ctx.font = 'bold 14px monospace';
-      const textWidth = ctx.measureText(text).width;
-
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.9)';
-      ctx.fillRect(bb.x, Math.max(0, bb.y - 24), textWidth + 12, 24);
+      ctx.fillStyle = det.class === 'person' ? 'rgba(56, 189, 248, 0.85)' : 'rgba(52, 211, 153, 0.85)';
+      const label = `${det.class.toUpperCase()} ${Math.round(det.confidence * 100)}%`;
+      ctx.font = 'bold 12px Inter, sans-serif';
+      const textWidth = ctx.measureText(label).width;
+      ctx.fillRect(x, Math.max(0, y - 20), textWidth + 8, 20);
 
       // Label text
-      ctx.fillStyle = '#0f172a';
-      ctx.fillText(text, bb.x + 6, Math.max(16, bb.y - 7));
-    });
+      ctx.fillStyle = '#020617';
+      ctx.fillText(label, x + 4, Math.max(14, y - 5));
+    }
   };
 
   const clearCanvas = () => {
@@ -346,13 +444,21 @@ export default function Monitor() {
   };
 
   return (
-    <div className="max-w-xl mx-auto space-y-4 pb-12">
+    <div ref={containerRef} className="max-w-xl mx-auto space-y-4 pb-12">
+      {/* PWA Install Banner */}
+      <InstallPrompt />
+
       {/* Privacy Notice Banner */}
       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <Shield className="w-5 h-5 text-sky-400" />
           <div>
-            <h1 className="text-sm font-bold text-white">SafeHome AI Camera Node</h1>
+            <h1 className="text-sm font-bold text-white flex items-center gap-2">
+              SafeHome AI Camera Node
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                PWA v1.0
+              </span>
+            </h1>
             <p className="text-[11px] text-slate-400">Android Surveillance Sensor</p>
           </div>
         </div>
@@ -376,8 +482,8 @@ export default function Monitor() {
       {isPaired ? (
         <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-900/60 text-xs text-emerald-300 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>Paired with SafeHome Home Hub ({deviceId.slice(0, 8)})</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>Paired with Laptop Hub ({deviceId.slice(0, 8)})</span>
           </div>
           <button
             onClick={() => {
@@ -450,7 +556,7 @@ export default function Monitor() {
       )}
 
       {/* Camera Viewport Container */}
-      <div className="relative aspect-video bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl flex items-center justify-center">
+      <div className={`relative aspect-video bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl flex items-center justify-center ${isFullscreen ? 'fixed inset-0 z-50 rounded-none border-none aspect-auto h-screen w-screen' : ''}`}>
         {/* HTML5 Video Element */}
         <video
           ref={videoRef}
@@ -465,6 +571,46 @@ export default function Monitor() {
           ref={canvasRef}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         />
+
+        {/* HUD Overlay Badges */}
+        <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 pointer-events-none">
+          {wakeLockActive ? (
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+              <Lock className="w-3 h-3" /> Screen Awake
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-mono text-slate-400 bg-slate-900/60 border border-slate-800 flex items-center gap-1">
+              <Unlock className="w-3 h-3" /> Screen Normal
+            </span>
+          )}
+
+          {monitoringActive && (
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30">
+              {fps} FPS
+            </span>
+          )}
+        </div>
+
+        {/* Viewport Control Buttons */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5">
+          {permissionGranted && (
+            <button
+              onClick={switchCamera}
+              className="p-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700 text-slate-300 hover:text-white transition"
+              title="Switch Camera (Front/Rear)"
+            >
+              <FlipHorizontal className="w-4 h-4" />
+            </button>
+          )}
+
+          <button
+            onClick={toggleFullscreen}
+            className="p-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700 text-slate-300 hover:text-white transition"
+            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
+        </div>
 
         {/* Pre-permission Placeholder */}
         {!permissionGranted && (
@@ -483,17 +629,6 @@ export default function Monitor() {
               Grant Camera Permission
             </button>
           </div>
-        )}
-
-        {/* Quick Flip Camera Button */}
-        {permissionGranted && (
-          <button
-            onClick={switchCamera}
-            className="absolute top-3 right-3 p-2 rounded-xl bg-slate-900/80 backdrop-blur border border-slate-700 text-slate-300 hover:text-white"
-            title="Switch Camera"
-          >
-            <FlipHorizontal className="w-4 h-4" />
-          </button>
         )}
       </div>
 
@@ -518,7 +653,10 @@ export default function Monitor() {
 
       {/* Live Telemetry / Diagnostics */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Telemetry & Connection</h3>
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+          <span>Telemetry & Connection</span>
+          <span className="text-[10px] text-slate-500 font-normal">Audio: Disabled by Policy</span>
+        </h3>
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
             <div className="text-[10px] text-slate-500 uppercase">Status</div>
@@ -528,14 +666,14 @@ export default function Monitor() {
           </div>
 
           <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
-            <div className="text-[10px] text-slate-500 uppercase">Stream FPS</div>
+            <div className="text-[10px] text-slate-500 uppercase">Stream Rate</div>
             <div className="text-xs font-mono font-bold text-sky-400 mt-1">
               {fps} fps
             </div>
           </div>
 
           <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
-            <div className="text-[10px] text-slate-500 uppercase">Latency</div>
+            <div className="text-[10px] text-slate-500 uppercase">Inference Latency</div>
             <div className="text-xs font-mono font-bold text-emerald-400 mt-1">
               {latencyMs} ms
             </div>
