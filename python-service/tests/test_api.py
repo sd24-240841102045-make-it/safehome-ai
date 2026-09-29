@@ -20,6 +20,19 @@ def test_health_check():
     assert data["status"] == "online"
     assert data["modules"]["detect"] == "online"
     assert data["modules"]["analyze"] == "online"
+    assert "hardware" in data
+    assert "accelerator" in data["hardware"]
+
+def test_hardware_telemetry():
+    res = client.get("/hardware")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["success"] is True
+    hw = data["hardware"]
+    assert "accelerator" in hw
+    assert "gpu_available" in hw
+    assert "device_name" in hw
+    assert "target_device" in hw
 
 def test_detect_valid_image():
     b64 = create_test_jpeg_base64()
@@ -29,6 +42,7 @@ def test_detect_valid_image():
     assert "detections" in data
     assert isinstance(data["detections"], list)
     assert "processing_time_ms" in data
+    assert "accelerator" in data
 
 def test_detect_invalid_image():
     res = client.post("/detect", json={"image": "invalid_base64_string!!!"})

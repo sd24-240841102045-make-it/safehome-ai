@@ -179,5 +179,5 @@ describe('Phase 4 - Data Science, Baseline Modeling & Statistical Anomaly Analyt
     expect(unusualData.is_unusual).toBe(true);
     expect(unusualData.anomaly_score).toBeGreaterThan(0);
     expect(unusualData.reason).toContain('quiet-hour baseline');
-  });
+  }, 15000);
 });

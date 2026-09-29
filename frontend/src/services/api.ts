@@ -33,6 +33,7 @@ export const authService = {
 
 export const systemService = {
   getHealth: () => api.get('/health'),
+  getHardware: () => api.get('/system/hardware'),
   getNetworkInterfaces: () => api.get('/network-interfaces'),
   getDashboard: () => api.get('/dashboard')
 };

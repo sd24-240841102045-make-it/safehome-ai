@@ -6,11 +6,12 @@ from typing import List, Dict, Any, Optional
 
 from app.detect.detector import detector_engine
 from app.analyze.analyzer import analyzer
+from app.detect.hardware import hardware_manager
 
 app = FastAPI(
     title="SafeHome AI - Unified Vision & Data Science Service",
-    description="Unified microservice exposing OpenCV/YOLO object detection and statistical anomaly analysis.",
-    version="2.0.0"
+    description="Unified microservice exposing OpenCV/YOLO object detection, hardware GPU acceleration, and statistical anomaly analysis.",
+    version="2.1.0"
 )
 
 app.add_middleware(
@@ -34,6 +35,7 @@ class AnalyzePayload(BaseModel):
 
 @app.get("/health")
 def health_check():
+    hw = hardware_manager.get_hardware_telemetry()
     return {
         "status": "online",
         "service": "SafeHome AI Unified Python Engine",
@@ -42,7 +44,21 @@ def health_check():
             "model": detector_engine.model_path,
             "analyze": "online"
         },
+        "hardware": {
+            "accelerator": hw.get("accelerator"),
+            "gpu_available": hw.get("gpu_available"),
+            "device": hw.get("device_name"),
+            "target_device": hw.get("target_device")
+        },
         "timestamp": time.time()
+    }
+
+@app.get("/hardware")
+def get_hardware():
+    """Returns GPU metrics, VRAM usage, temperature, and active compute device."""
+    return {
+        "success": True,
+        "hardware": hardware_manager.get_hardware_telemetry()
     }
 
 @app.post("/detect")

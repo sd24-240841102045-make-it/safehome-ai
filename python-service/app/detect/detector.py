@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
+from app.detect.hardware import hardware_manager
 
 # Supported COCO detection class map
 COCO_CLASSES = {
@@ -143,11 +144,15 @@ class DetectorEngine:
 
         detections = self.detector.detect(img, min_confidence=min_confidence)
         duration_ms = int((time.time() - start) * 1000)
+        hw = hardware_manager.get_hardware_telemetry()
 
         return {
             "detections": detections,
             "processing_time_ms": duration_ms,
             "model": self.model_path,
+            "accelerator": hw.get("accelerator", "CPU"),
+            "device": hw.get("target_device", "cpu"),
+            "gpu_available": hw.get("gpu_available", False),
             "skipped_due_to_motion": False
         }
 

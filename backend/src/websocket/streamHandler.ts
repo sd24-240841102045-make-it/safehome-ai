@@ -147,6 +147,8 @@ export class StreamWebSocketHandler {
             // Forward to Python AI detection service
             let detections: any[] = [];
             let aiProcessingTimeMs = 0;
+            let aiAccelerator = 'CPU';
+            let aiDevice = 'cpu';
 
             try {
               const pyRes = await fetch(`${config.PYTHON_SERVICE_URL}/detect`, {
@@ -163,6 +165,8 @@ export class StreamWebSocketHandler {
                 const pyData: any = await pyRes.json();
                 detections = pyData.detections || [];
                 aiProcessingTimeMs = pyData.processing_time_ms || 0;
+                aiAccelerator = pyData.accelerator || 'CPU';
+                aiDevice = pyData.device || 'cpu';
               }
             } catch (pyErr: any) {
               logger.warn(`[WS] AI Detection service error: ${pyErr.message}`);
@@ -176,7 +180,9 @@ export class StreamWebSocketHandler {
                 type: 'detection_result',
                 detections,
                 processing_time_ms: aiProcessingTimeMs,
-                latency_ms: totalLatencyMs
+                latency_ms: totalLatencyMs,
+                accelerator: aiAccelerator,
+                device: aiDevice
               }));
             }
 
@@ -188,7 +194,9 @@ export class StreamWebSocketHandler {
               detections,
               timestamp: new Date().toISOString(),
               processing_time_ms: aiProcessingTimeMs,
-              latency_ms: totalLatencyMs
+              latency_ms: totalLatencyMs,
+              accelerator: aiAccelerator,
+              device: aiDevice
             });
 
             // If safety targets detected, process cooldown and event/alert generation
