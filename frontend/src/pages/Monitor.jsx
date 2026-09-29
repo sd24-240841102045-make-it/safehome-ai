@@ -340,9 +340,20 @@ export default function Monitor() {
             }
           }
 
+          if (msg.type === 'webrtc_request_offer') {
+            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+              setupWebRTC(wsRef.current);
+            }
+          }
+
           if (msg.type === 'detection_result') {
             setLastDetections(msg.detections || []);
-            setLatencyMs(msg.latency_ms || 0);
+            if (msg.client_time) {
+              const rtt = Math.round(performance.now() - msg.client_time);
+              setLatencyMs(rtt);
+            } else {
+              setLatencyMs(msg.latency_ms || 0);
+            }
             drawBoundingBoxes(msg.detections || []);
           }
 
@@ -498,6 +509,7 @@ export default function Monitor() {
       ws.send(JSON.stringify({
         type: 'frame',
         image: jpegBase64,
+        client_time: performance.now(),
         timestamp: new Date().toISOString()
       }));
 

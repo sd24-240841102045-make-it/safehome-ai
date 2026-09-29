@@ -137,6 +137,14 @@ export default function Dashboard() {
               device: msg.device || 'cpu'
             });
             drawBoundingBoxes(msg.image, msg.detections);
+
+            // Automatically request WebRTC P2P streaming if not already connecting
+            if (!webrtcActive && !pcRef.current && wsRef.current?.readyState === WebSocket.OPEN) {
+              wsRef.current.send(JSON.stringify({
+                type: 'webrtc_request_offer',
+                device_id: msg.device_id
+              }));
+            }
           }
 
           if (msg.type === 'webrtc_offer' && msg.sdp) {
@@ -209,7 +217,14 @@ export default function Dashboard() {
           if (msg.type === 'device_status_change') {
             const isOnline = msg.status === 'streaming' || msg.status === 'online';
             setCameraStatus(isOnline ? 'ONLINE' : 'OFFLINE');
-            if (!isOnline) {
+            if (isOnline) {
+              if (!webrtcActive && wsRef.current?.readyState === WebSocket.OPEN) {
+                wsRef.current.send(JSON.stringify({
+                  type: 'webrtc_request_offer',
+                  device_id: msg.device_id
+                }));
+              }
+            } else {
               setLiveStream((prev) => ({ ...prev, active: false }));
               setWebrtcActive(false);
               if (pcRef.current) {

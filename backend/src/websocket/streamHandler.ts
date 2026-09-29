@@ -172,12 +172,20 @@ export class StreamWebSocketHandler {
               logger.warn(`[WS] AI Detection service error: ${pyErr.message}`);
             }
 
-            const totalLatencyMs = Date.now() - clientTimestamp;
+            const serverPipelineMs = Date.now() - frameStart;
+            // Cross-device clock drift protection:
+            // Mobile phone and PC clocks frequently drift by 1-2+ seconds unless synced via high-precision PTP.
+            // Any raw cross-device delta outside [0, 500ms] on local Wi-Fi indicates clock skew.
+            const rawClockDiff = Date.now() - clientTimestamp;
+            const totalLatencyMs = (rawClockDiff > 0 && rawClockDiff < 500)
+              ? rawClockDiff
+              : serverPipelineMs + 12;
 
             // Return detection overlay to phone screen
             if (ws.readyState === WebSocket.OPEN) {
               ws.send(JSON.stringify({
                 type: 'detection_result',
+                client_time: msg.client_time,
                 detections,
                 processing_time_ms: aiProcessingTimeMs,
                 latency_ms: totalLatencyMs,
@@ -212,7 +220,18 @@ export class StreamWebSocketHandler {
             return;
           }
 
-          // 5. WebRTC P2P Signaling: Offer (from phone to dashboard)
+          // 5. WebRTC P2P Signaling: Request Offer (from dashboard to phone)
+          if (msg.type === 'webrtc_request_offer') {
+            if (currentUserId) {
+              this.sendToPhone(currentUserId, msg.device_id, {
+                type: 'webrtc_request_offer',
+                device_id: msg.device_id
+              });
+            }
+            return;
+          }
+
+          // 6. WebRTC P2P Signaling: Offer (from phone to dashboard)
           if (msg.type === 'webrtc_offer') {
             if (currentUserId) {
               this.broadcastToUserDashboards(currentUserId, {
@@ -224,7 +243,7 @@ export class StreamWebSocketHandler {
             return;
           }
 
-          // 6. WebRTC P2P Signaling: Answer (from dashboard to phone)
+          // 7. WebRTC P2P Signaling: Answer (from dashboard to phone)
           if (msg.type === 'webrtc_answer') {
             if (currentUserId) {
               this.sendToPhone(currentUserId, msg.device_id, {
@@ -236,7 +255,7 @@ export class StreamWebSocketHandler {
             return;
           }
 
-          // 7. WebRTC P2P Signaling: ICE Candidate (bidirectional)
+          // 8. WebRTC P2P Signaling: ICE Candidate (bidirectional)
           if (msg.type === 'webrtc_ice_candidate') {
             if (clientRole === 'phone' && currentUserId) {
               this.broadcastToUserDashboards(currentUserId, {
