@@ -1050,6 +1050,8 @@ export default function Monitor() {
             <Square className="w-4 h-4 fill-current" /> Stop Monitoring
           </button>
         )}
+      </div>
+
       {/* Stream Smoothness & Frame Rate Selector */}
       <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
         <div className="flex items-center justify-between text-xs">
