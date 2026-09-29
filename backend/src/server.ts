@@ -21,6 +21,8 @@ import { createSettingsRouter } from './routes/settings.js';
 import { createAnalyticsRouter } from './routes/analytics.js';
 import { StreamWebSocketHandler } from './websocket/streamHandler.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
+import { ensureSnapshotDirExists, getSnapshotFilePath } from './services/snapshots.js';
+import { scheduleRetentionJob } from './services/retention.js';
 
 export async function bootstrap() {
   const app = express();
@@ -35,8 +37,14 @@ export async function bootstrap() {
   app.use(morgan('dev'));
   app.use(express.json({ limit: '15mb' }));
 
-  // 2. Initialize Database Service
+  // 2. Initialize Database & Storage Directories
   const db = await createDatabaseService();
+  ensureSnapshotDirExists();
+
+  // Schedule automated data retention cleanup (daily, in non-test mode)
+  if (process.env.NODE_ENV !== 'test') {
+    scheduleRetentionJob(db, 24);
+  }
 
   // 3. Initialize Auth Service & Middleware
   const authService = new SafeHomeAuthService(db);
@@ -70,7 +78,16 @@ export async function bootstrap() {
     });
   });
 
-  // 5. API Routes
+  // 5. Secure Snapshot Retrieval (Path Traversal Protected)
+  app.get('/snapshots/:filename', (req, res) => {
+    const filePath = getSnapshotFilePath(req.params.filename);
+    if (!filePath) {
+      return res.status(404).json({ success: false, error: 'Snapshot not found or invalid filename.' });
+    }
+    res.sendFile(filePath);
+  });
+
+  // 6. API Routes
   app.use('/api', createHealthRouter(db));
   app.use('/api/auth', createAuthRouter(authService, db, authMiddleware));
   app.use('/api', createDashboardRouter(db, authMiddleware));
@@ -89,21 +106,22 @@ export async function bootstrap() {
     });
   });
 
-  // 6. Error Handlers
+  // 7. Error Handlers
   app.use(notFoundHandler);
   app.use(errorHandler);
 
-  // 7. WebSocket Server
+  // 8. WebSocket Server
   const wss = new WebSocketServer({ server, path: '/ws' });
   const streamHandler = new StreamWebSocketHandler(wss, db, authService);
 
-  // 8. Start Server (skip listening during automated tests)
+  // 9. Start Server (skip listening during automated tests)
   if (process.env.NODE_ENV !== 'test') {
     server.listen(config.PORT, config.HOST, () => {
       logger.info(`====================================================`);
       logger.info(`🛡️  SafeHome AI Backend (TS) running on port ${config.PORT}`);
       logger.info(`🩺 Health endpoint: http://localhost:${config.PORT}/api/health`);
       logger.info(`📡 WebSocket endpoint: ws://${config.HOST}:${config.PORT}/ws`);
+      logger.info(`📸 Snapshots endpoint: http://localhost:${config.PORT}/snapshots`);
       logger.info(`====================================================`);
     });
   }

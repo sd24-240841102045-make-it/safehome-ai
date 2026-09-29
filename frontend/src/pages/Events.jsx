@@ -8,9 +8,12 @@ import {
   User,
   CheckCircle,
   Eye,
+  Trash2,
   ChevronLeft,
   ChevronRight,
-  Info
+  Info,
+  Camera,
+  Image as ImageIcon
 } from 'lucide-react';
 import { eventService } from '../services/api';
 
@@ -23,6 +26,9 @@ export default function Events() {
   const [isUnusual, setIsUnusual] = useState('');
   const [minConfidence, setMinConfidence] = useState('');
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [deleteModalEvent, setDeleteModalEvent] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   const fetchEvents = async (page = 1) => {
     try {
@@ -57,15 +63,40 @@ export default function Events() {
     fetchEvents(1);
   };
 
+  const handleDeleteEvent = async (eventId) => {
+    setDeleting(true);
+    try {
+      await eventService.deleteEvent(eventId);
+      setDeleteModalEvent(null);
+      if (selectedEvent?.id === eventId) {
+        setSelectedEvent(null);
+      }
+      setNotification('Event record and associated snapshot file deleted permanently.');
+      setTimeout(() => setNotification(null), 4000);
+      fetchEvents(pagination.page);
+    } catch (err) {
+      console.error('Failed to delete event:', err);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          <History className="w-6 h-6 text-sky-400" /> Event History
+          <History className="w-6 h-6 text-sky-400" /> Event History & Snapshots
         </h1>
-        <p className="text-sm text-slate-400">Database audit trail of all safety and object detections</p>
+        <p className="text-sm text-slate-400">Database audit trail of detected objects, camera snapshots, and privacy controls</p>
       </div>
+
+      {notification && (
+        <div className="p-3.5 rounded-xl bg-emerald-950/50 border border-emerald-900/60 text-xs text-emerald-200 flex items-center gap-2">
+          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{notification}</span>
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
@@ -75,7 +106,7 @@ export default function Events() {
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
             <input
               type="text"
-              placeholder="Search by location, tag, or label..."
+              placeholder="Search by object label, category..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-sky-500"
@@ -103,8 +134,8 @@ export default function Events() {
             className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm text-slate-200 focus:outline-none focus:border-sky-500"
           >
             <option value="">All Patterns</option>
-            <option value="true">Unusual Events Only (DS)</option>
-            <option value="false">Normal Baseline Activity</option>
+            <option value="true">Unusual Patterns Only</option>
+            <option value="false">Normal Patterns Only</option>
           </select>
 
           {/* Min Confidence */}
@@ -114,46 +145,39 @@ export default function Events() {
             className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm text-slate-200 focus:outline-none focus:border-sky-500"
           >
             <option value="">Any Confidence</option>
-            <option value="0.70">&ge; 70% Confidence</option>
-            <option value="0.85">&ge; 85% Confidence</option>
-            <option value="0.90">&ge; 90% Confidence</option>
+            <option value="0.7">70%+ Confidence</option>
+            <option value="0.8">80%+ Confidence</option>
+            <option value="0.9">90%+ Confidence</option>
           </select>
-
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-sm transition"
-          >
-            Apply
-          </button>
         </form>
       </div>
 
-      {/* Events Table / Card List */}
+      {/* Events Table */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
         {loading ? (
-          <div className="p-12 text-center text-slate-400 text-sm">Loading historical events...</div>
+          <div className="p-12 text-center text-slate-400 text-sm">Loading events...</div>
         ) : events.length === 0 ? (
           <div className="p-12 text-center space-y-2">
-            <History className="w-10 h-10 text-slate-700 mx-auto" />
+            <CheckCircle className="w-10 h-10 text-slate-600 mx-auto" />
             <div className="text-sm font-medium text-slate-300">No events found</div>
-            <p className="text-xs text-slate-500">No detections matched your current filter criteria.</p>
+            <p className="text-xs text-slate-500">Try adjusting your filters or connect an active camera sensor.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-800">
+              <thead className="bg-slate-950/60 text-slate-400 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-800">
                 <tr>
-                  <th className="py-3 px-4">Date & Time</th>
-                  <th className="py-3 px-4">Detected Target</th>
+                  <th className="py-3 px-4">Timestamp</th>
+                  <th className="py-3 px-4">Object Class</th>
                   <th className="py-3 px-4">Confidence</th>
-                  <th className="py-3 px-4">Location</th>
-                  <th className="py-3 px-4">Unusual Pattern</th>
-                  <th className="py-3 px-4 text-right">Details</th>
+                  <th className="py-3 px-4">Snapshot</th>
+                  <th className="py-3 px-4">Pattern Flag</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800">
                 {events.map((ev) => {
-                  const dt = new Date(ev.timestamp);
+                  const dt = new Date(ev.started_at || ev.timestamp);
                   const formattedDate = dt.toLocaleDateString(undefined, {
                     day: 'numeric',
                     month: 'short',
@@ -178,8 +202,14 @@ export default function Events() {
                           {Math.round(ev.confidence * 100)}%
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-slate-400">
-                        {ev.location_label || 'Phone Camera'}
+                      <td className="py-3 px-4">
+                        {ev.snapshot_path ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                            <ImageIcon className="w-3 h-3" /> Snapshot Saved
+                          </span>
+                        ) : (
+                          <span className="text-slate-500 text-[11px]">None</span>
+                        )}
                       </td>
                       <td className="py-3 px-4">
                         {ev.is_unusual ? (
@@ -193,12 +223,22 @@ export default function Events() {
                         )}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => setSelectedEvent(ev)}
-                          className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="inline-flex items-center gap-1.5">
+                          <button
+                            onClick={() => setSelectedEvent(ev)}
+                            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                            title="View Details"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteModalEvent(ev)}
+                            className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-rose-950/60 hover:text-rose-400 text-slate-400 transition"
+                            title="Delete Event & Snapshot"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -238,7 +278,7 @@ export default function Events() {
       {/* Event Details Modal */}
       {selectedEvent && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-base text-white">Event Details</h3>
               <button
@@ -249,10 +289,27 @@ export default function Events() {
               </button>
             </div>
 
+            {/* Snapshot image if available */}
+            {selectedEvent.snapshot_path && (
+              <div className="space-y-1">
+                <div className="text-[11px] text-slate-400 font-semibold flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-sky-400" /> Event Snapshot (Stored Locally on Edge Hub)
+                </div>
+                <img
+                  src={selectedEvent.snapshot_path}
+                  alt="Detections Snapshot"
+                  className="rounded-xl border border-slate-800 max-h-48 w-full object-cover bg-slate-950"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+
             <div className="space-y-3 text-xs">
               <div className="flex justify-between py-1.5 border-b border-slate-800">
                 <span className="text-slate-500">Event ID</span>
-                <span className="font-mono text-slate-300">{selectedEvent.id}</span>
+                <span className="font-mono text-slate-300 text-[10px]">{selectedEvent.id}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-slate-800">
                 <span className="text-slate-500">Detected Class</span>
@@ -264,12 +321,14 @@ export default function Events() {
               </div>
               <div className="flex justify-between py-1.5 border-b border-slate-800">
                 <span className="text-slate-500">Timestamp</span>
-                <span className="font-mono text-slate-300">{new Date(selectedEvent.timestamp).toLocaleString()}</span>
+                <span className="font-mono text-slate-300">
+                  {new Date(selectedEvent.started_at || selectedEvent.timestamp).toLocaleString()}
+                </span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-slate-800">
                 <span className="text-slate-500">Statistical Anomaly</span>
                 <span className={selectedEvent.is_unusual ? 'text-amber-400 font-bold' : 'text-slate-400'}>
-                  {selectedEvent.is_unusual ? 'YES (Flagged by Data Science)' : 'NO (Normal Pattern)'}
+                  {selectedEvent.is_unusual ? 'YES (Flagged by Data Science Engine)' : 'NO (Normal Pattern)'}
                 </span>
               </div>
 
@@ -278,22 +337,74 @@ export default function Events() {
                   <strong>Analysis:</strong> {selectedEvent.metadata.anomaly_reason}
                 </div>
               )}
-
-              {selectedEvent.bounding_box && (
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] text-slate-400">
-                  <div>Bounding Box Coordinates:</div>
-                  <div>x: {selectedEvent.bounding_box.x}, y: {selectedEvent.bounding_box.y}</div>
-                  <div>width: {selectedEvent.bounding_box.width}, height: {selectedEvent.bounding_box.height}</div>
-                </div>
-              )}
             </div>
 
-            <button
-              onClick={() => setSelectedEvent(null)}
-              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition"
-            >
-              Close
-            </button>
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const evToDel = selectedEvent;
+                  setSelectedEvent(null);
+                  setDeleteModalEvent(evToDel);
+                }}
+                className="flex-1 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 font-semibold text-xs transition"
+              >
+                Delete Event & Snapshot
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedEvent(null)}
+                className="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalEvent && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-white">Delete Event Record?</h3>
+                <p className="text-xs text-slate-400">This removes the event and unlinks its snapshot file.</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300">
+              Are you sure you want to permanently delete event{' '}
+              <span className="font-mono text-sky-400">{deleteModalEvent.id.slice(0, 8)}...</span>?
+              {deleteModalEvent.snapshot_path && (
+                <span className="block mt-1 text-[11px] text-amber-400">
+                  ⚠️ The associated snapshot file on local disk will also be unlinked.
+                </span>
+              )}
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteModalEvent(null)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-medium transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteEvent(deleteModalEvent.id)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-slate-950 text-xs font-bold transition disabled:opacity-50"
+              >
+                {deleting ? 'Deleting...' : 'Confirm Delete'}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -6,6 +6,7 @@ import { AuthService } from '../services/supabase.js';
 import { config } from '../config.js';
 import { logger } from '../services/logger.js';
 import { mapClassToCategory } from '../shared/schemas.js';
+import { saveSnapshot } from '../services/snapshots.js';
 
 interface PhoneSession {
   ws: WebSocket;
@@ -428,12 +429,22 @@ export class StreamWebSocketHandler {
         anomaly_reason: anomalyReason || null
       });
 
+      // Check user privacy settings for snapshot saving
+      let snapshotPath: string | null = null;
+      if (settings?.save_snapshots !== 0 && imageBase64) {
+        try {
+          snapshotPath = await saveSnapshot(eventId, imageBase64);
+        } catch (sErr: any) {
+          logger.warn(`[WS] Failed to save snapshot for event ${eventId}: ${sErr.message}`);
+        }
+      }
+
       // Insert event into DB
       await this.db.run(
         `INSERT INTO events (
           id, user_id, home_id, device_id, event_type, object_class, category,
-          confidence, started_at, last_seen, frame_count, metadata, is_unusual, anomaly_score
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
+          confidence, started_at, last_seen, frame_count, snapshot_path, metadata, is_unusual, anomaly_score
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)`,
         [
           eventId,
           userId,
@@ -445,6 +456,7 @@ export class StreamWebSocketHandler {
           det.confidence,
           timestamp,
           timestamp,
+          snapshotPath,
           meta,
           isUnusual,
           anomalyScore

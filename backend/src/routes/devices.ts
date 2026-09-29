@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { DatabaseService } from '../services/db.js';
 import { CreatePairingCodeSchema, ExchangePairingCodeSchema } from '../shared/schemas.js';
 import { config } from '../config.js';
+import { pairingLimiter } from '../middleware/rateLimit.js';
 
 export function createDevicesRouter(db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
@@ -56,8 +57,8 @@ export function createDevicesRouter(db: DatabaseService, authMiddleware: any): R
     }
   });
 
-  // 3. Exchange Pairing Code for Device-Scoped Token (Phone Calling In)
-  router.post('/devices/pair', async (req: Request, res: Response, next: NextFunction) => {
+  // 3. Exchange Pairing Code for Device-Scoped Token (Phone Calling In, Rate-Limited)
+  router.post('/devices/pair', pairingLimiter, async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { code } = ExchangePairingCodeSchema.parse(req.body);
 
@@ -106,6 +107,24 @@ export function createDevicesRouter(db: DatabaseService, authMiddleware: any): R
         message: 'Device successfully paired to home.'
       });
     } catch (err: any) {
+      next(err);
+    }
+  });
+
+  // 4. Delete / Unpair Device (User-Scoped)
+  router.delete('/devices/:id', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+
+      const device = await db.get('SELECT id FROM devices WHERE id = ? AND user_id = ?', [id, userId]);
+      if (!device) {
+        return res.status(404).json({ success: false, error: 'Device not found or access denied.' });
+      }
+
+      await db.run('DELETE FROM devices WHERE id = ?', [id]);
+      res.json({ success: true, message: 'Device unpaired and deleted.' });
+    } catch (err) {
       next(err);
     }
   });

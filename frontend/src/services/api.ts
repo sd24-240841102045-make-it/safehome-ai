@@ -11,7 +11,7 @@ export const WS_BASE = (() => {
 
 const api = axios.create({
   baseURL: API_BASE,
-  timeout: 10000
+  timeout: 15000
 });
 
 // Attach JWT token from Supabase Auth or local storage
@@ -42,12 +42,14 @@ export const eventService = {
   getEventById: (id: string) => api.get(`/events/${id}`),
   createEvent: (data: any) => api.post('/events', data),
   submitFeedback: (id: string, feedback: 'expected' | 'unexpected' | null) =>
-    api.patch(`/events/${id}/feedback`, { feedback })
+    api.patch(`/events/${id}/feedback`, { feedback }),
+  deleteEvent: (id: string) => api.delete(`/events/${id}`)
 };
 
 export const alertService = {
   getAlerts: (params?: any) => api.get('/alerts', { params }),
   markRead: (id: string) => api.patch(`/alerts/${id}`),
+  markAllRead: () => api.patch('/alerts/read-all'),
   deleteAlert: (id: string) => api.delete(`/alerts/${id}`)
 };
 
@@ -57,14 +59,17 @@ export const analyticsService = {
 
 export const settingsService = {
   getSettings: () => api.get('/settings'),
-  updateSettings: (data: any) => api.put('/settings', data)
+  updateSettings: (data: any) => api.put('/settings', data),
+  purgeExpiredData: () => api.post('/settings/purge'),
+  exportData: () => api.get('/settings/export')
 };
 
 export const deviceService = {
   getDevices: () => api.get('/devices'),
   createPairingCode: (homeId: string, deviceName: string) =>
     api.post('/devices/pair/generate', { home_id: homeId, device_name: deviceName }),
-  exchangePairingCode: (code: string) => api.post('/devices/pair', { code })
+  exchangePairingCode: (code: string) => api.post('/devices/pair', { code }),
+  deleteDevice: (id: string) => api.delete(`/devices/${id}`)
 };
 
 export default api;

@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { z } from 'zod';
 import { DatabaseService } from '../services/db.js';
 import { mapClassToCategory, CreateEventSchema, EventFeedbackSchema } from '../shared/schemas.js';
+import { saveSnapshot, deleteSnapshot } from '../services/snapshots.js';
 
 export function createEventsRouter(db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
@@ -115,7 +116,7 @@ export function createEventsRouter(db: DatabaseService, authMiddleware: any): Ro
     }
   });
 
-  // 3. Create Event (User-Scoped)
+  // 3. Create Event (User-Scoped) with Local Snapshot Storage
   router.post('/events', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validated = CreateEventSchema.parse(req.body);
@@ -127,6 +128,15 @@ export function createEventsRouter(db: DatabaseService, authMiddleware: any): Ro
       // Find user home
       const home = await db.get('SELECT id FROM homes WHERE user_id = ? LIMIT 1', [userId]);
       const homeId = validated.home_id || home?.id || null;
+
+      let snapshotPath: string | null = null;
+      if (validated.snapshot_base64) {
+        try {
+          snapshotPath = await saveSnapshot(eventId, validated.snapshot_base64);
+        } catch {
+          // If snapshot saving fails, do not block event recording
+        }
+      }
 
       const metaJson = JSON.stringify({
         bounding_box: validated.bounding_box || null
@@ -148,7 +158,7 @@ export function createEventsRouter(db: DatabaseService, authMiddleware: any): Ro
           validated.confidence,
           now,
           now,
-          validated.snapshot_base64 ? `/snapshots/${eventId}.jpg` : null,
+          snapshotPath,
           metaJson
         ]
       );
@@ -185,19 +195,31 @@ export function createEventsRouter(db: DatabaseService, authMiddleware: any): Ro
     }
   });
 
-  // 5. Delete Event
+  // 5. Delete Event (Removes Event Record AND associated local snapshot file)
   router.delete('/events/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const userId = req.user!.id;
 
-      const event = await db.get('SELECT id FROM events WHERE id = ? AND user_id = ?', [id, userId]);
+      const event = await db.get(
+        'SELECT id, snapshot_path FROM events WHERE id = ? AND user_id = ?',
+        [id, userId]
+      );
+
       if (!event) {
         return res.status(404).json({ success: false, error: 'Event not found or access denied.' });
       }
 
+      // Privacy: remove snapshot file from disk
+      if (event.snapshot_path) {
+        deleteSnapshot(event.snapshot_path);
+      }
+
+      // Delete associated alerts and event record
+      await db.run('DELETE FROM alerts WHERE event_id = ?', [id]);
       await db.run('DELETE FROM events WHERE id = ?', [id]);
-      res.json({ success: true, message: 'Event deleted.' });
+
+      res.json({ success: true, message: 'Event and associated snapshot file deleted.' });
     } catch (err) {
       next(err);
     }

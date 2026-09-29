@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { AuthService } from '../services/supabase.js';
 import { DatabaseService } from '../services/db.js';
+import { authLimiter } from '../middleware/rateLimit.js';
 
 const RegisterSchema = z.object({
   email: z.string().email('Invalid email address format'),
@@ -17,8 +18,8 @@ const LoginSchema = z.object({
 export function createAuthRouter(authService: AuthService, db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
 
-  // 1. Register Homeowner Account
-  router.post('/register', async (req: Request, res: Response, next: NextFunction) => {
+  // 1. Register Homeowner Account (Rate-Limited)
+  router.post('/register', authLimiter, async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validated = RegisterSchema.parse(req.body);
       const result = await authService.register(validated.email, validated.password, validated.full_name);
@@ -37,8 +38,8 @@ export function createAuthRouter(authService: AuthService, db: DatabaseService, 
     }
   });
 
-  // 2. Login Homeowner
-  router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+  // 2. Login Homeowner (Rate-Limited)
+  router.post('/login', authLimiter, async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validated = LoginSchema.parse(req.body);
       const result = await authService.login(validated.email, validated.password);

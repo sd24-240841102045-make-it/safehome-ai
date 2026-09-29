@@ -49,7 +49,18 @@ export function createAlertsRouter(db: DatabaseService, authMiddleware: any): Ro
     }
   });
 
-  // 2. Mark Alert Read (User-Scoped)
+  // 2. Mark All Alerts as Read (User-Scoped)
+  router.patch('/alerts/read-all', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.id;
+      await db.run('UPDATE alerts SET is_read = 1 WHERE user_id = ? AND is_read = 0', [userId]);
+      res.json({ success: true, message: 'All alerts marked as read.' });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // 3. Mark Single Alert Read (User-Scoped)
   router.patch('/alerts/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
@@ -67,7 +78,7 @@ export function createAlertsRouter(db: DatabaseService, authMiddleware: any): Ro
     }
   });
 
-  // 3. Delete Alert (User-Scoped)
+  // 4. Delete Alert (User-Scoped)
   router.delete('/alerts/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
