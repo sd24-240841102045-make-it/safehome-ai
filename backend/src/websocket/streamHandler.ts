@@ -272,6 +272,27 @@ export class StreamWebSocketHandler {
             }
             return;
           }
+
+          // 9. Phone Acoustic & Loitering Safety Alerts
+          if (msg.type === 'loitering_alert' && currentUserId) {
+            await this.handleDirectPhoneAlert(currentUserId, currentDeviceId, 'person_loitering', {
+              title: 'Loitering Detected',
+              message: `Person observed lingering in camera zone for >${msg.duration_sec || 10} seconds.`,
+              severity: 'warning',
+              metadata: { duration_sec: msg.duration_sec || 10 }
+            });
+            return;
+          }
+
+          if (msg.type === 'loud_noise_alert' && currentUserId) {
+            await this.handleDirectPhoneAlert(currentUserId, currentDeviceId, 'loud_noise', {
+              title: 'Loud Noise Detected',
+              message: `Acoustic spike of ${msg.decibels || 80} dB detected by phone sensor.`,
+              severity: 'warning',
+              metadata: { decibels: msg.decibels }
+            });
+            return;
+          }
         } catch (err: any) {
           logger.error('[WS Error]', err.message);
         }
@@ -418,6 +439,78 @@ export class StreamWebSocketHandler {
         }
       }
     }
+  }
+
+  // Handle direct acoustic or loitering alerts originating from the phone
+  private async handleDirectPhoneAlert(
+    userId: string,
+    deviceId: string,
+    eventType: string,
+    details: { title: string; message: string; severity: 'INFO' | 'WARNING' | 'CRITICAL'; metadata?: any }
+  ) {
+    const home = await this.db.get('SELECT id FROM homes WHERE user_id = ? LIMIT 1', [userId]);
+    const homeId = home?.id || null;
+    const eventId = crypto.randomUUID();
+    const alertId = crypto.randomUUID();
+    const timestamp = new Date().toISOString();
+
+    const category = eventType === 'loud_noise' ? 'noise' : 'person';
+    const objectClass = eventType === 'loud_noise' ? 'acoustic_spike' : 'person_loitering';
+
+    await this.db.run(
+      `INSERT INTO events (
+        id, user_id, home_id, device_id, event_type, object_class, category,
+        confidence, started_at, last_seen, frame_count, metadata, is_unusual, anomaly_score
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 1, 0.88)`,
+      [
+        eventId,
+        userId,
+        homeId,
+        deviceId,
+        eventType,
+        objectClass,
+        category,
+        0.92,
+        timestamp,
+        timestamp,
+        JSON.stringify(details.metadata || {})
+      ]
+    );
+
+    await this.db.run(
+      `INSERT INTO alerts (id, user_id, event_id, severity, category, title, message)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [alertId, userId, eventId, details.severity, category, details.title, details.message]
+    );
+
+    this.broadcastToUserDashboards(userId, {
+      type: 'new_event',
+      event: {
+        id: eventId,
+        event_type: eventType,
+        category,
+        object_class: objectClass,
+        started_at: timestamp,
+        is_unusual: 1,
+        anomaly_score: 0.88
+      }
+    });
+
+    this.broadcastToUserDashboards(userId, {
+      type: 'new_alert',
+      alert: {
+        id: alertId,
+        user_id: userId,
+        event_id: eventId,
+        severity: details.severity,
+        category,
+        title: details.title,
+        message: details.message,
+        is_read: 0,
+        is_resolved: 0,
+        created_at: timestamp
+      }
+    });
   }
 
   // Event & Alert handling with cooldown
@@ -593,6 +686,14 @@ export class StreamWebSocketHandler {
           message: alertMessage,
           created_at: timestamp
         }
+      });
+
+      // Notify phone sensor to sound local chime/vibration alert
+      this.sendToPhone(userId, deviceId, {
+        type: 'safety_alert',
+        title: alertTitle,
+        message: alertMessage,
+        severity: alertSeverity
       });
     }
   }

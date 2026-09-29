@@ -19,7 +19,15 @@ import {
   Minimize2,
   Lock,
   Unlock,
-  Smartphone
+  Smartphone,
+  Volume2,
+  VolumeX,
+  Mic,
+  MicOff,
+  Bell,
+  BellRing,
+  ShieldCheck,
+  Zap
 } from 'lucide-react';
 import { deviceService, WS_BASE } from '../services/api';
 import InstallPrompt from '../components/InstallPrompt';
@@ -31,6 +39,7 @@ export default function Monitor() {
   const [backendWsUrl, setBackendWsUrl] = useState(() => WS_BASE);
   const [facingMode, setFacingMode] = useState('environment'); // 'environment' (back) or 'user' (front)
   const [fps, setFps] = useState(0);
+  const [streamFps, setStreamFps] = useState(10); // Default 10 FPS for fluid laptop playback
   const [framesSent, setFramesSent] = useState(0);
   const [latencyMs, setLatencyMs] = useState(0);
   const [lastDetections, setLastDetections] = useState([]);
@@ -38,6 +47,20 @@ export default function Monitor() {
   const [wakeLockActive, setWakeLockActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [webrtcStatus, setWebrtcStatus] = useState('OFF');
+
+  // Loitering Alert System
+  const [loiteringAlertsEnabled, setLoiteringAlertsEnabled] = useState(true);
+  const [loiteringThresholdSec, setLoiteringThresholdSec] = useState(10);
+  const [loiteringTimeInFrame, setLoiteringTimeInFrame] = useState(0);
+
+  // Acoustic Sensor & Microphone Protection System
+  const [micGuardActive, setMicGuardActive] = useState(true);
+  const [micMuted, setMicMuted] = useState(false);
+  const [decibelLevel, setDecibelLevel] = useState(25);
+  const [noiseThreshold, setNoiseThreshold] = useState(80);
+
+  // Active Alarm State (Visual/Audio on Phone)
+  const [activeAlarm, setActiveAlarm] = useState(null); // { type, title, message }
 
   // Pairing state
   const [pairingCodeInput, setPairingCodeInput] = useState('');
@@ -62,6 +85,24 @@ export default function Monitor() {
   const wakeLockSentinelRef = useRef(null);
   const containerRef = useRef(null);
   const pcRef = useRef(null);
+  const streamFpsRef = useRef(streamFps);
+
+  // Audio / Alert Refs
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+  const micStreamRef = useRef(null);
+  const noiseIntervalRef = useRef(null);
+  const personPresenceStartRef = useRef(null);
+  const lastLoiteringTriggerRef = useRef(0);
+  const lastNoiseTriggerRef = useRef(0);
+
+  // Dynamically update capture loop when target stream FPS changes
+  useEffect(() => {
+    streamFpsRef.current = streamFps;
+    if (monitoringActive && wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      startFrameCaptureLoop(wsRef.current);
+    }
+  }, [streamFps]);
 
   // Read ?code=XXXXXX query parameter on load
   useEffect(() => {
@@ -136,6 +177,148 @@ export default function Monitor() {
       releaseWakeLock();
     };
   }, []);
+
+  // Web Audio API Synthesizer (Zero Audio Files Needed - 100% Offline Siren)
+  const playAlarmSound = (tone = 'warning') => {
+    try {
+      const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtxClass) return;
+      const ctx = new AudioCtxClass();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      if (tone === 'loitering') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.35);
+      } else if (tone === 'noise') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(950, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1400, ctx.currentTime + 0.3);
+      } else {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1000, ctx.currentTime + 0.3);
+      }
+
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.38);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.38);
+    } catch (e) {
+      console.warn('Audio alarm playback error:', e);
+    }
+  };
+
+  // Trigger Person Loitering Alarm on Phone
+  const triggerLoiteringAlarm = (durationSec) => {
+    playAlarmSound('loitering');
+    if ('vibrate' in navigator) {
+      navigator.vibrate([300, 100, 300, 100, 500]);
+    }
+    setActiveAlarm({
+      type: 'loitering',
+      title: '🚨 PERSON LOITERING DETECTED',
+      message: `Person detected continuously in zone for ${durationSec}s. Potential security concern.`
+    });
+
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'loitering_alert',
+        duration_sec: durationSec,
+        timestamp: new Date().toISOString()
+      }));
+    }
+  };
+
+  // Trigger Loud Noise Alarm on Phone
+  const triggerNoiseAlarm = (db) => {
+    playAlarmSound('noise');
+    if ('vibrate' in navigator) {
+      navigator.vibrate([200, 80, 200, 80, 400]);
+    }
+    setActiveAlarm({
+      type: 'noise',
+      title: '🔊 LOUD NOISE DETECTED',
+      message: `Acoustic spike of ${db} dB detected by microphone guard.`
+    });
+
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'loud_noise_alert',
+        decibels: db,
+        timestamp: new Date().toISOString()
+      }));
+    }
+  };
+
+  // Initialize Microphone Privacy-Protected Acoustic Monitoring
+  // STRICT PRIVACY GUARANTEE: Audio is processed exclusively in-memory for RMS amplitude extraction.
+  // Audio is NEVER recorded, saved to storage, or transmitted over any network connection.
+  const startAudioMonitoring = async () => {
+    if (!micGuardActive) return;
+    try {
+      if (audioContextRef.current && audioContextRef.current.state === 'running') return;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      micStreamRef.current = stream;
+
+      const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioCtxClass();
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.3;
+
+      const source = audioCtx.createMediaStreamSource(stream);
+      // NOTE: Connect ONLY to analyser. DO NOT connect to destination to prevent audio loop feedback.
+      source.connect(analyser);
+
+      audioContextRef.current = audioCtx;
+      analyserRef.current = analyser;
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      noiseIntervalRef.current = setInterval(() => {
+        if (!analyserRef.current || !micGuardActive) return;
+        analyserRef.current.getByteFrequencyData(dataArray);
+
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i] * dataArray[i];
+        }
+        const rms = Math.sqrt(sum / bufferLength);
+        const estimatedDb = Math.min(100, Math.max(20, Math.round(20 + rms * 0.75)));
+        setDecibelLevel(estimatedDb);
+
+        if (!micMuted && estimatedDb >= noiseThreshold) {
+          const now = Date.now();
+          if (now - lastNoiseTriggerRef.current > 12000) { // 12-second alert cooldown
+            lastNoiseTriggerRef.current = now;
+            triggerNoiseAlarm(estimatedDb);
+          }
+        }
+      }, 150);
+    } catch (err) {
+      console.warn('[Mic Guard] Audio monitoring access declined or unsupported:', err);
+    }
+  };
+
+  const stopAudioMonitoring = () => {
+    if (noiseIntervalRef.current) {
+      clearInterval(noiseIntervalRef.current);
+      noiseIntervalRef.current = null;
+    }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((t) => t.stop());
+      micStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+  };
 
   // Request camera access and start video preview
   const initCamera = async (facing = facingMode) => {
@@ -279,6 +462,9 @@ export default function Monitor() {
     shouldKeepReconnectingRef.current = true;
     connectWebSocket();
     await requestWakeLock();
+    if (micGuardActive) {
+      startAudioMonitoring();
+    }
     setMonitoringActive(true);
   };
 
@@ -347,14 +533,48 @@ export default function Monitor() {
           }
 
           if (msg.type === 'detection_result') {
-            setLastDetections(msg.detections || []);
+            const dets = msg.detections || [];
+            setLastDetections(dets);
             if (msg.client_time) {
               const rtt = Math.round(performance.now() - msg.client_time);
               setLatencyMs(rtt);
             } else {
               setLatencyMs(msg.latency_ms || 0);
             }
-            drawBoundingBoxes(msg.detections || []);
+            drawBoundingBoxes(dets);
+
+            // Loitering Person Safety Detection
+            if (loiteringAlertsEnabled) {
+              const hasPerson = dets.some((d) => d.class === 'person');
+              const now = Date.now();
+              if (hasPerson) {
+                if (!personPresenceStartRef.current) {
+                  personPresenceStartRef.current = now;
+                }
+                const secondsInView = Math.floor((now - personPresenceStartRef.current) / 1000);
+                setLoiteringTimeInFrame(secondsInView);
+
+                if (secondsInView >= loiteringThresholdSec) {
+                  if (now - lastLoiteringTriggerRef.current > 15000) { // 15s cooldown
+                    lastLoiteringTriggerRef.current = now;
+                    triggerLoiteringAlarm(secondsInView);
+                  }
+                }
+              } else {
+                personPresenceStartRef.current = null;
+                setLoiteringTimeInFrame(0);
+              }
+            }
+          }
+
+          if (msg.type === 'safety_alert') {
+            playAlarmSound(msg.severity === 'CRITICAL' ? 'noise' : 'loitering');
+            if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+            setActiveAlarm({
+              type: 'safety',
+              title: msg.title || '🚨 SAFETY ALERT',
+              message: msg.message || 'Surveillance activity alert triggered.'
+            });
           }
 
           if (msg.type === 'error' && msg.code === 'AUTH_FAILED') {
@@ -375,6 +595,7 @@ export default function Monitor() {
 
       ws.onclose = () => {
         stopFrameCaptureLoop();
+        stopAudioMonitoring();
         if (shouldKeepReconnectingRef.current) {
           setConnectionStatus('RECONNECTING');
           scheduleReconnect();
@@ -413,7 +634,11 @@ export default function Monitor() {
   const stopMonitoring = () => {
     shouldKeepReconnectingRef.current = false;
     stopFrameCaptureLoop();
+    stopAudioMonitoring();
     releaseWakeLock();
+    setActiveAlarm(null);
+    personPresenceStartRef.current = null;
+    setLoiteringTimeInFrame(0);
     if (pcRef.current) {
       pcRef.current.close();
       pcRef.current = null;
@@ -485,7 +710,7 @@ export default function Monitor() {
     }
   };
 
-  // Frame capture loop sending base64 JPEG packets at 2 FPS (every 500ms)
+  // Frame capture loop sending base64 JPEG packets at target streamFps (10 FPS default = 100ms interval)
   const startFrameCaptureLoop = (ws) => {
     stopFrameCaptureLoop();
 
@@ -496,8 +721,9 @@ export default function Monitor() {
 
     let lastFpsTime = Date.now();
     let sentInSecond = 0;
+    const targetFps = streamFpsRef.current || 10;
+    const intervalMs = Math.max(50, Math.round(1000 / targetFps));
 
-    // 2 FPS = 500ms interval for balanced edge CPU inference
     frameIntervalRef.current = setInterval(() => {
       if (!videoRef.current || videoRef.current.readyState < 2) return;
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
@@ -523,7 +749,7 @@ export default function Monitor() {
         sentInSecond = 0;
         lastFpsTime = now;
       }
-    }, 500); // 2 FPS
+    }, intervalMs);
   };
 
   const stopFrameCaptureLoop = () => {
@@ -614,6 +840,34 @@ export default function Monitor() {
           )}
         </div>
       </div>
+
+      {/* Active Siren / Safety Alert Banner */}
+      {activeAlarm && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-950 via-rose-900 to-amber-950 border-2 border-rose-500 shadow-xl shadow-rose-950/60 animate-pulse flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 rounded-xl bg-rose-600/40 text-rose-300 shrink-0">
+              <BellRing className="w-6 h-6 animate-bounce" />
+            </div>
+            <div>
+              <h2 className="text-sm font-black text-rose-100 uppercase tracking-wide">
+                {activeAlarm.title}
+              </h2>
+              <p className="text-xs text-rose-200/90 mt-0.5 leading-relaxed">
+                {activeAlarm.message}
+              </p>
+              <div className="text-[10px] text-rose-300/80 font-mono mt-1">
+                Audio siren & vibration active on this phone
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveAlarm(null)}
+            className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shrink-0 shadow transition"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Pairing Banner / Status */}
       {isPaired ? (
@@ -796,13 +1050,261 @@ export default function Monitor() {
             <Square className="w-4 h-4 fill-current" /> Stop Monitoring
           </button>
         )}
+      {/* Stream Smoothness & Frame Rate Selector */}
+      <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-slate-300 flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-amber-400" /> Laptop Stream Fluidity
+          </span>
+          <span className="text-[11px] font-mono text-sky-400 font-bold">{streamFps} FPS Target</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => setStreamFps(10)}
+            className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition ${
+              streamFps === 10
+                ? 'bg-sky-500/20 text-sky-300 border-sky-500/50 shadow-sm'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+            }`}
+          >
+            Smooth (10 FPS)
+          </button>
+          <button
+            type="button"
+            onClick={() => setStreamFps(15)}
+            className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition ${
+              streamFps === 15
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-sm'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+            }`}
+          >
+            Ultra (15 FPS)
+          </button>
+          <button
+            type="button"
+            onClick={() => setStreamFps(2)}
+            className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition ${
+              streamFps === 2
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-sm'
+                : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+            }`}
+          >
+            Eco (2 FPS)
+          </button>
+        </div>
+        <p className="text-[10px] text-slate-500">
+          Controls frame delivery rate to your laptop screen. 10–15 FPS provides smooth, real-time security viewing.
+        </p>
+      </div>
+
+      {/* Loitering Alert Protection Card */}
+      <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BellRing className={`w-4 h-4 ${loiteringAlertsEnabled ? 'text-amber-400' : 'text-slate-500'}`} />
+            <div>
+              <h3 className="text-xs font-bold text-white">Person Loitering Alarm</h3>
+              <p className="text-[10px] text-slate-400">Triggers siren & vibration if someone lingers in view</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setLoiteringAlertsEnabled(!loiteringAlertsEnabled)}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+              loiteringAlertsEnabled
+                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                : 'bg-slate-800 text-slate-500 border border-slate-700'
+            }`}
+          >
+            {loiteringAlertsEnabled ? 'ENABLED' : 'DISABLED'}
+          </button>
+        </div>
+
+        {loiteringAlertsEnabled && (
+          <div className="space-y-2.5 pt-1 border-t border-slate-800/80">
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <span>Trigger Duration:</span>
+              <div className="flex gap-1.5">
+                {[5, 10, 20].map((sec) => (
+                  <button
+                    key={sec}
+                    type="button"
+                    onClick={() => setLoiteringThresholdSec(sec)}
+                    className={`px-2.5 py-0.5 rounded-lg text-xs font-mono transition ${
+                      loiteringThresholdSec === sec
+                        ? 'bg-amber-500 text-slate-950 font-bold'
+                        : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
+                    }`}
+                  >
+                    {sec}s
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Loitering Progress Bar */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-[11px] font-mono">
+                <span className={loiteringTimeInFrame > 0 ? 'text-amber-400 font-semibold' : 'text-slate-500'}>
+                  {loiteringTimeInFrame > 0 ? `Person in zone: ${loiteringTimeInFrame}s` : 'No person currently in view'}
+                </span>
+                <span className="text-slate-500">{loiteringThresholdSec}s limit</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-slate-950 border border-slate-800 overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-300 ${
+                    loiteringTimeInFrame >= loiteringThresholdSec
+                      ? 'bg-rose-500 animate-pulse'
+                      : loiteringTimeInFrame > 0
+                      ? 'bg-amber-400'
+                      : 'bg-transparent'
+                  }`}
+                  style={{
+                    width: `${Math.min(100, (loiteringTimeInFrame / loiteringThresholdSec) * 100)}%`
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Microphone Safety & Acoustic Sensor Guard */}
+      <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <div>
+              <h3 className="text-xs font-bold text-white flex items-center gap-1.5">
+                Microphone Safety Guard
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  Protected
+                </span>
+              </h3>
+              <p className="text-[10px] text-slate-400">Acoustic spike & loud noise anomaly detection</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const next = !micGuardActive;
+              setMicGuardActive(next);
+              if (!next) {
+                stopAudioMonitoring();
+              } else if (monitoringActive) {
+                startAudioMonitoring();
+              }
+            }}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+              micGuardActive
+                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                : 'bg-slate-800 text-slate-500 border border-slate-700'
+            }`}
+          >
+            {micGuardActive ? 'ACTIVE' : 'OFF'}
+          </button>
+        </div>
+
+        {/* Strict Privacy Shield Badge */}
+        <div className="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/20 text-[11px] text-slate-300 flex items-start gap-2">
+          <Shield className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="leading-relaxed">
+            <span className="font-semibold text-emerald-300">Privacy Guarantee: </span>
+            Zero audio is recorded, saved, or transmitted. The microphone samples acoustic decibel energy strictly in volatile memory.
+          </div>
+        </div>
+
+        {micGuardActive && (
+          <div className="space-y-2.5 pt-1 border-t border-slate-800/80">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-slate-400 flex items-center gap-1.5">
+                <Volume2 className="w-3.5 h-3.5 text-sky-400" /> Live Noise Energy:
+              </span>
+              <div className="flex items-center gap-2">
+                <span className={`font-mono font-bold text-xs ${
+                  decibelLevel >= noiseThreshold
+                    ? 'text-rose-400 animate-pulse'
+                    : decibelLevel > 60
+                    ? 'text-amber-400'
+                    : 'text-emerald-400'
+                }`}>
+                  {decibelLevel} dB
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setMicMuted(!micMuted)}
+                  className={`p-1.5 rounded-lg border text-xs transition ${
+                    micMuted
+                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+                  }`}
+                  title={micMuted ? 'Microphone muted (no alarms)' : 'Microphone unmuted'}
+                >
+                  {micMuted ? <MicOff className="w-3.5 h-3.5 text-rose-400" /> : <Mic className="w-3.5 h-3.5 text-emerald-400" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Live Decibel Meter Bar */}
+            <div className="space-y-1">
+              <div className="w-full h-2.5 rounded-full bg-slate-950 border border-slate-800 overflow-hidden relative">
+                {/* Marker for trigger threshold */}
+                <div
+                  className="absolute top-0 bottom-0 w-0.5 bg-rose-500 z-10"
+                  style={{ left: `${noiseThreshold}%` }}
+                />
+                <div
+                  className={`h-full transition-all duration-150 ${
+                    decibelLevel >= noiseThreshold
+                      ? 'bg-rose-500'
+                      : decibelLevel > 60
+                      ? 'bg-amber-400'
+                      : 'bg-emerald-400'
+                  }`}
+                  style={{ width: `${Math.min(100, Math.max(0, decibelLevel))}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] font-mono text-slate-500">
+                <span>Quiet (20 dB)</span>
+                <span className="text-amber-400 font-bold">Trigger: {noiseThreshold} dB</span>
+                <span>Loud (100 dB)</span>
+              </div>
+            </div>
+
+            {/* Sensitivity Selector */}
+            <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
+              <span>Alert Sensitivity:</span>
+              <div className="flex gap-1.5">
+                {[
+                  { val: 70, label: '70 dB' },
+                  { val: 80, label: '80 dB' },
+                  { val: 88, label: '88 dB' }
+                ].map((item) => (
+                  <button
+                    key={item.val}
+                    type="button"
+                    onClick={() => setNoiseThreshold(item.val)}
+                    className={`px-2 py-0.5 rounded-lg text-xs font-mono transition ${
+                      noiseThreshold === item.val
+                        ? 'bg-sky-500 text-slate-950 font-bold'
+                        : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Live Telemetry / Diagnostics */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
           <span>Telemetry & Connection</span>
-          <span className="text-[10px] text-slate-500 font-normal">Audio: Disabled by Policy</span>
+          <span className="text-[10px] text-emerald-400 font-normal">Mic: Privacy Guarded</span>
         </h3>
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
