@@ -74,7 +74,7 @@ class AnomalyAnalyzer:
         else:
             # Fallback to general hourly baseline across all days for this category
             hourly_df = df[(df["hour"] == curr_hour) & (df["category"] == curr_category)]
-            counts = hourly_df["event_count"].values if len(hourly_df) > 0 else np.array([1])
+            counts = hourly_df["event_count"].values if len(hourly_df) > 0 else np.array([0.0])
             mean_val = float(np.mean(counts))
             std_val = float(np.std(counts))
 

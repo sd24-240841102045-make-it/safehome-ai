@@ -354,9 +354,78 @@ export class StreamWebSocketHandler {
       const home = await this.db.get('SELECT id FROM homes WHERE user_id = ? LIMIT 1', [userId]);
       const homeId = home?.id || null;
 
+      // Evaluate statistical anomaly via Python /analyze service
+      let isUnusual = 0;
+      let anomalyScore = 0.0;
+      let anomalyReason = '';
+
+      try {
+        const activeStart = home?.active_hours_start || '07:00';
+        const activeEnd = home?.active_hours_end || '23:00';
+        const currentHour = new Date().getUTCHours();
+        const currentWeekday = new Date().getUTCDay();
+        const startH = parseInt(activeStart.split(':')[0], 10);
+        const endH = parseInt(activeEnd.split(':')[0], 10);
+        const isQuiet = currentHour < startH || currentHour >= endH;
+
+        const pastEvents = await this.db.query(
+          `SELECT category, started_at, user_feedback FROM events WHERE user_id = ? ORDER BY started_at DESC LIMIT 300`,
+          [userId]
+        );
+
+        if (pastEvents.length >= 100) {
+          const windowMap = new Map<string, any>();
+          for (const pe of pastEvents) {
+            const pDt = new Date(pe.started_at);
+            const wKey = `${pe.started_at.slice(0, 10)}_${pDt.getUTCHours()}_${pe.category}`;
+            if (!windowMap.has(wKey)) {
+              windowMap.set(wKey, {
+                timestamp_utc: pDt.toISOString(),
+                hour: pDt.getUTCHours(),
+                weekday: pDt.getUTCDay(),
+                category: pe.category,
+                event_count: 0,
+                user_feedback: pe.user_feedback || null
+              });
+            }
+            windowMap.get(wKey).event_count += 1;
+          }
+
+          const pyAnalyzeRes = await fetch(`${config.PYTHON_SERVICE_URL}/analyze`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              timezone: home?.timezone || 'UTC',
+              time_windows: Array.from(windowMap.values()),
+              current_window: {
+                timestamp_utc: timestamp,
+                hour: currentHour,
+                weekday: currentWeekday,
+                category,
+                event_count: 1,
+                is_quiet_hours: isQuiet
+              }
+            }),
+            signal: AbortSignal.timeout(1500)
+          });
+
+          if (pyAnalyzeRes.ok) {
+            const pyData: any = await pyAnalyzeRes.json();
+            if (pyData.is_unusual) {
+              isUnusual = 1;
+              anomalyScore = pyData.anomaly_score || 0.85;
+              anomalyReason = pyData.reason || 'Unusual activity detected based on historical baseline.';
+            }
+          }
+        }
+      } catch {
+        // Fallback gracefully if DS service busy
+      }
+
       const meta = JSON.stringify({
         bounding_box: det.bounding_box,
-        detected_via: 'phone_live_stream'
+        detected_via: 'phone_live_stream',
+        anomaly_reason: anomalyReason || null
       });
 
       // Insert event into DB
@@ -364,7 +433,7 @@ export class StreamWebSocketHandler {
         `INSERT INTO events (
           id, user_id, home_id, device_id, event_type, object_class, category,
           confidence, started_at, last_seen, frame_count, metadata, is_unusual, anomaly_score
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0, 0.0)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
         [
           eventId,
           userId,
@@ -376,7 +445,9 @@ export class StreamWebSocketHandler {
           det.confidence,
           timestamp,
           timestamp,
-          meta
+          meta,
+          isUnusual,
+          anomalyScore
         ]
       );
 
@@ -385,7 +456,11 @@ export class StreamWebSocketHandler {
       let alertSeverity = 'NOTICE';
       let alertMessage = `${det.class} observed in camera view (${Math.round(det.confidence * 100)}% confidence).`;
 
-      if (category === 'person') {
+      if (isUnusual) {
+        alertSeverity = 'WARNING';
+        alertTitle = `Unusual ${category.toUpperCase()} Activity`;
+        alertMessage = anomalyReason || `Unusual frequency of ${category} activity detected at this time.`;
+      } else if (category === 'person') {
         alertSeverity = 'INFO';
         alertTitle = 'Person Detected';
         alertMessage = `Person observed in camera view (${Math.round(det.confidence * 100)}% confidence).`;
