@@ -4,7 +4,7 @@ import { UpdateSettingsSchema } from '../shared/schemas.js';
 
 export function createSettingsRouter(db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
-  router.use(authMiddleware);
+  router.use('/settings', authMiddleware);
 
   router.get('/settings', async (req: Request, res: Response, next: NextFunction) => {
     try {

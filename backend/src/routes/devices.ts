@@ -28,6 +28,13 @@ export function createDevicesRouter(db: DatabaseService, authMiddleware: any): R
       const userId = req.user!.id;
       const { home_id, device_name = 'Android Phone Camera' } = CreatePairingCodeSchema.parse(req.body);
 
+      // Default home_id to user's primary home if not supplied
+      let targetHomeId = home_id;
+      if (!targetHomeId) {
+        const home = await db.get('SELECT id FROM homes WHERE user_id = ? LIMIT 1', [userId]);
+        targetHomeId = home?.id || crypto.randomUUID();
+      }
+
       // Generate random 6-character alphanumeric code
       const code = crypto.randomBytes(3).toString('hex').toUpperCase();
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
@@ -35,7 +42,7 @@ export function createDevicesRouter(db: DatabaseService, authMiddleware: any): R
       await db.run(
         `INSERT INTO pairing_codes (id, user_id, home_id, code, device_name, expires_at, is_used)
          VALUES (?, ?, ?, ?, ?, ?, 0)`,
-        [crypto.randomUUID(), userId, home_id, code, device_name, expiresAt]
+        [crypto.randomUUID(), userId, targetHomeId, code, device_name, expiresAt]
       );
 
       res.status(201).json({

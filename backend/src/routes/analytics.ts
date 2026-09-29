@@ -3,7 +3,7 @@ import { DatabaseService } from '../services/db.js';
 
 export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
-  router.use(authMiddleware);
+  router.use('/analytics', authMiddleware);
 
   router.get('/analytics', async (req: Request, res: Response, next: NextFunction) => {
     try {

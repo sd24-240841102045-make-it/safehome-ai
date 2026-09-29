@@ -6,7 +6,7 @@ import { mapClassToCategory, CreateEventSchema, EventFeedbackSchema } from '../s
 
 export function createEventsRouter(db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
-  router.use(authMiddleware);
+  router.use('/events', authMiddleware);
 
   // 1. Query Historical Events (Strictly User-Scoped)
   router.get('/events', async (req: Request, res: Response, next: NextFunction) => {

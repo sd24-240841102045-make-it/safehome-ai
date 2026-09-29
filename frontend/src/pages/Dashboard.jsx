@@ -11,18 +11,39 @@ import {
   ExternalLink,
   RefreshCw,
   Clock,
-  Eye
+  Eye,
+  Key,
+  Copy,
+  Check,
+  QrCode,
+  Radio,
+  Timer
 } from 'lucide-react';
-import { systemService, alertService, WS_BASE } from '../services/api';
+import { QRCodeSVG } from 'qrcode.react';
+import { systemService, alertService, deviceService, WS_BASE } from '../services/api';
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
   const [health, setHealth] = useState({ backend: 'checking', database: 'checking', ai_service: 'checking' });
   const [networkInfo, setNetworkInfo] = useState(null);
   const [recentAlerts, setRecentAlerts] = useState([]);
-  const [liveStream, setLiveStream] = useState({ active: false, image: null, detections: [], timestamp: null });
+  const [liveStream, setLiveStream] = useState({
+    active: false,
+    image: null,
+    detections: [],
+    timestamp: null,
+    latency_ms: 0,
+    processing_time_ms: 0
+  });
   const [loading, setLoading] = useState(true);
   const [cameraStatus, setCameraStatus] = useState('OFFLINE');
+  const [pairingModalOpen, setPairingModalOpen] = useState(false);
+  const [pairingCode, setPairingCode] = useState(null);
+  const [pairingExpiresAt, setPairingExpiresAt] = useState(null);
+  const [pairingSecondsLeft, setPairingSecondsLeft] = useState(0);
+  const [isGeneratingCode, setIsGeneratingCode] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   const wsRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -61,6 +82,21 @@ export default function Dashboard() {
     return () => clearInterval(timer);
   }, []);
 
+  // Countdown timer for pairing code expiry (5 minutes)
+  useEffect(() => {
+    if (!pairingExpiresAt) return;
+    const interval = setInterval(() => {
+      const left = Math.max(0, Math.floor((new Date(pairingExpiresAt).getTime() - Date.now()) / 1000));
+      setPairingSecondsLeft(left);
+      if (left <= 0) {
+        setPairingCode(null);
+        setPairingExpiresAt(null);
+        clearInterval(interval);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [pairingExpiresAt]);
+
   // Setup WebSocket connection for live camera frames & real-time events
   useEffect(() => {
     let ws = null;
@@ -69,7 +105,8 @@ export default function Dashboard() {
       wsRef.current = ws;
 
       ws.onopen = () => {
-        ws.send(JSON.stringify({ type: 'register_dashboard' }));
+        const token = localStorage.getItem('supabase_token') || localStorage.getItem('token');
+        ws.send(JSON.stringify({ type: 'register_dashboard', token }));
       };
 
       ws.onmessage = (event) => {
@@ -82,17 +119,22 @@ export default function Dashboard() {
               active: true,
               image: msg.image,
               detections: msg.detections || [],
-              timestamp: msg.timestamp
+              timestamp: msg.timestamp,
+              latency_ms: msg.latency_ms || 0,
+              processing_time_ms: msg.processing_time_ms || 0
             });
             drawBoundingBoxes(msg.image, msg.detections);
           }
 
           if (msg.type === 'device_status_change') {
-            setCameraStatus(msg.status === 'streaming' || msg.status === 'online' ? 'ONLINE' : 'OFFLINE');
+            const isOnline = msg.status === 'streaming' || msg.status === 'online';
+            setCameraStatus(isOnline ? 'ONLINE' : 'OFFLINE');
+            if (!isOnline) {
+              setLiveStream((prev) => ({ ...prev, active: false }));
+            }
           }
 
           if (msg.type === 'new_event') {
-            // Update dashboard counts in real time
             loadData();
           }
         } catch (err) {
@@ -130,19 +172,19 @@ export default function Dashboard() {
           if (!bb) return;
 
           // Box
-          ctx.strokeStyle = '#00e5ff';
+          ctx.strokeStyle = '#38bdf8';
           ctx.lineWidth = 3;
           ctx.strokeRect(bb.x, bb.y, bb.width, bb.height);
 
           // Label badge
           const label = `${det.class.toUpperCase()} ${Math.round(det.confidence * 100)}%`;
-          ctx.font = 'bold 14px sans-serif';
+          ctx.font = 'bold 14px monospace';
           const textWidth = ctx.measureText(label).width;
 
-          ctx.fillStyle = 'rgba(0, 229, 255, 0.85)';
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.9)';
           ctx.fillRect(bb.x, Math.max(0, bb.y - 24), textWidth + 12, 24);
 
-          ctx.fillStyle = '#06090f';
+          ctx.fillStyle = '#0f172a';
           ctx.fillText(label, bb.x + 6, Math.max(16, bb.y - 7));
         });
       }
@@ -150,6 +192,42 @@ export default function Dashboard() {
     img.src = imageSrc;
   };
 
+  // Generate 6-digit short-lived pairing code
+  const handleGeneratePairingCode = async () => {
+    try {
+      setIsGeneratingCode(true);
+      const res = await deviceService.createPairingCode(undefined, 'Android Phone Sensor');
+      if (res.data.success) {
+        setPairingCode(res.data.pairing_code);
+        setPairingExpiresAt(res.data.expires_at);
+        const left = Math.max(0, Math.floor((new Date(res.data.expires_at).getTime() - Date.now()) / 1000));
+        setPairingSecondsLeft(left);
+        setPairingModalOpen(true);
+      }
+    } catch (e) {
+      console.error('Failed to generate pairing code:', e);
+    } finally {
+      setIsGeneratingCode(false);
+    }
+  };
+
+  const copyPairingCode = () => {
+    if (pairingCode) {
+      navigator.clipboard.writeText(pairingCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  // Format seconds to mm:ss
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
+  const primaryIpUrl = networkInfo?.local_ips?.[0]?.url_phone_monitor || `http://${window.location.hostname}:5173/monitor`;
+  const mobilePairingUrl = pairingCode ? `${primaryIpUrl}?code=${pairingCode}` : primaryIpUrl;
   const isMonitoringActive = cameraStatus === 'ONLINE' && health.ai_service === 'online';
 
   return (
@@ -162,15 +240,24 @@ export default function Dashboard() {
           </h1>
           <p className="text-sm text-slate-400">Real-time Home Safety & Smart Surveillance Station</p>
         </div>
-        <button
-          onClick={loadData}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 text-sm font-medium transition"
-        >
-          <RefreshCw className="w-4 h-4" /> Refresh Data
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => handleGeneratePairingCode()}
+            disabled={isGeneratingCode}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white hover:from-sky-400 hover:to-blue-500 text-sm font-semibold shadow-lg shadow-sky-500/20 transition active:scale-[0.98]"
+          >
+            <QrCode className="w-4 h-4" /> Pair Phone Camera
+          </button>
+          <button
+            onClick={loadData}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 text-sm font-medium transition"
+          >
+            <RefreshCw className="w-4 h-4" /> Refresh
+          </button>
+        </div>
       </div>
 
-      {/* System Status Banner (Specification 6) */}
+      {/* System Status Banner */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
         <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
           <Activity className="w-4 h-4 text-sky-400" /> System Status
@@ -205,7 +292,7 @@ export default function Dashboard() {
 
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
             <div className="text-xs text-slate-400 mb-1 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> Monitoring
+              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> Surveillance
             </div>
             <div className={`text-base font-bold font-mono ${isMonitoringActive ? 'text-emerald-400' : 'text-amber-400'}`}>
               {isMonitoringActive ? 'ACTIVE' : 'STANDBY'}
@@ -214,7 +301,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Today's Events Grid (Specification 6) */}
+      {/* Today's Events Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl relative overflow-hidden">
           <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Total Events</div>
@@ -263,9 +350,16 @@ export default function Dashboard() {
                 <span className={`w-3 h-3 rounded-full ${cameraStatus === 'ONLINE' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`}></span>
                 <h3 className="font-semibold text-sm text-white">Live Phone Camera Stream</h3>
               </div>
-              <span className="text-xs font-mono text-slate-400">
-                {liveStream.timestamp ? new Date(liveStream.timestamp).toLocaleTimeString() : 'Waiting for phone'}
-              </span>
+              <div className="flex items-center gap-3">
+                {liveStream.active && (
+                  <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-emerald-400 border border-slate-700">
+                    Latency: {liveStream.latency_ms}ms
+                  </span>
+                )}
+                <span className="text-xs font-mono text-slate-400">
+                  {liveStream.timestamp ? new Date(liveStream.timestamp).toLocaleTimeString() : 'Waiting for phone'}
+                </span>
+              </div>
             </div>
 
             {/* Video Canvas Container */}
@@ -277,8 +371,14 @@ export default function Dashboard() {
                   <Camera className="w-12 h-12 text-slate-700 mx-auto" />
                   <div className="text-sm font-medium text-slate-300">Camera stream inactive</div>
                   <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Open <span className="font-mono text-sky-400">/monitor</span> on your Android phone on the same Wi-Fi network and tap "Start Monitoring".
+                    Pair your Android phone or open <span className="font-mono text-sky-400">/monitor</span> on the same Wi-Fi network and tap "Start Monitoring".
                   </p>
+                  <button
+                    onClick={() => handleGeneratePairingCode()}
+                    className="px-4 py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/30 text-xs font-semibold hover:bg-sky-500/30 transition"
+                  >
+                    Pair Phone Camera
+                  </button>
                 </div>
               )}
 
@@ -307,18 +407,26 @@ export default function Dashboard() {
               )}
             </div>
             <div className="font-mono text-[11px] text-slate-500">
-              Detector: OpenCV HOG/SVM + Cascade
+              Detector: OpenCV HOG/SVM + YOLOv8n
             </div>
           </div>
         </div>
 
         {/* Right Column: Phone Pairing Instructions & Recent Alerts */}
         <div className="space-y-6">
-          {/* Phone Connection / Same Wi-Fi Guide (Specification 25) */}
+          {/* Phone Connection / Same Wi-Fi Guide */}
           <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4">
-            <h3 className="font-semibold text-sm text-white flex items-center gap-2">
-              <Smartphone className="w-4 h-4 text-sky-400" /> Connect Android Phone
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-sm text-white flex items-center gap-2">
+                <Smartphone className="w-4 h-4 text-sky-400" /> Connect Android Phone
+              </h3>
+              <button
+                onClick={() => handleGeneratePairingCode()}
+                className="text-xs text-sky-400 hover:text-sky-300 font-semibold"
+              >
+                + Pair Code
+              </button>
+            </div>
             <p className="text-xs text-slate-400 leading-relaxed">
               Connect your phone to the <strong>same Wi-Fi network</strong> as this laptop. Open Chrome on the phone and navigate to:
             </p>
@@ -347,7 +455,7 @@ export default function Dashboard() {
             </div>
 
             <div className="p-3 rounded-xl bg-sky-950/30 border border-sky-900/50 text-[11px] text-sky-300">
-              💡 <strong>Tip:</strong> Allow camera permission when prompted on your phone. You can keep this laptop dashboard open to watch the live feed.
+              💡 <strong>Tip:</strong> Allow camera permission when prompted on your phone. Stream operates at 1-2 fps for real-time edge processing.
             </div>
           </div>
 
@@ -384,6 +492,64 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* 6-Digit Phone Pairing Modal */}
+      {pairingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 text-center">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sky-400 font-bold text-sm">
+                <QrCode className="w-5 h-5" /> Phone Camera Pairing
+              </div>
+              <button
+                onClick={() => setPairingModalOpen(false)}
+                className="text-slate-400 hover:text-white text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              Scan this QR code with your Android phone camera or enter the 6-digit code on the monitor page.
+            </p>
+
+            {/* QR Code Container */}
+            <div className="p-4 bg-white rounded-2xl inline-block shadow-inner mx-auto">
+              <QRCodeSVG value={mobilePairingUrl} size={180} level="M" />
+            </div>
+
+            {/* 6-Digit Code Display */}
+            <div className="space-y-1">
+              <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Pairing Code</div>
+              <div className="flex items-center justify-center gap-2">
+                <div className="font-mono text-3xl font-extrabold tracking-widest text-sky-400 bg-slate-950 px-5 py-2.5 rounded-xl border border-slate-800">
+                  {pairingCode}
+                </div>
+                <button
+                  onClick={copyPairingCode}
+                  className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+                  title="Copy Code"
+                >
+                  {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Countdown Timer */}
+            <div className="flex items-center justify-center gap-1.5 text-xs font-mono text-amber-400">
+              <Timer className="w-3.5 h-3.5" />
+              <span>Expires in {formatTime(pairingSecondsLeft)} (single-use)</span>
+            </div>
+
+            <button
+              onClick={() => setPairingModalOpen(false)}
+              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -136,7 +136,7 @@ export const EventFeedbackSchema = z.object({
 // 6. PAIRING & DEVICE SCHEMAS
 // ==============================================================================
 export const CreatePairingCodeSchema = z.object({
-  home_id: z.string().uuid(),
+  home_id: z.string().uuid().optional(),
   device_name: z.string().default('Android Phone Camera')
 });
 

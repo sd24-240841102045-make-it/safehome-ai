@@ -19,6 +19,7 @@ import { createDevicesRouter } from './routes/devices.js';
 import { createAlertsRouter } from './routes/alerts.js';
 import { createSettingsRouter } from './routes/settings.js';
 import { createAnalyticsRouter } from './routes/analytics.js';
+import { StreamWebSocketHandler } from './websocket/streamHandler.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 
 export async function bootstrap() {
@@ -44,11 +45,17 @@ export async function bootstrap() {
   // 4. Network IP Discovery for mobile pairing
   function getLocalIps() {
     const ifaces = os.networkInterfaces();
-    const ips: Array<{ interface: string; ip: string }> = [];
+    const ips: Array<{ interface: string; ip: string; url_phone_monitor: string; url_backend: string }> = [];
+    const vitePort = 5173;
     for (const name of Object.keys(ifaces)) {
       for (const net of ifaces[name] || []) {
         if (net.family === 'IPv4' && !net.internal) {
-          ips.push({ interface: name, ip: net.address });
+          ips.push({
+            interface: name,
+            ip: net.address,
+            url_phone_monitor: `http://${net.address}:${vitePort}/monitor`,
+            url_backend: `http://${net.address}:${config.PORT}`
+          });
         }
       }
     }
@@ -88,19 +95,7 @@ export async function bootstrap() {
 
   // 7. WebSocket Server
   const wss = new WebSocketServer({ server, path: '/ws' });
-  wss.on('connection', (ws) => {
-    logger.info('[WS] Client connected');
-    ws.on('message', (data) => {
-      try {
-        const msg = JSON.parse(data.toString());
-        if (msg.type === 'ping') {
-          ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
-        }
-      } catch (err: any) {
-        logger.error('[WS Error]', err);
-      }
-    });
-  });
+  const streamHandler = new StreamWebSocketHandler(wss, db, authService);
 
   // 8. Start Server (skip listening during automated tests)
   if (process.env.NODE_ENV !== 'test') {

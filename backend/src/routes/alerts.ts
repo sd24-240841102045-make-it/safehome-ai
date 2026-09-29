@@ -3,7 +3,7 @@ import { DatabaseService } from '../services/db.js';
 
 export function createAlertsRouter(db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
-  router.use(authMiddleware);
+  router.use('/alerts', authMiddleware);
 
   // 1. List Alerts for Authenticated User
   router.get('/alerts', async (req: Request, res: Response, next: NextFunction) => {
