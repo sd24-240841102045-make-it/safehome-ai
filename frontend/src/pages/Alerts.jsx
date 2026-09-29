@@ -1,0 +1,201 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Bell,
+  CheckCircle,
+  AlertTriangle,
+  Info,
+  Trash2,
+  CheckCheck,
+  Filter
+} from 'lucide-react';
+import { alertService } from '../services/api';
+
+export default function Alerts() {
+  const [alerts, setAlerts] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [filterSeverity, setFilterSeverity] = useState('');
+  const [filterUnreadOnly, setFilterUnreadOnly] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAlerts = async () => {
+    try {
+      setLoading(true);
+      const res = await alertService.getAlerts({
+        severity: filterSeverity || undefined,
+        unread_only: filterUnreadOnly || undefined
+      });
+      if (res.data.success) {
+        setAlerts(res.data.alerts);
+        setUnreadCount(res.data.unread_count);
+      }
+    } catch (err) {
+      console.error('Error fetching alerts:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAlerts();
+  }, [filterSeverity, filterUnreadOnly]);
+
+  const handleMarkRead = async (id) => {
+    try {
+      await alertService.markRead(id);
+      fetchAlerts();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await alertService.markAllRead();
+      fetchAlerts();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await alertService.deleteAlert(id);
+      fetchAlerts();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <Bell className="w-6 h-6 text-sky-400" /> Alert Center
+          </h1>
+          <p className="text-sm text-slate-400">Security notifications and safety warnings</p>
+        </div>
+
+        {unreadCount > 0 && (
+          <button
+            onClick={handleMarkAllRead}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition"
+          >
+            <CheckCheck className="w-4 h-4" /> Mark All as Read
+          </button>
+        )}
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => { setFilterSeverity(''); setFilterUnreadOnly(false); }}
+          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${!filterSeverity && !filterUnreadOnly ? 'bg-sky-500 text-slate-950 font-bold' : 'bg-slate-900 border border-slate-800 text-slate-400'}`}
+        >
+          All Alerts
+        </button>
+        <button
+          onClick={() => setFilterUnreadOnly(!filterUnreadOnly)}
+          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${filterUnreadOnly ? 'bg-sky-500 text-slate-950 font-bold' : 'bg-slate-900 border border-slate-800 text-slate-400'}`}
+        >
+          Unread Only ({unreadCount})
+        </button>
+        <button
+          onClick={() => setFilterSeverity('WARNING')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${filterSeverity === 'WARNING' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-900 border border-slate-800 text-slate-400'}`}
+        >
+          Warnings (Unusual Activity)
+        </button>
+        <button
+          onClick={() => setFilterSeverity('INFO')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${filterSeverity === 'INFO' ? 'bg-sky-500 text-slate-950 font-bold' : 'bg-slate-900 border border-slate-800 text-slate-400'}`}
+        >
+          Informational
+        </button>
+      </div>
+
+      {/* Alerts List */}
+      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+        {loading ? (
+          <div className="p-12 text-center text-slate-400 text-sm">Loading alerts...</div>
+        ) : alerts.length === 0 ? (
+          <div className="p-12 text-center space-y-2">
+            <CheckCircle className="w-10 h-10 text-emerald-500/50 mx-auto" />
+            <div className="text-sm font-medium text-slate-300">No alerts found</div>
+            <p className="text-xs text-slate-500">Your home surveillance environment is operating normally.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-800">
+            {alerts.map((alt) => (
+              <div
+                key={alt.id}
+                className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition ${alt.is_read ? 'opacity-70 bg-slate-950/30' : 'bg-slate-900/80 hover:bg-slate-800/40'}`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5">
+                    {alt.severity === 'WARNING' ? (
+                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                        <AlertTriangle className="w-4 h-4" />
+                      </div>
+                    ) : alt.severity === 'CRITICAL' ? (
+                      <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
+                        <AlertTriangle className="w-4 h-4" />
+                      </div>
+                    ) : (
+                      <div className="p-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
+                        <Info className="w-4 h-4" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-sm text-white">{alt.title}</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                        alt.severity === 'WARNING' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                        alt.severity === 'CRITICAL' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' :
+                        'bg-sky-500/20 text-sky-400 border border-sky-500/30'
+                      }`}>
+                        {alt.severity}
+                      </span>
+                      {!alt.is_read && (
+                        <span className="w-2 h-2 rounded-full bg-sky-400"></span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed max-w-xl">{alt.message}</p>
+                    <div className="text-[11px] font-mono text-slate-500">
+                      {new Date(alt.created_at).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-center">
+                  {!alt.is_read && (
+                    <button
+                      onClick={() => handleMarkRead(alt.id)}
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition"
+                    >
+                      Mark Read
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleDelete(alt.id)}
+                    className="p-1.5 rounded-lg bg-slate-800/60 hover:bg-rose-950/60 hover:text-rose-400 text-slate-400 transition"
+                    title="Delete Alert"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400">
+        🛡️ <strong>Safety Policy Notice:</strong> This assistive safety system alerts homeowners to observable visual detections and statistical variations. It never contacts emergency authorities automatically.
+      </div>
+    </div>
+  );
+}

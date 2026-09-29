@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: SafeHome AI API
+  description: Full-stack AI-assisted home safety and surveillance platform API specification.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000/api
+    description: Local Backend Gateway
+paths:
+  /health:
+    get:
+      summary: Service Health Check
+      description: Returns real operational status of Backend, Database, and Python AI service.
+      responses:
+        '200':
+          description: Health check report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, error]
+                  backend:
+                    type: string
+                    enum: [online, offline]
+                  database:
+                    type: string
+                    enum: [online, offline]
+                  ai_service:
+                    type: string
+                    enum: [online, offline]
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /dashboard:
+    get:
+      summary: Dashboard KPI Metrics
+      description: Returns real database-calculated event metrics for the authenticated homeowner.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Summary metrics
+        '401':
+          description: Unauthorized
+
+  /events:
+    get:
+      summary: Historical Event Query
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 15 }
+        - name: category
+          in: query
+          schema: { type: string, enum: [person, animal, vehicle, other] }
+        - name: is_unusual
+          in: query
+          schema: { type: boolean }
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of events
+    post:
+      summary: Create Event
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Event created
+
+  /devices/pair:
+    post:
+      summary: Exchange Pairing Code
+      description: Exchanging a 6-digit pairing code for a mobile device token.
+      responses:
+        '200':
+          description: Pairing successful
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

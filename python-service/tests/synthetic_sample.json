@@ -1,0 +1,5890 @@
+[
+  {
+    "timestamp_utc": "2026-09-15T16:46:29.632444Z",
+    "hour": 2,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T17:54:29.632444Z",
+    "hour": 3,
+    "weekday": 1,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T19:06:29.632444Z",
+    "hour": 4,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T19:35:29.632444Z",
+    "hour": 5,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T21:58:29.632444Z",
+    "hour": 7,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T21:30:29.632444Z",
+    "hour": 7,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T21:46:29.632444Z",
+    "hour": 7,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T21:28:29.632444Z",
+    "hour": 7,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T22:39:29.632444Z",
+    "hour": 8,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T00:22:29.632444Z",
+    "hour": 9,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T23:46:29.632444Z",
+    "hour": 9,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T00:08:29.632444Z",
+    "hour": 9,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-15T23:47:29.632444Z",
+    "hour": 9,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T00:36:29.632444Z",
+    "hour": 10,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T01:56:29.632444Z",
+    "hour": 11,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T01:30:29.632444Z",
+    "hour": 11,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T01:30:29.632444Z",
+    "hour": 11,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T01:37:29.632444Z",
+    "hour": 11,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T01:47:29.632444Z",
+    "hour": 11,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T02:30:29.632444Z",
+    "hour": 12,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T04:17:29.632444Z",
+    "hour": 13,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T05:02:29.632444Z",
+    "hour": 14,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T04:50:29.632444Z",
+    "hour": 14,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T05:20:29.632444Z",
+    "hour": 14,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T05:48:29.632444Z",
+    "hour": 15,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T05:31:29.632444Z",
+    "hour": 15,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T05:51:29.632444Z",
+    "hour": 15,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T06:04:29.632444Z",
+    "hour": 15,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T06:29:29.632444Z",
+    "hour": 16,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T06:30:29.632444Z",
+    "hour": 16,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T07:20:29.632444Z",
+    "hour": 16,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T08:13:29.632444Z",
+    "hour": 17,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T08:04:29.632444Z",
+    "hour": 17,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T07:46:29.632444Z",
+    "hour": 17,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T07:57:29.632444Z",
+    "hour": 17,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T07:31:29.632444Z",
+    "hour": 17,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T08:39:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T09:05:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T08:40:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T08:45:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T08:31:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T10:19:29.632444Z",
+    "hour": 19,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T09:41:29.632444Z",
+    "hour": 19,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T09:56:29.632444Z",
+    "hour": 19,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T09:41:29.632444Z",
+    "hour": 19,
+    "weekday": 1,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T10:38:29.632444Z",
+    "hour": 20,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T12:08:29.632444Z",
+    "hour": 21,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T11:59:29.632444Z",
+    "hour": 21,
+    "weekday": 1,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T12:26:29.632444Z",
+    "hour": 22,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T13:40:29.632444Z",
+    "hour": 23,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T14:39:29.632444Z",
+    "hour": 0,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T19:04:29.632444Z",
+    "hour": 4,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T19:36:29.632444Z",
+    "hour": 5,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T20:57:29.632444Z",
+    "hour": 6,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T21:40:29.632444Z",
+    "hour": 7,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T21:30:29.632444Z",
+    "hour": 7,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T21:59:29.632444Z",
+    "hour": 7,
+    "weekday": 2,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T22:47:29.632444Z",
+    "hour": 8,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-16T23:53:29.632444Z",
+    "hour": 9,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T00:07:29.632444Z",
+    "hour": 9,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T01:05:29.632444Z",
+    "hour": 10,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T00:28:29.632444Z",
+    "hour": 10,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T01:38:29.632444Z",
+    "hour": 11,
+    "weekday": 2,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T02:13:29.632444Z",
+    "hour": 11,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T01:31:29.632444Z",
+    "hour": 11,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T02:26:29.632444Z",
+    "hour": 12,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T02:34:29.632444Z",
+    "hour": 12,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T02:50:29.632444Z",
+    "hour": 12,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T02:55:29.632444Z",
+    "hour": 12,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T02:41:29.632444Z",
+    "hour": 12,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T03:30:29.632444Z",
+    "hour": 13,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T03:38:29.632444Z",
+    "hour": 13,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T03:48:29.632444Z",
+    "hour": 13,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T04:23:29.632444Z",
+    "hour": 13,
+    "weekday": 2,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T03:41:29.632444Z",
+    "hour": 13,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T05:13:29.632444Z",
+    "hour": 14,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T05:07:29.632444Z",
+    "hour": 14,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T05:53:29.632444Z",
+    "hour": 15,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T05:45:29.632444Z",
+    "hour": 15,
+    "weekday": 2,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T06:54:29.632444Z",
+    "hour": 16,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T06:35:29.632444Z",
+    "hour": 16,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T06:56:29.632444Z",
+    "hour": 16,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T06:39:29.632444Z",
+    "hour": 16,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T07:58:29.632444Z",
+    "hour": 17,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T08:04:29.632444Z",
+    "hour": 17,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T08:41:29.632444Z",
+    "hour": 18,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T08:30:29.632444Z",
+    "hour": 18,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T09:03:29.632444Z",
+    "hour": 18,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T09:56:29.632444Z",
+    "hour": 19,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T10:01:29.632444Z",
+    "hour": 19,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T11:07:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T11:24:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T10:33:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T11:11:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T10:57:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T11:31:29.632444Z",
+    "hour": 21,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T12:24:29.632444Z",
+    "hour": 21,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T12:13:29.632444Z",
+    "hour": 21,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T12:36:29.632444Z",
+    "hour": 22,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T13:02:29.632444Z",
+    "hour": 22,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T13:43:29.632444Z",
+    "hour": 23,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T17:24:29.632444Z",
+    "hour": 2,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T22:17:29.632444Z",
+    "hour": 7,
+    "weekday": 3,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T21:31:29.632444Z",
+    "hour": 7,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T22:48:29.632444Z",
+    "hour": 8,
+    "weekday": 3,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T22:51:29.632444Z",
+    "hour": 8,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T00:20:29.632444Z",
+    "hour": 9,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T23:31:29.632444Z",
+    "hour": 9,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T23:36:29.632444Z",
+    "hour": 9,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-17T23:52:29.632444Z",
+    "hour": 9,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T00:59:29.632444Z",
+    "hour": 10,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T00:33:29.632444Z",
+    "hour": 10,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T01:36:29.632444Z",
+    "hour": 11,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T01:41:29.632444Z",
+    "hour": 11,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T02:13:29.632444Z",
+    "hour": 11,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T02:29:29.632444Z",
+    "hour": 12,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T04:17:29.632444Z",
+    "hour": 13,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T03:46:29.632444Z",
+    "hour": 13,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T03:45:29.632444Z",
+    "hour": 13,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T03:37:29.632444Z",
+    "hour": 13,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T05:12:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T05:18:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T05:08:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T05:08:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T05:15:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T05:56:29.632444Z",
+    "hour": 15,
+    "weekday": 3,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T05:53:29.632444Z",
+    "hour": 15,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T05:36:29.632444Z",
+    "hour": 15,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T07:23:29.632444Z",
+    "hour": 16,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T08:21:29.632444Z",
+    "hour": 17,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T09:09:29.632444Z",
+    "hour": 18,
+    "weekday": 3,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T09:22:29.632444Z",
+    "hour": 18,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T08:32:29.632444Z",
+    "hour": 18,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T09:41:29.632444Z",
+    "hour": 19,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T10:30:29.632444Z",
+    "hour": 20,
+    "weekday": 3,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T11:01:29.632444Z",
+    "hour": 20,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T10:36:29.632444Z",
+    "hour": 20,
+    "weekday": 3,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T12:24:29.632444Z",
+    "hour": 21,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T12:03:29.632444Z",
+    "hour": 21,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T12:37:29.632444Z",
+    "hour": 22,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T13:19:29.632444Z",
+    "hour": 22,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T13:45:29.632444Z",
+    "hour": 23,
+    "weekday": 3,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T14:39:29.632444Z",
+    "hour": 0,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T16:01:29.632444Z",
+    "hour": 1,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T17:00:29.632444Z",
+    "hour": 2,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T17:25:29.632444Z",
+    "hour": 3,
+    "weekday": 4,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T19:23:29.632444Z",
+    "hour": 4,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T22:16:29.632444Z",
+    "hour": 7,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T22:11:29.632444Z",
+    "hour": 7,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T22:05:29.632444Z",
+    "hour": 7,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T21:27:29.632444Z",
+    "hour": 7,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T22:37:29.632444Z",
+    "hour": 8,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T23:12:29.632444Z",
+    "hour": 8,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T22:40:29.632444Z",
+    "hour": 8,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T23:17:29.632444Z",
+    "hour": 8,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T22:49:29.632444Z",
+    "hour": 8,
+    "weekday": 4,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T00:08:29.632444Z",
+    "hour": 9,
+    "weekday": 4,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T23:47:29.632444Z",
+    "hour": 9,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-18T23:42:29.632444Z",
+    "hour": 9,
+    "weekday": 4,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T01:01:29.632444Z",
+    "hour": 10,
+    "weekday": 4,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T00:40:29.632444Z",
+    "hour": 10,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T00:33:29.632444Z",
+    "hour": 10,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T01:28:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T02:13:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T01:40:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T02:03:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T02:17:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T02:47:29.632444Z",
+    "hour": 12,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T03:52:29.632444Z",
+    "hour": 13,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T04:17:29.632444Z",
+    "hour": 13,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T04:06:29.632444Z",
+    "hour": 13,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T03:36:29.632444Z",
+    "hour": 13,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T05:02:29.632444Z",
+    "hour": 14,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T04:58:29.632444Z",
+    "hour": 14,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T05:17:29.632444Z",
+    "hour": 14,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T05:14:29.632444Z",
+    "hour": 14,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T05:44:29.632444Z",
+    "hour": 15,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T06:06:29.632444Z",
+    "hour": 15,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T07:02:29.632444Z",
+    "hour": 16,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T07:13:29.632444Z",
+    "hour": 16,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T06:40:29.632444Z",
+    "hour": 16,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T07:14:29.632444Z",
+    "hour": 16,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T07:25:29.632444Z",
+    "hour": 17,
+    "weekday": 4,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T07:45:29.632444Z",
+    "hour": 17,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T07:40:29.632444Z",
+    "hour": 17,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T08:04:29.632444Z",
+    "hour": 17,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T08:59:29.632444Z",
+    "hour": 18,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T08:27:29.632444Z",
+    "hour": 18,
+    "weekday": 4,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T09:04:29.632444Z",
+    "hour": 18,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T08:42:29.632444Z",
+    "hour": 18,
+    "weekday": 4,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T09:35:29.632444Z",
+    "hour": 19,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T10:15:29.632444Z",
+    "hour": 19,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T09:33:29.632444Z",
+    "hour": 19,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T10:13:29.632444Z",
+    "hour": 19,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T10:50:29.632444Z",
+    "hour": 20,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T11:09:29.632444Z",
+    "hour": 20,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T11:08:29.632444Z",
+    "hour": 20,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T11:37:29.632444Z",
+    "hour": 21,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T12:10:29.632444Z",
+    "hour": 21,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T12:17:29.632444Z",
+    "hour": 21,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T12:47:29.632444Z",
+    "hour": 22,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T13:50:29.632444Z",
+    "hour": 23,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T15:20:29.632444Z",
+    "hour": 0,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T15:54:29.632444Z",
+    "hour": 1,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T18:02:29.632444Z",
+    "hour": 3,
+    "weekday": 5,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T20:42:29.632444Z",
+    "hour": 6,
+    "weekday": 5,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T21:59:29.632444Z",
+    "hour": 7,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T21:43:29.632444Z",
+    "hour": 7,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T23:15:29.632444Z",
+    "hour": 8,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T22:37:29.632444Z",
+    "hour": 8,
+    "weekday": 5,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T23:13:29.632444Z",
+    "hour": 8,
+    "weekday": 5,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T22:54:29.632444Z",
+    "hour": 8,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T23:08:29.632444Z",
+    "hour": 8,
+    "weekday": 5,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T23:33:29.632444Z",
+    "hour": 9,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T00:05:29.632444Z",
+    "hour": 9,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T00:23:29.632444Z",
+    "hour": 9,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-19T23:31:29.632444Z",
+    "hour": 9,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T00:06:29.632444Z",
+    "hour": 9,
+    "weekday": 5,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T01:01:29.632444Z",
+    "hour": 10,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T01:13:29.632444Z",
+    "hour": 10,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T01:21:29.632444Z",
+    "hour": 10,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T01:14:29.632444Z",
+    "hour": 10,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T01:07:29.632444Z",
+    "hour": 10,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T01:51:29.632444Z",
+    "hour": 11,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T02:00:29.632444Z",
+    "hour": 11,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T01:33:29.632444Z",
+    "hour": 11,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T03:22:29.632444Z",
+    "hour": 12,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T02:25:29.632444Z",
+    "hour": 12,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T03:59:29.632444Z",
+    "hour": 13,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T03:47:29.632444Z",
+    "hour": 13,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T03:41:29.632444Z",
+    "hour": 13,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T03:50:29.632444Z",
+    "hour": 13,
+    "weekday": 5,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T04:10:29.632444Z",
+    "hour": 13,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T04:32:29.632444Z",
+    "hour": 14,
+    "weekday": 5,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T04:33:29.632444Z",
+    "hour": 14,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T05:21:29.632444Z",
+    "hour": 14,
+    "weekday": 5,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T05:33:29.632444Z",
+    "hour": 15,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T05:59:29.632444Z",
+    "hour": 15,
+    "weekday": 5,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T06:39:29.632444Z",
+    "hour": 16,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T06:39:29.632444Z",
+    "hour": 16,
+    "weekday": 5,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T08:06:29.632444Z",
+    "hour": 17,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T07:31:29.632444Z",
+    "hour": 17,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T08:02:29.632444Z",
+    "hour": 17,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T08:16:29.632444Z",
+    "hour": 17,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T07:38:29.632444Z",
+    "hour": 17,
+    "weekday": 5,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T09:17:29.632444Z",
+    "hour": 18,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T09:32:29.632444Z",
+    "hour": 19,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T09:38:29.632444Z",
+    "hour": 19,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T09:32:29.632444Z",
+    "hour": 19,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T11:08:29.632444Z",
+    "hour": 20,
+    "weekday": 5,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T12:11:29.632444Z",
+    "hour": 21,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T11:50:29.632444Z",
+    "hour": 21,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T13:22:29.632444Z",
+    "hour": 22,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T13:05:29.632444Z",
+    "hour": 22,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T12:31:29.632444Z",
+    "hour": 22,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T13:24:29.632444Z",
+    "hour": 22,
+    "weekday": 5,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T13:18:29.632444Z",
+    "hour": 22,
+    "weekday": 5,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T16:47:29.632444Z",
+    "hour": 2,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T18:06:29.632444Z",
+    "hour": 3,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T19:15:29.632444Z",
+    "hour": 4,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T19:46:29.632444Z",
+    "hour": 5,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T21:41:29.632444Z",
+    "hour": 7,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T21:54:29.632444Z",
+    "hour": 7,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T21:40:29.632444Z",
+    "hour": 7,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T21:35:29.632444Z",
+    "hour": 7,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T22:06:29.632444Z",
+    "hour": 7,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T22:45:29.632444Z",
+    "hour": 8,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T22:59:29.632444Z",
+    "hour": 8,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T23:21:29.632444Z",
+    "hour": 8,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T22:52:29.632444Z",
+    "hour": 8,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T23:41:29.632444Z",
+    "hour": 9,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T23:26:29.632444Z",
+    "hour": 9,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-20T23:31:29.632444Z",
+    "hour": 9,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T00:48:29.632444Z",
+    "hour": 10,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T00:53:29.632444Z",
+    "hour": 10,
+    "weekday": 6,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T01:00:29.632444Z",
+    "hour": 10,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T01:17:29.632444Z",
+    "hour": 10,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T00:25:29.632444Z",
+    "hour": 10,
+    "weekday": 6,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T02:18:29.632444Z",
+    "hour": 11,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T02:12:29.632444Z",
+    "hour": 11,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T02:14:29.632444Z",
+    "hour": 11,
+    "weekday": 6,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T01:44:29.632444Z",
+    "hour": 11,
+    "weekday": 6,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T02:31:29.632444Z",
+    "hour": 12,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T02:57:29.632444Z",
+    "hour": 12,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T03:23:29.632444Z",
+    "hour": 12,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T02:42:29.632444Z",
+    "hour": 12,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T02:25:29.632444Z",
+    "hour": 12,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T03:58:29.632444Z",
+    "hour": 13,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T03:54:29.632444Z",
+    "hour": 13,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T03:45:29.632444Z",
+    "hour": 13,
+    "weekday": 6,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T04:42:29.632444Z",
+    "hour": 14,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T04:33:29.632444Z",
+    "hour": 14,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T04:59:29.632444Z",
+    "hour": 14,
+    "weekday": 6,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T05:42:29.632444Z",
+    "hour": 15,
+    "weekday": 6,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T07:10:29.632444Z",
+    "hour": 16,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T06:41:29.632444Z",
+    "hour": 16,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T06:51:29.632444Z",
+    "hour": 16,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T07:20:29.632444Z",
+    "hour": 16,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T07:32:29.632444Z",
+    "hour": 17,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T09:09:29.632444Z",
+    "hour": 18,
+    "weekday": 6,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T08:29:29.632444Z",
+    "hour": 18,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T08:50:29.632444Z",
+    "hour": 18,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T08:36:29.632444Z",
+    "hour": 18,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T08:31:29.632444Z",
+    "hour": 18,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T09:48:29.632444Z",
+    "hour": 19,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T10:01:29.632444Z",
+    "hour": 19,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T11:22:29.632444Z",
+    "hour": 20,
+    "weekday": 6,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T10:37:29.632444Z",
+    "hour": 20,
+    "weekday": 6,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T11:37:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T11:31:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T11:59:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T11:41:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T11:30:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T13:09:29.632444Z",
+    "hour": 22,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T12:39:29.632444Z",
+    "hour": 22,
+    "weekday": 6,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T12:40:29.632444Z",
+    "hour": 22,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T15:57:29.632444Z",
+    "hour": 1,
+    "weekday": 0,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T17:57:29.632444Z",
+    "hour": 3,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T18:51:29.632444Z",
+    "hour": 4,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T20:04:29.632444Z",
+    "hour": 5,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T20:47:29.632444Z",
+    "hour": 6,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T21:47:29.632444Z",
+    "hour": 7,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T22:24:29.632444Z",
+    "hour": 7,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T22:59:29.632444Z",
+    "hour": 8,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T22:43:29.632444Z",
+    "hour": 8,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T23:21:29.632444Z",
+    "hour": 8,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-21T23:53:29.632444Z",
+    "hour": 9,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T00:25:29.632444Z",
+    "hour": 10,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T00:42:29.632444Z",
+    "hour": 10,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T00:40:29.632444Z",
+    "hour": 10,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T01:29:29.632444Z",
+    "hour": 11,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T02:18:29.632444Z",
+    "hour": 11,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T02:26:29.632444Z",
+    "hour": 12,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T03:40:29.632444Z",
+    "hour": 13,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T03:27:29.632444Z",
+    "hour": 13,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T04:03:29.632444Z",
+    "hour": 13,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T03:39:29.632444Z",
+    "hour": 13,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T04:57:29.632444Z",
+    "hour": 14,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T05:18:29.632444Z",
+    "hour": 14,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T06:12:29.632444Z",
+    "hour": 15,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T06:31:29.632444Z",
+    "hour": 16,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T06:55:29.632444Z",
+    "hour": 16,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T08:21:29.632444Z",
+    "hour": 17,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T09:05:29.632444Z",
+    "hour": 18,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T08:49:29.632444Z",
+    "hour": 18,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T08:39:29.632444Z",
+    "hour": 18,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T08:36:29.632444Z",
+    "hour": 18,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T10:06:29.632444Z",
+    "hour": 19,
+    "weekday": 0,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T09:37:29.632444Z",
+    "hour": 19,
+    "weekday": 0,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T09:50:29.632444Z",
+    "hour": 19,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T11:05:29.632444Z",
+    "hour": 20,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T10:42:29.632444Z",
+    "hour": 20,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T11:42:29.632444Z",
+    "hour": 21,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T11:47:29.632444Z",
+    "hour": 21,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T11:30:29.632444Z",
+    "hour": 21,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T12:37:29.632444Z",
+    "hour": 22,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T16:43:29.632444Z",
+    "hour": 2,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T19:20:29.632444Z",
+    "hour": 4,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T19:41:29.632444Z",
+    "hour": 5,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T21:07:29.632444Z",
+    "hour": 6,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T22:04:29.632444Z",
+    "hour": 7,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T21:32:29.632444Z",
+    "hour": 7,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T21:51:29.632444Z",
+    "hour": 7,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T22:04:29.632444Z",
+    "hour": 7,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T21:39:29.632444Z",
+    "hour": 7,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T23:00:29.632444Z",
+    "hour": 8,
+    "weekday": 1,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T23:02:29.632444Z",
+    "hour": 8,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T00:14:29.632444Z",
+    "hour": 9,
+    "weekday": 1,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T23:26:29.632444Z",
+    "hour": 9,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T23:42:29.632444Z",
+    "hour": 9,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T23:50:29.632444Z",
+    "hour": 9,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-22T23:41:29.632444Z",
+    "hour": 9,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T00:58:29.632444Z",
+    "hour": 10,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T01:25:29.632444Z",
+    "hour": 11,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T03:11:29.632444Z",
+    "hour": 12,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T02:47:29.632444Z",
+    "hour": 12,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T03:22:29.632444Z",
+    "hour": 12,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T03:52:29.632444Z",
+    "hour": 13,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T03:40:29.632444Z",
+    "hour": 13,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T03:53:29.632444Z",
+    "hour": 13,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T04:40:29.632444Z",
+    "hour": 14,
+    "weekday": 1,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T04:56:29.632444Z",
+    "hour": 14,
+    "weekday": 1,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T04:48:29.632444Z",
+    "hour": 14,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T06:00:29.632444Z",
+    "hour": 15,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T06:10:29.632444Z",
+    "hour": 15,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T05:40:29.632444Z",
+    "hour": 15,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T06:00:29.632444Z",
+    "hour": 15,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T06:45:29.632444Z",
+    "hour": 16,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T06:56:29.632444Z",
+    "hour": 16,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T07:11:29.632444Z",
+    "hour": 16,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T06:51:29.632444Z",
+    "hour": 16,
+    "weekday": 1,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T06:52:29.632444Z",
+    "hour": 16,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T08:15:29.632444Z",
+    "hour": 17,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T08:16:29.632444Z",
+    "hour": 17,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T07:37:29.632444Z",
+    "hour": 17,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T07:57:29.632444Z",
+    "hour": 17,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T09:23:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T09:17:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T09:22:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T08:32:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T08:56:29.632444Z",
+    "hour": 18,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T09:45:29.632444Z",
+    "hour": 19,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T09:53:29.632444Z",
+    "hour": 19,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T10:02:29.632444Z",
+    "hour": 19,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T09:39:29.632444Z",
+    "hour": 19,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T11:00:29.632444Z",
+    "hour": 20,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T11:10:29.632444Z",
+    "hour": 20,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T10:45:29.632444Z",
+    "hour": 20,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T11:32:29.632444Z",
+    "hour": 21,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T11:46:29.632444Z",
+    "hour": 21,
+    "weekday": 1,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T12:24:29.632444Z",
+    "hour": 21,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T11:29:29.632444Z",
+    "hour": 21,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T12:24:29.632444Z",
+    "hour": 21,
+    "weekday": 1,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T12:55:29.632444Z",
+    "hour": 22,
+    "weekday": 1,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T12:50:29.632444Z",
+    "hour": 22,
+    "weekday": 1,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T15:20:29.632444Z",
+    "hour": 0,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T16:13:29.632444Z",
+    "hour": 1,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T20:13:29.632444Z",
+    "hour": 5,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T20:51:29.632444Z",
+    "hour": 6,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T22:03:29.632444Z",
+    "hour": 7,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T21:48:29.632444Z",
+    "hour": 7,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T22:16:29.632444Z",
+    "hour": 7,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T22:09:29.632444Z",
+    "hour": 7,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T23:17:29.632444Z",
+    "hour": 8,
+    "weekday": 2,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T00:24:29.632444Z",
+    "hour": 9,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T00:23:29.632444Z",
+    "hour": 9,
+    "weekday": 2,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-23T23:46:29.632444Z",
+    "hour": 9,
+    "weekday": 2,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T00:19:29.632444Z",
+    "hour": 9,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T01:11:29.632444Z",
+    "hour": 10,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T00:37:29.632444Z",
+    "hour": 10,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T00:58:29.632444Z",
+    "hour": 10,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T01:06:29.632444Z",
+    "hour": 10,
+    "weekday": 2,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T00:40:29.632444Z",
+    "hour": 10,
+    "weekday": 2,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T01:50:29.632444Z",
+    "hour": 11,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T01:57:29.632444Z",
+    "hour": 11,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T03:18:29.632444Z",
+    "hour": 12,
+    "weekday": 2,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T02:52:29.632444Z",
+    "hour": 12,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T03:04:29.632444Z",
+    "hour": 12,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T03:17:29.632444Z",
+    "hour": 12,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T04:24:29.632444Z",
+    "hour": 13,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T04:10:29.632444Z",
+    "hour": 13,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T04:47:29.632444Z",
+    "hour": 14,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T05:14:29.632444Z",
+    "hour": 14,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T04:43:29.632444Z",
+    "hour": 14,
+    "weekday": 2,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T04:52:29.632444Z",
+    "hour": 14,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T05:07:29.632444Z",
+    "hour": 14,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T05:47:29.632444Z",
+    "hour": 15,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T07:13:29.632444Z",
+    "hour": 16,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T07:22:29.632444Z",
+    "hour": 16,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T06:48:29.632444Z",
+    "hour": 16,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T06:47:29.632444Z",
+    "hour": 16,
+    "weekday": 2,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T06:33:29.632444Z",
+    "hour": 16,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T08:23:29.632444Z",
+    "hour": 17,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T07:47:29.632444Z",
+    "hour": 17,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T07:57:29.632444Z",
+    "hour": 17,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T08:57:29.632444Z",
+    "hour": 18,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T08:33:29.632444Z",
+    "hour": 18,
+    "weekday": 2,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T08:51:29.632444Z",
+    "hour": 18,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T08:50:29.632444Z",
+    "hour": 18,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T08:47:29.632444Z",
+    "hour": 18,
+    "weekday": 2,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T09:41:29.632444Z",
+    "hour": 19,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T11:14:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T10:52:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T10:58:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T10:27:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T10:32:29.632444Z",
+    "hour": 20,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T11:36:29.632444Z",
+    "hour": 21,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T11:43:29.632444Z",
+    "hour": 21,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T11:45:29.632444Z",
+    "hour": 21,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T11:25:29.632444Z",
+    "hour": 21,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T12:28:29.632444Z",
+    "hour": 22,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T13:06:29.632444Z",
+    "hour": 22,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T13:19:29.632444Z",
+    "hour": 22,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T12:44:29.632444Z",
+    "hour": 22,
+    "weekday": 2,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T13:54:29.632444Z",
+    "hour": 23,
+    "weekday": 2,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T14:27:29.632444Z",
+    "hour": 0,
+    "weekday": 3,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T16:07:29.632444Z",
+    "hour": 1,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T17:02:29.632444Z",
+    "hour": 2,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T19:32:29.632444Z",
+    "hour": 5,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T21:23:29.632444Z",
+    "hour": 6,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T22:01:29.632444Z",
+    "hour": 7,
+    "weekday": 3,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T22:24:29.632444Z",
+    "hour": 7,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T22:16:29.632444Z",
+    "hour": 7,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T23:11:29.632444Z",
+    "hour": 8,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T23:03:29.632444Z",
+    "hour": 8,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T23:16:29.632444Z",
+    "hour": 8,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T23:59:29.632444Z",
+    "hour": 9,
+    "weekday": 3,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T23:47:29.632444Z",
+    "hour": 9,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T23:53:29.632444Z",
+    "hour": 9,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T00:19:29.632444Z",
+    "hour": 9,
+    "weekday": 3,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-24T23:44:29.632444Z",
+    "hour": 9,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T01:01:29.632444Z",
+    "hour": 10,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T01:59:29.632444Z",
+    "hour": 11,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T02:07:29.632444Z",
+    "hour": 11,
+    "weekday": 3,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T01:29:29.632444Z",
+    "hour": 11,
+    "weekday": 3,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T01:49:29.632444Z",
+    "hour": 11,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T03:10:29.632444Z",
+    "hour": 12,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T02:31:29.632444Z",
+    "hour": 12,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T03:12:29.632444Z",
+    "hour": 12,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T03:49:29.632444Z",
+    "hour": 13,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T04:26:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T04:26:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T04:55:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T04:43:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T05:22:29.632444Z",
+    "hour": 14,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T05:49:29.632444Z",
+    "hour": 15,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T07:20:29.632444Z",
+    "hour": 16,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T07:15:29.632444Z",
+    "hour": 16,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T07:11:29.632444Z",
+    "hour": 16,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T07:04:29.632444Z",
+    "hour": 16,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T07:14:29.632444Z",
+    "hour": 16,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T07:45:29.632444Z",
+    "hour": 17,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T08:56:29.632444Z",
+    "hour": 18,
+    "weekday": 3,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T09:29:29.632444Z",
+    "hour": 19,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T11:10:29.632444Z",
+    "hour": 20,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T10:44:29.632444Z",
+    "hour": 20,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T10:35:29.632444Z",
+    "hour": 20,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T10:58:29.632444Z",
+    "hour": 20,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T12:10:29.632444Z",
+    "hour": 21,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T11:48:29.632444Z",
+    "hour": 21,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T13:24:29.632444Z",
+    "hour": 22,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T13:11:29.632444Z",
+    "hour": 22,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T13:28:29.632444Z",
+    "hour": 23,
+    "weekday": 3,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T17:17:29.632444Z",
+    "hour": 2,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T18:17:29.632444Z",
+    "hour": 3,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T18:30:29.632444Z",
+    "hour": 4,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T20:23:29.632444Z",
+    "hour": 5,
+    "weekday": 4,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T21:08:29.632444Z",
+    "hour": 6,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T22:16:29.632444Z",
+    "hour": 7,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T22:21:29.632444Z",
+    "hour": 7,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T21:25:29.632444Z",
+    "hour": 7,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T22:10:29.632444Z",
+    "hour": 7,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T21:48:29.632444Z",
+    "hour": 7,
+    "weekday": 4,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T22:54:29.632444Z",
+    "hour": 8,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T22:33:29.632444Z",
+    "hour": 8,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T23:29:29.632444Z",
+    "hour": 9,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T23:52:29.632444Z",
+    "hour": 9,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-25T23:42:29.632444Z",
+    "hour": 9,
+    "weekday": 4,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T00:21:29.632444Z",
+    "hour": 9,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T00:09:29.632444Z",
+    "hour": 9,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T01:07:29.632444Z",
+    "hour": 10,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T01:34:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T01:45:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T01:37:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T01:28:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T02:02:29.632444Z",
+    "hour": 11,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T02:53:29.632444Z",
+    "hour": 12,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T03:45:29.632444Z",
+    "hour": 13,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T04:20:29.632444Z",
+    "hour": 13,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T03:52:29.632444Z",
+    "hour": 13,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T04:24:29.632444Z",
+    "hour": 13,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T05:09:29.632444Z",
+    "hour": 14,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T05:13:29.632444Z",
+    "hour": 14,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T04:41:29.632444Z",
+    "hour": 14,
+    "weekday": 4,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T05:32:29.632444Z",
+    "hour": 15,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T06:33:29.632444Z",
+    "hour": 16,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T07:04:29.632444Z",
+    "hour": 16,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T06:32:29.632444Z",
+    "hour": 16,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T07:25:29.632444Z",
+    "hour": 17,
+    "weekday": 4,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T08:15:29.632444Z",
+    "hour": 17,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T08:23:29.632444Z",
+    "hour": 17,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T08:08:29.632444Z",
+    "hour": 17,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T09:16:29.632444Z",
+    "hour": 18,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T08:52:29.632444Z",
+    "hour": 18,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T09:28:29.632444Z",
+    "hour": 19,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T10:00:29.632444Z",
+    "hour": 19,
+    "weekday": 4,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T10:24:29.632444Z",
+    "hour": 19,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T09:31:29.632444Z",
+    "hour": 19,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T09:37:29.632444Z",
+    "hour": 19,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T11:13:29.632444Z",
+    "hour": 20,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T10:59:29.632444Z",
+    "hour": 20,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T11:29:29.632444Z",
+    "hour": 21,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T13:06:29.632444Z",
+    "hour": 22,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T13:12:29.632444Z",
+    "hour": 22,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T13:06:29.632444Z",
+    "hour": 22,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T13:48:29.632444Z",
+    "hour": 23,
+    "weekday": 4,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T15:54:29.632444Z",
+    "hour": 1,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T16:29:29.632444Z",
+    "hour": 2,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T19:21:29.632444Z",
+    "hour": 4,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T21:25:29.632444Z",
+    "hour": 7,
+    "weekday": 5,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T22:41:29.632444Z",
+    "hour": 8,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T22:25:29.632444Z",
+    "hour": 8,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T00:21:29.632444Z",
+    "hour": 9,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T00:13:29.632444Z",
+    "hour": 9,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-26T23:48:29.632444Z",
+    "hour": 9,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T00:55:29.632444Z",
+    "hour": 10,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T00:38:29.632444Z",
+    "hour": 10,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T01:10:29.632444Z",
+    "hour": 10,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T00:46:29.632444Z",
+    "hour": 10,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T01:51:29.632444Z",
+    "hour": 11,
+    "weekday": 5,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T03:01:29.632444Z",
+    "hour": 12,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T03:07:29.632444Z",
+    "hour": 12,
+    "weekday": 5,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T03:50:29.632444Z",
+    "hour": 13,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T03:51:29.632444Z",
+    "hour": 13,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T03:50:29.632444Z",
+    "hour": 13,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T05:16:29.632444Z",
+    "hour": 14,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T04:40:29.632444Z",
+    "hour": 14,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T05:25:29.632444Z",
+    "hour": 15,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T05:27:29.632444Z",
+    "hour": 15,
+    "weekday": 5,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T06:02:29.632444Z",
+    "hour": 15,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T06:07:29.632444Z",
+    "hour": 15,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T06:29:29.632444Z",
+    "hour": 16,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T07:13:29.632444Z",
+    "hour": 16,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T08:10:29.632444Z",
+    "hour": 17,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T07:40:29.632444Z",
+    "hour": 17,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T07:51:29.632444Z",
+    "hour": 17,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T07:27:29.632444Z",
+    "hour": 17,
+    "weekday": 5,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T08:36:29.632444Z",
+    "hour": 18,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T08:31:29.632444Z",
+    "hour": 18,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T08:54:29.632444Z",
+    "hour": 18,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T08:42:29.632444Z",
+    "hour": 18,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T08:58:29.632444Z",
+    "hour": 18,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T10:17:29.632444Z",
+    "hour": 19,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T09:33:29.632444Z",
+    "hour": 19,
+    "weekday": 5,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T11:18:29.632444Z",
+    "hour": 20,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T10:48:29.632444Z",
+    "hour": 20,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T11:18:29.632444Z",
+    "hour": 20,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T11:44:29.632444Z",
+    "hour": 21,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T11:38:29.632444Z",
+    "hour": 21,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T12:23:29.632444Z",
+    "hour": 21,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T12:01:29.632444Z",
+    "hour": 21,
+    "weekday": 5,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T12:27:29.632444Z",
+    "hour": 22,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T12:48:29.632444Z",
+    "hour": 22,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T12:48:29.632444Z",
+    "hour": 22,
+    "weekday": 5,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T14:30:29.632444Z",
+    "hour": 0,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T21:15:29.632444Z",
+    "hour": 6,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T21:55:29.632444Z",
+    "hour": 7,
+    "weekday": 6,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T22:04:29.632444Z",
+    "hour": 7,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T21:44:29.632444Z",
+    "hour": 7,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T21:48:29.632444Z",
+    "hour": 7,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T23:12:29.632444Z",
+    "hour": 8,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T22:47:29.632444Z",
+    "hour": 8,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-27T23:53:29.632444Z",
+    "hour": 9,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T00:56:29.632444Z",
+    "hour": 10,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T01:10:29.632444Z",
+    "hour": 10,
+    "weekday": 6,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T01:12:29.632444Z",
+    "hour": 10,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T00:58:29.632444Z",
+    "hour": 10,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T02:08:29.632444Z",
+    "hour": 11,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T02:56:29.632444Z",
+    "hour": 12,
+    "weekday": 6,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T02:58:29.632444Z",
+    "hour": 12,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T02:26:29.632444Z",
+    "hour": 12,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T03:52:29.632444Z",
+    "hour": 13,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T04:42:29.632444Z",
+    "hour": 14,
+    "weekday": 6,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T04:25:29.632444Z",
+    "hour": 14,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T06:13:29.632444Z",
+    "hour": 15,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T05:26:29.632444Z",
+    "hour": 15,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T05:40:29.632444Z",
+    "hour": 15,
+    "weekday": 6,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T07:06:29.632444Z",
+    "hour": 16,
+    "weekday": 6,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T07:52:29.632444Z",
+    "hour": 17,
+    "weekday": 6,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T08:14:29.632444Z",
+    "hour": 17,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T08:07:29.632444Z",
+    "hour": 17,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T07:54:29.632444Z",
+    "hour": 17,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T08:06:29.632444Z",
+    "hour": 17,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T08:35:29.632444Z",
+    "hour": 18,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T08:28:29.632444Z",
+    "hour": 18,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T10:01:29.632444Z",
+    "hour": 19,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T09:39:29.632444Z",
+    "hour": 19,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T09:41:29.632444Z",
+    "hour": 19,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T09:42:29.632444Z",
+    "hour": 19,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T10:24:29.632444Z",
+    "hour": 19,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T10:54:29.632444Z",
+    "hour": 20,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T11:06:29.632444Z",
+    "hour": 20,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T11:16:29.632444Z",
+    "hour": 20,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T11:01:29.632444Z",
+    "hour": 20,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T11:32:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T12:02:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T12:24:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T12:17:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T12:16:29.632444Z",
+    "hour": 21,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T12:48:29.632444Z",
+    "hour": 22,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T13:15:29.632444Z",
+    "hour": 22,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T12:30:29.632444Z",
+    "hour": 22,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T13:19:29.632444Z",
+    "hour": 22,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T13:14:29.632444Z",
+    "hour": 22,
+    "weekday": 6,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T15:07:29.632444Z",
+    "hour": 0,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T16:03:29.632444Z",
+    "hour": 1,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T16:42:29.632444Z",
+    "hour": 2,
+    "weekday": 0,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T17:35:29.632444Z",
+    "hour": 3,
+    "weekday": 0,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T19:04:29.632444Z",
+    "hour": 4,
+    "weekday": 0,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T19:37:29.632444Z",
+    "hour": 5,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T20:46:29.632444Z",
+    "hour": 6,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T22:16:29.632444Z",
+    "hour": 7,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T21:53:29.632444Z",
+    "hour": 7,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T21:56:29.632444Z",
+    "hour": 7,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T21:54:29.632444Z",
+    "hour": 7,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T22:17:29.632444Z",
+    "hour": 7,
+    "weekday": 0,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T22:43:29.632444Z",
+    "hour": 8,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T22:54:29.632444Z",
+    "hour": 8,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T23:03:29.632444Z",
+    "hour": 8,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T23:16:29.632444Z",
+    "hour": 8,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T23:51:29.632444Z",
+    "hour": 9,
+    "weekday": 0,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T23:43:29.632444Z",
+    "hour": 9,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T23:51:29.632444Z",
+    "hour": 9,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T00:02:29.632444Z",
+    "hour": 9,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-28T23:27:29.632444Z",
+    "hour": 9,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T01:20:29.632444Z",
+    "hour": 10,
+    "weekday": 0,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T01:04:29.632444Z",
+    "hour": 10,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T02:19:29.632444Z",
+    "hour": 11,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T01:32:29.632444Z",
+    "hour": 11,
+    "weekday": 0,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T02:17:29.632444Z",
+    "hour": 11,
+    "weekday": 0,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T02:04:29.632444Z",
+    "hour": 11,
+    "weekday": 0,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T03:21:29.632444Z",
+    "hour": 12,
+    "weekday": 0,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T03:18:29.632444Z",
+    "hour": 12,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T02:50:29.632444Z",
+    "hour": 12,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T03:03:29.632444Z",
+    "hour": 12,
+    "weekday": 0,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T03:57:29.632444Z",
+    "hour": 13,
+    "weekday": 0,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T04:17:29.632444Z",
+    "hour": 13,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T04:02:29.632444Z",
+    "hour": 13,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T03:43:29.632444Z",
+    "hour": 13,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T03:31:29.632444Z",
+    "hour": 13,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T04:43:29.632444Z",
+    "hour": 14,
+    "weekday": 0,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T06:12:29.632444Z",
+    "hour": 15,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T05:46:29.632444Z",
+    "hour": 15,
+    "weekday": 0,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T05:40:29.632444Z",
+    "hour": 15,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T05:26:29.632444Z",
+    "hour": 15,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T06:18:29.632444Z",
+    "hour": 15,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T06:33:29.632444Z",
+    "hour": 16,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T07:18:29.632444Z",
+    "hour": 16,
+    "weekday": 0,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T07:13:29.632444Z",
+    "hour": 16,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T06:56:29.632444Z",
+    "hour": 16,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T07:01:29.632444Z",
+    "hour": 16,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T08:17:29.632444Z",
+    "hour": 17,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T07:29:29.632444Z",
+    "hour": 17,
+    "weekday": 0,
+    "category": "vehicle",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T08:59:29.632444Z",
+    "hour": 18,
+    "weekday": 0,
+    "category": "animal",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T09:03:29.632444Z",
+    "hour": 18,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T09:05:29.632444Z",
+    "hour": 18,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T10:04:29.632444Z",
+    "hour": 19,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T11:12:29.632444Z",
+    "hour": 20,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T10:27:29.632444Z",
+    "hour": 20,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T10:40:29.632444Z",
+    "hour": 20,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T11:05:29.632444Z",
+    "hour": 20,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T12:16:29.632444Z",
+    "hour": 21,
+    "weekday": 0,
+    "category": "other",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T11:37:29.632444Z",
+    "hour": 21,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T12:34:29.632444Z",
+    "hour": 22,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T13:24:29.632444Z",
+    "hour": 22,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  },
+  {
+    "timestamp_utc": "2026-09-29T13:07:29.632444Z",
+    "hour": 22,
+    "weekday": 0,
+    "category": "person",
+    "event_count": 1,
+    "user_feedback": null
+  }
+]
