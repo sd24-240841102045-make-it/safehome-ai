@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, Lock, Mail, AlertCircle, ArrowRight, KeyRound } from 'lucide-react';
+import { Shield, Lock, Mail, AlertCircle, ArrowRight, KeyRound, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -124,8 +124,9 @@ export default function Login() {
             </Link>
           </div>
 
-          <p className="text-[11px] text-slate-400 max-w-sm mx-auto leading-relaxed border-t border-slate-800/80 pt-3">
-            🛡️ <strong className="text-slate-400">Notice:</strong> A phone camera is not a replacement for dedicated smoke, gas, fire, door or professional security sensors. AI results can be wrong.
+          <p className="text-[11px] text-slate-400 max-w-sm mx-auto leading-relaxed border-t border-slate-800/80 pt-3 flex items-center justify-center gap-1.5 flex-wrap">
+            <ShieldAlert className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span><strong className="text-slate-400">Notice:</strong> A phone camera is not a replacement for dedicated smoke, gas, fire, door or professional security sensors. AI results can be wrong.</span>
           </p>
         </div>
       </div>

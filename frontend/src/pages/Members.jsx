@@ -11,7 +11,10 @@ import {
   Mail,
   UserCheck,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  X,
+  UserX,
+  ShieldAlert
 } from 'lucide-react';
 import { memberService } from '../services/api';
 
@@ -29,6 +32,11 @@ export default function Members() {
   const [joinCodeInput, setJoinCodeInput] = useState('');
   const [joinLoading, setJoinLoading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // Modals for confirmation
+  const [removeModalMember, setRemoveModalMember] = useState(null);
+  const [roleChangeModal, setRoleChangeModal] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -67,7 +75,7 @@ export default function Members() {
         fetchData();
       }
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to create invite code');
+      setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to create invite code' });
     }
   };
 
@@ -89,22 +97,35 @@ export default function Members() {
     }
   };
 
-  const handleRemoveMember = async (id, name) => {
-    if (!confirm(`Are you sure you want to remove ${name} from this home?`)) return;
+  const confirmRemoveMember = async () => {
+    if (!removeModalMember) return;
     try {
-      await memberService.removeMember(id);
+      setActionLoading(true);
+      await memberService.removeMember(removeModalMember.id);
+      setRemoveModalMember(null);
+      setMessage({ type: 'success', text: `Member removed successfully.` });
+      setTimeout(() => setMessage(null), 3000);
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to remove member');
+      setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to remove member' });
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  const handleRoleChange = async (id, newRole) => {
+  const confirmRoleChange = async () => {
+    if (!roleChangeModal) return;
     try {
-      await memberService.updateRole(id, newRole);
+      setActionLoading(true);
+      await memberService.updateRole(roleChangeModal.member.id, roleChangeModal.newRole);
+      setRoleChangeModal(null);
+      setMessage({ type: 'success', text: `Member role updated to ${roleChangeModal.newRole.toUpperCase()}.` });
+      setTimeout(() => setMessage(null), 3000);
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to update role');
+      setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to update role' });
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -232,8 +253,8 @@ export default function Members() {
                 {myRole === 'owner' && member.role !== 'owner' ? (
                   <select
                     value={member.role}
-                    onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                    className="px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-sky-500"
+                    onChange={(e) => setRoleChangeModal({ member, newRole: e.target.value })}
+                    className="px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-sky-500 cursor-pointer"
                   >
                     <option value="admin">Admin</option>
                     <option value="member">Member</option>
@@ -247,8 +268,8 @@ export default function Members() {
 
                 {(myRole === 'owner' || myRole === 'admin') && member.role !== 'owner' && (
                   <button
-                    onClick={() => handleRemoveMember(member.id, member.full_name || member.email)}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition"
+                    onClick={() => setRemoveModalMember(member)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition cursor-pointer"
                     title="Remove Member"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -328,9 +349,10 @@ export default function Members() {
               </h3>
               <button
                 onClick={() => setShowInviteModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+                title="Close"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -405,6 +427,116 @@ export default function Members() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Remove Member Confirmation Modal */}
+      {removeModalMember && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5 text-rose-400 font-bold text-sm">
+                <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
+                  <UserX className="w-4 h-4" />
+                </div>
+                <span>Remove Home Member</span>
+              </div>
+              <button
+                onClick={() => setRemoveModalMember(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-300">
+              <p>Are you sure you want to revoke home access for this user? They will no longer be able to view live streams or surveillance telemetry.</p>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                <div className="font-semibold text-white">{removeModalMember.full_name || 'Member'}</div>
+                <div className="text-[11px] text-slate-400 font-mono">{removeModalMember.email}</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wide">Role: {removeModalMember.role}</div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setRemoveModalMember(null)}
+                disabled={actionLoading}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-medium transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmRemoveMember}
+                disabled={actionLoading}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                {actionLoading ? 'Removing...' : 'Confirm Remove'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role Change Confirmation Modal */}
+      {roleChangeModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5 text-sky-400 font-bold text-sm">
+                <div className="p-2 rounded-xl bg-sky-500/10 border border-sky-500/20">
+                  <ShieldAlert className="w-4 h-4" />
+                </div>
+                <span>Confirm Role Change</span>
+              </div>
+              <button
+                onClick={() => setRoleChangeModal(null)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs text-slate-300">
+              <p>
+                Change permission role for <strong className="text-white">{roleChangeModal.member.full_name || roleChangeModal.member.email}</strong>?
+              </p>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-slate-500 block text-[10px]">CURRENT ROLE</span>
+                  <span className="font-semibold text-slate-300 uppercase">{roleChangeModal.member.role}</span>
+                </div>
+                <div className="text-slate-600 font-bold">→</div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">NEW ROLE</span>
+                  <span className="font-bold text-sky-400 uppercase">{roleChangeModal.newRole}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setRoleChangeModal(null)}
+                disabled={actionLoading}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-medium transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmRoleChange}
+                disabled={actionLoading}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                {actionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                {actionLoading ? 'Updating...' : 'Update Role'}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -7,6 +7,7 @@ import {
   History,
   Bell,
   BarChart3,
+  Calendar,
   Settings,
   LogOut,
   Wifi,
@@ -74,13 +75,13 @@ export default function Layout() {
   const navItems = [
     { to: '/', label: 'Live Dashboard', icon: LayoutDashboard },
     { to: '/monitor', label: 'Phone Camera', icon: Smartphone, badge: 'Sensor Node' },
+    { to: '/analytics', label: 'Security Calendar & Analytics', icon: Calendar, badge: 'New Calendar' },
     { to: '/timeline', label: 'Security Timeline', icon: Clock },
     { to: '/events', label: 'Event History', icon: History },
     { to: '/alerts', label: 'Security Alerts', icon: Bell, count: unreadAlerts },
     { to: '/rules', label: 'Modes & Rules', icon: Sliders },
     { to: '/members', label: 'Home Members', icon: Users },
     { to: '/audit-logs', label: 'Audit Logs', icon: ShieldAlert },
-    { to: '/analytics', label: 'Analytics (DS)', icon: BarChart3 },
     { to: '/settings', label: 'Settings & Privacy', icon: Settings }
   ];
 
@@ -206,8 +207,9 @@ export default function Layout() {
         
         {/* Safety & AI Disclaimer Footer */}
         <footer className="border-t border-slate-800/60 bg-slate-950/40 py-3 px-4 text-center">
-          <p className="text-[11px] text-slate-400 max-w-3xl mx-auto leading-relaxed">
-            🛡️ <strong className="text-slate-400">Important Safety Notice:</strong> A phone camera is not a replacement for dedicated smoke, gas, fire, door or professional security sensors. AI results can be wrong.
+          <p className="text-[11px] text-slate-400 max-w-3xl mx-auto leading-relaxed flex items-center justify-center gap-1.5 flex-wrap">
+            <ShieldAlert className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span><strong className="text-slate-400">Important Safety Notice:</strong> A phone camera is not a replacement for dedicated smoke, gas, fire, door or professional security sensors. AI results can be wrong.</span>
           </p>
         </footer>
       </main>

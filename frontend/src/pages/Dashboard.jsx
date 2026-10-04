@@ -25,7 +25,15 @@ import {
   WifiOff,
   BellRing,
   Sliders,
-  ShieldAlert
+  ShieldAlert,
+  Volume2,
+  VolumeX,
+  Home,
+  Car,
+  Moon,
+  ShieldOff,
+  Lightbulb,
+  X
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -59,11 +67,71 @@ export default function Dashboard() {
   const [isGeneratingCode, setIsGeneratingCode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [currentClock, setCurrentClock] = useState(new Date());
+  const [laptopAudioEnabled, setLaptopAudioEnabled] = useState(() => localStorage.getItem('safehome_laptop_sound') !== 'false');
+  const laptopAudioRef = useRef(laptopAudioEnabled);
   const wsRef = useRef(null);
   const canvasRef = useRef(null);
   const webrtcVideoRef = useRef(null);
   const pcRef = useRef(null);
   const [webrtcActive, setWebrtcActive] = useState(false);
+
+  useEffect(() => {
+    laptopAudioRef.current = laptopAudioEnabled;
+    localStorage.setItem('safehome_laptop_sound', String(laptopAudioEnabled));
+  }, [laptopAudioEnabled]);
+
+  // Synthesized Web Audio Sound Alerts for Homeowner's Laptop
+  const playLaptopAlertSound = (severity = 'WARNING') => {
+    if (!laptopAudioRef.current) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+
+      if (severity === 'CRITICAL' || severity === 'threat') {
+        // High-low emergency siren tone for critical events / mask detection
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.3);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.6);
+
+        gain.gain.setValueAtTime(0.35, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.8);
+      } else {
+        // Pleasant, clear two-tone security chime for standard person / motion events
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc2.type = 'triangle';
+        osc1.frequency.setValueAtTime(587.33, ctx.currentTime);
+        osc1.frequency.setValueAtTime(880, ctx.currentTime + 0.12);
+        osc2.frequency.setValueAtTime(1174.66, ctx.currentTime + 0.12);
+
+        gain.gain.setValueAtTime(0.28, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.55);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start();
+        osc2.start();
+        osc1.stop(ctx.currentTime + 0.55);
+        osc2.stop(ctx.currentTime + 0.55);
+      }
+    } catch (e) {
+      console.warn('[Audio Alert]', e);
+    }
+  };
 
   // 1-second live clock ticker
   useEffect(() => {
@@ -283,10 +351,16 @@ export default function Dashboard() {
 
           if (msg.type === 'incident_opened') {
             setIncidents((prev) => [msg.incident, ...prev.filter((i) => i.id !== msg.incident.id)]);
+            playLaptopAlertSound(msg.incident?.severity || 'CRITICAL');
           }
 
           if (msg.type === 'incident_resolved') {
             setIncidents((prev) => prev.filter((i) => i.id !== msg.incident_id));
+          }
+
+          if (msg.type === 'alert') {
+            playLaptopAlertSound(msg.alert?.severity || 'WARNING');
+            loadData();
           }
 
           if (msg.type === 'mode_changed' || msg.type === 'home_mode_changed') {
@@ -294,6 +368,7 @@ export default function Dashboard() {
           }
 
           if (msg.type === 'new_event') {
+            playLaptopAlertSound(msg.event?.threat_type ? 'CRITICAL' : 'WARNING');
             loadData();
           }
         } catch (err) {
@@ -346,7 +421,7 @@ export default function Dashboard() {
           // Label badge
           let label = `${det.class.toUpperCase()} ${Math.round(det.confidence * 100)}%`;
           if (isMasked) {
-            label = det.face_status === 'half_face' ? `⚠️ HALF-FACE ${Math.round(det.confidence * 100)}%` : `🚨 MASKED PERSON ${Math.round(det.confidence * 100)}%`;
+            label = det.face_status === 'half_face' ? `[HALF-FACE] ${Math.round(det.confidence * 100)}%` : `[MASKED PERSON] ${Math.round(det.confidence * 100)}%`;
           }
 
           ctx.font = 'bold 14px monospace';
@@ -459,7 +534,7 @@ export default function Dashboard() {
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <span>🏠</span> Home
+            <Home className="w-3.5 h-3.5" /> Home
           </button>
           <button
             onClick={() => handleModeChange('away')}
@@ -469,7 +544,7 @@ export default function Dashboard() {
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <span>🚗</span> Away
+            <Car className="w-3.5 h-3.5" /> Away
           </button>
           <button
             onClick={() => handleModeChange('night')}
@@ -479,7 +554,7 @@ export default function Dashboard() {
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <span>🌙</span> Night
+            <Moon className="w-3.5 h-3.5" /> Night
           </button>
           <button
             onClick={() => handleModeChange('disarmed')}
@@ -489,7 +564,7 @@ export default function Dashboard() {
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <span>🛡️</span> Disarmed
+            <ShieldOff className="w-3.5 h-3.5" /> Disarmed
           </button>
         </div>
 
@@ -503,6 +578,25 @@ export default function Dashboard() {
               {summary?.home_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local'}
             </div>
           </div>
+
+          <button
+            onClick={() => {
+              const nextState = !laptopAudioEnabled;
+              setLaptopAudioEnabled(nextState);
+              if (nextState) {
+                playLaptopAlertSound('WARNING');
+              }
+            }}
+            title={laptopAudioEnabled ? "Laptop Alert Sounds Active (Click to Mute)" : "Laptop Sounds Muted (Click to Enable)"}
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition cursor-pointer ${
+              laptopAudioEnabled
+                ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20 shadow-sm'
+                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            {laptopAudioEnabled ? <Volume2 className="w-3.5 h-3.5 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5 text-slate-400" />}
+            <span>{laptopAudioEnabled ? 'Laptop Audio: ON' : 'Laptop Audio: OFF'}</span>
+          </button>
 
           <button
             onClick={() => handleGeneratePairingCode()}
@@ -596,7 +690,13 @@ export default function Dashboard() {
               : 'bg-slate-800 text-slate-300 border border-slate-700'
           }`}>
             <span className={`w-2 h-2 rounded-full ${hardware?.gpu_available ? 'bg-emerald-400' : 'bg-slate-500'}`} />
-            {hardware?.gpu_available ? '⚡ NVIDIA CUDA GPU Accelerated' : 'SIMD AVX2 CPU Fallback'}
+            {hardware?.gpu_available ? (
+              <span className="inline-flex items-center gap-1">
+                <Zap className="w-3 h-3" /> NVIDIA CUDA GPU Accelerated
+              </span>
+            ) : (
+              'SIMD AVX2 CPU Fallback'
+            )}
           </span>
         </div>
 
@@ -842,8 +942,9 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div className="p-3 rounded-xl bg-sky-950/20 border border-sky-900/40 text-[11px] text-sky-300">
-              💡 <strong>Tip:</strong> Allow camera permission when prompted on your phone. Stream operates with real-time edge processing.
+            <div className="p-3 rounded-xl bg-sky-950/20 border border-sky-900/40 text-[11px] text-sky-300 flex items-center gap-1.5">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span><strong>Tip:</strong> Allow camera permission when prompted on your phone. Stream operates with real-time edge processing.</span>
             </div>
           </div>
 
@@ -891,9 +992,10 @@ export default function Dashboard() {
               </div>
               <button
                 onClick={() => setPairingModalOpen(false)}
-                className="text-slate-400 hover:text-white text-sm cursor-pointer"
+                className="text-slate-400 hover:text-white p-1 rounded-lg transition cursor-pointer"
+                title="Close"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 

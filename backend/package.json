@@ -8,7 +8,12 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:api": "node scripts/test_api.js",
+    "test:pipeline": "node scripts/test_pipeline.js",
+    "db:init": "node scripts/init_db.js",
+    "db:reset": "node scripts/init_db.js",
+    "wipe": "node scripts/wipe_data.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

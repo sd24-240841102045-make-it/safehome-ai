@@ -17,6 +17,7 @@ import {
   Lock,
   Unlock,
   Volume2,
+  VolumeX,
   Mic,
   MicOff,
   BellRing,
@@ -30,7 +31,8 @@ import {
   Battery,
   BatteryCharging,
   Siren,
-  ShieldAlert
+  ShieldAlert,
+  AlertTriangle
 } from 'lucide-react';
 import { deviceService, WS_BASE } from '../services/api';
 import InstallPrompt from '../components/InstallPrompt';
@@ -53,6 +55,15 @@ export default function Monitor() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [webrtcStatus, setWebrtcStatus] = useState('OFF');
   const [reconnectCountdown, setReconnectCountdown] = useState(0);
+
+  // Covert Stealth Mode: Keep phone camera silent so it doesn't alert the person / intruder
+  const [covertStealthMode, setCovertStealthMode] = useState(() => localStorage.getItem('safehome_covert_mode') !== 'false');
+  const covertStealthModeRef = useRef(covertStealthMode);
+
+  useEffect(() => {
+    covertStealthModeRef.current = covertStealthMode;
+    localStorage.setItem('safehome_covert_mode', String(covertStealthMode));
+  }, [covertStealthMode]);
 
   // Phone Hardware Features: Torch & Battery & Tamper
   const [torchAvailable, setTorchAvailable] = useState(false);
@@ -78,13 +89,39 @@ export default function Monitor() {
   // Pairing state
   const [pairingCodeInput, setPairingCodeInput] = useState('');
   const [isPaired, setIsPaired] = useState(() =>
-    Boolean(localStorage.getItem('safehome_device_token') || localStorage.getItem('device_token'))
+    Boolean(localStorage.getItem('safehome_device_token') || localStorage.getItem('safehome_token') || localStorage.getItem('device_token'))
   );
   const [deviceId, setDeviceId] = useState(
     () => localStorage.getItem('safehome_device_id') || `phone_${Date.now().toString(36)}`
   );
   const [pairingLoading, setPairingLoading] = useState(false);
   const [pairingSuccessMsg, setPairingSuccessMsg] = useState(null);
+
+  // --- Pairing Handler ---
+  const handlePairDevice = useCallback(async (codeToPair = pairingCodeInput) => {
+    const code = (codeToPair || '').trim().toUpperCase();
+    if (code.length !== 6) {
+      setErrorMsg('Pairing code must be exactly 6 characters.');
+      return;
+    }
+    try {
+      setPairingLoading(true);
+      setErrorMsg(null);
+      const res = await deviceService.exchangePairingCode(code);
+      if (res.data.success) {
+        localStorage.setItem('safehome_device_token', res.data.device_token);
+        localStorage.setItem('safehome_device_id', res.data.device_id);
+        setDeviceId(res.data.device_id);
+        setIsPaired(true);
+        setPairingSuccessMsg('Phone paired successfully with SafeHome AI Hub!');
+        setTimeout(() => setPairingSuccessMsg(null), 4000);
+      }
+    } catch (err) {
+      setErrorMsg(err.response?.data?.error || 'Invalid or expired pairing code.');
+    } finally {
+      setPairingLoading(false);
+    }
+  }, [pairingCodeInput]);
 
   // UI collapse state
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -94,7 +131,7 @@ export default function Monitor() {
   const canvasRef = useRef(null);
   const wsRef = useRef(null);
   const streamRef = useRef(null);
-  const rafRef = useRef(null);          // requestAnimationFrame handle
+  const rafRef = useRef(null);
   const frameIntervalRef = useRef(null);
   const frameCountRef = useRef(0);
   const shouldKeepReconnectingRef = useRef(false);
@@ -102,10 +139,12 @@ export default function Monitor() {
   const containerRef = useRef(null);
   const pcRef = useRef(null);
   const streamFpsRef = useRef(streamFps);
+  const heartbeatIntervalRef = useRef(null);
 
   // Backpressure gate: only send next frame AFTER AI result returns
   const waitingForResultRef = useRef(false);
   const lastSendTimeRef = useRef(0);
+  const aiResolutionRef = useRef({ width: 480, height: 270 });
 
   // Timing / FPS tracking
   const fpsCountRef = useRef(0);
@@ -123,45 +162,30 @@ export default function Monitor() {
   const lastNoiseTriggerRef = useRef(0);
   const lastMaskAlertTriggerRef = useRef(0);
 
-  // Sync state to refs to prevent stale closure bugs in WebSocket and interval handlers
+  // Sync state to refs
   const loiteringAlertsEnabledRef = useRef(loiteringAlertsEnabled);
   const loiteringThresholdSecRef = useRef(loiteringThresholdSec);
   const micGuardActiveRef = useRef(micGuardActive);
   const micMutedRef = useRef(micMuted);
   const noiseThresholdRef = useRef(noiseThreshold);
 
-  useEffect(() => {
-    streamFpsRef.current = streamFps;
-  }, [streamFps]);
+  useEffect(() => { streamFpsRef.current = streamFps; }, [streamFps]);
+  useEffect(() => { loiteringAlertsEnabledRef.current = loiteringAlertsEnabled; }, [loiteringAlertsEnabled]);
+  useEffect(() => { loiteringThresholdSecRef.current = loiteringThresholdSec; }, [loiteringThresholdSec]);
+  useEffect(() => { micGuardActiveRef.current = micGuardActive; }, [micGuardActive]);
+  useEffect(() => { micMutedRef.current = micMuted; }, [micMuted]);
+  useEffect(() => { noiseThresholdRef.current = noiseThreshold; }, [noiseThreshold]);
 
-  useEffect(() => {
-    loiteringAlertsEnabledRef.current = loiteringAlertsEnabled;
-  }, [loiteringAlertsEnabled]);
-
-  useEffect(() => {
-    loiteringThresholdSecRef.current = loiteringThresholdSec;
-  }, [loiteringThresholdSec]);
-
-  useEffect(() => {
-    micGuardActiveRef.current = micGuardActive;
-  }, [micGuardActive]);
-
-  useEffect(() => {
-    micMutedRef.current = micMuted;
-  }, [micMuted]);
-
-  useEffect(() => {
-    noiseThresholdRef.current = noiseThreshold;
-  }, [noiseThreshold]);
-
-  // Read ?code= query param
+  // Read ?code= query param and auto-pair immediately
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const codeParam = params.get('code');
-    if (codeParam && codeParam.length === 6) {
-      setPairingCodeInput(codeParam.toUpperCase());
+    if (codeParam && codeParam.trim().length === 6) {
+      const cleanCode = codeParam.trim().toUpperCase();
+      setPairingCodeInput(cleanCode);
+      handlePairDevice(cleanCode);
     }
-  }, []);
+  }, [handlePairDevice]);
 
   // --- Wake Lock ---
   const requestWakeLock = async () => {
@@ -219,6 +243,10 @@ export default function Monitor() {
 
   // --- Audio Alarm ---
   const playAlarmSound = (tone = 'warning') => {
+    // In Covert Stealth Mode, keep phone camera completely silent so it doesn't alert the person / intruder
+    if (covertStealthModeRef.current && tone !== 'siren') {
+      return;
+    }
     try {
       const Ctx = window.AudioContext || window.webkitAudioContext;
       if (!Ctx) return;
@@ -288,7 +316,7 @@ export default function Monitor() {
     if ('vibrate' in navigator) navigator.vibrate([400, 150, 400, 150, 600]);
     setActiveAlarm({
       type: 'siren',
-      title: '🚨 DETERRENT SIREN ACTIVATED',
+      title: 'DETERRENT SIREN ACTIVATED',
       message: 'High-pitch security siren sounding from phone speaker.'
     });
   };
@@ -322,10 +350,10 @@ export default function Monitor() {
         if (now - lastTamperTriggerRef.current > 15000) {
           lastTamperTriggerRef.current = now;
           playAlarmSound('tamper');
-          if ('vibrate' in navigator) navigator.vibrate([400, 100, 400, 100, 500]);
+          if (!covertStealthModeRef.current && 'vibrate' in navigator) navigator.vibrate([400, 100, 400, 100, 500]);
           setActiveAlarm({
             type: 'tamper',
-            title: '⚠️ CAMERA TAMPER / MOVEMENT DETECTED',
+            title: 'CAMERA TAMPER / MOVEMENT DETECTED',
             message: 'Physical displacement detected. Camera may have been moved or knocked over.'
           });
           if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -344,10 +372,10 @@ export default function Monitor() {
 
   const triggerLoiteringAlarm = (durationSec) => {
     playAlarmSound('loitering');
-    if ('vibrate' in navigator) navigator.vibrate([300, 100, 300, 100, 500]);
+    if (!covertStealthModeRef.current && 'vibrate' in navigator) navigator.vibrate([300, 100, 300, 100, 500]);
     setActiveAlarm({
       type: 'loitering',
-      title: '🚨 PERSON LOITERING DETECTED',
+      title: 'PERSON LOITERING DETECTED',
       message: `Person in zone for ${durationSec}s. Potential security concern.`
     });
 
@@ -381,10 +409,10 @@ export default function Monitor() {
 
   const triggerNoiseAlarm = (db) => {
     playAlarmSound('noise');
-    if ('vibrate' in navigator) navigator.vibrate([200, 80, 200, 80, 400]);
+    if (!covertStealthModeRef.current && 'vibrate' in navigator) navigator.vibrate([200, 80, 200, 80, 400]);
     setActiveAlarm({
       type: 'noise',
-      title: '🔊 LOUD NOISE DETECTED',
+      title: 'LOUD NOISE DETECTED',
       message: `Acoustic spike of ${db} dB detected by microphone guard.`
     });
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -454,7 +482,8 @@ export default function Monitor() {
           setErrorMsg(
             <div className="space-y-3 text-left">
               <div className="font-bold text-amber-300 flex items-center gap-1.5 text-sm">
-                <span>⚠️</span> Camera Blocked by Chrome Security
+                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Camera Blocked by Chrome Security</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
                 Android Chrome blocks camera on local IPs. One-time fix:
@@ -524,38 +553,21 @@ export default function Monitor() {
     }
   };
 
-  // --- Pairing ---
-  const handlePairDevice = async (codeToPair = pairingCodeInput) => {
-    const code = codeToPair.trim().toUpperCase();
-    if (code.length !== 6) { setErrorMsg('Pairing code must be exactly 6 characters.'); return; }
-    try {
-      setPairingLoading(true);
-      setErrorMsg(null);
-      const res = await deviceService.exchangePairingCode(code);
-      if (res.data.success) {
-        localStorage.setItem('safehome_device_token', res.data.device_token);
-        localStorage.setItem('safehome_device_id', res.data.device_id);
-        setDeviceId(res.data.device_id);
-        setIsPaired(true);
-        setPairingSuccessMsg('Phone paired successfully with SafeHome AI Hub!');
-        setTimeout(() => setPairingSuccessMsg(null), 4000);
-      }
-    } catch (err) {
-      setErrorMsg(err.response?.data?.error || 'Invalid or expired pairing code.');
-    } finally {
-      setPairingLoading(false);
-    }
-  };
-
   // --- Bounding Box Overlay ---
   const drawBoundingBoxes = useCallback((detections) => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
     if (!canvas || !video) return;
     const ctx = canvas.getContext('2d');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const vW = video.videoWidth || 640;
+    const vH = video.videoHeight || 480;
+    canvas.width = vW;
+    canvas.height = vH;
+    ctx.clearRect(0, 0, vW, vH);
+
+    const aiRes = aiResolutionRef.current || { width: vW, height: vH };
+    const scaleX = vW / (aiRes.width || vW);
+    const scaleY = vH / (aiRes.height || vH);
 
     const colors = {
       threat: ['#f43f5e', 'rgba(244,63,94,0.92)'],
@@ -575,21 +587,26 @@ export default function Monitor() {
                 : ['cat','dog','bird','horse','cow','sheep'].includes(cls) ? 'animal' : 'default';
       const [stroke, fill] = colors[key];
 
+      const bx = box.x * scaleX;
+      const by = box.y * scaleY;
+      const bw = box.width * scaleX;
+      const bh = box.height * scaleY;
+
       ctx.strokeStyle = stroke;
       ctx.lineWidth = isMasked ? 3.5 : 2.5;
-      ctx.strokeRect(box.x, box.y, box.width, box.height);
+      ctx.strokeRect(bx, by, bw, bh);
 
       let labelText = `${cls.toUpperCase()} ${Math.round(det.confidence * 100)}%`;
       if (isMasked) {
-        labelText = det.face_status === 'half_face' ? `⚠️ HALF-FACE ${Math.round(det.confidence * 100)}%` : `🚨 MASKED PERSON ${Math.round(det.confidence * 100)}%`;
+        labelText = det.face_status === 'half_face' ? `[HALF-FACE] ${Math.round(det.confidence * 100)}%` : `[MASKED PERSON] ${Math.round(det.confidence * 100)}%`;
       }
 
-      ctx.font = 'bold 11px monospace';
+      ctx.font = 'bold 12px monospace';
       const tw = ctx.measureText(labelText).width;
       ctx.fillStyle = fill;
-      ctx.fillRect(box.x, Math.max(0, box.y - 18), tw + 8, 18);
+      ctx.fillRect(bx, Math.max(0, by - 20), tw + 8, 20);
       ctx.fillStyle = isMasked ? '#ffffff' : '#020617';
-      ctx.fillText(labelText, box.x + 4, Math.max(12, box.y - 4));
+      ctx.fillText(labelText, bx + 4, Math.max(14, by - 5));
     }
   }, []);
 
@@ -599,8 +616,6 @@ export default function Monitor() {
   };
 
   // --- BACKPRESSURE-GATED FRAME CAPTURE ---
-  // Key fix: only send a new frame AFTER the AI detection result returns.
-  // This prevents frame queuing that causes 2000ms+ latency.
   const stopFrameCapture = () => {
     if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
     if (frameIntervalRef.current) { clearInterval(frameIntervalRef.current); frameIntervalRef.current = null; }
@@ -619,31 +634,28 @@ export default function Monitor() {
       fpsCountRef.current = 0;
     }, 1000);
 
-    // Use a capture canvas at 320×240 for AI inference (much smaller payload = lower latency)
-    // The phone displays the full native resolution video; only the AI input is downscaled.
+    // Capture canvas with dynamic aspect ratio preservation
     const aiCanvas = document.createElement('canvas');
-    aiCanvas.width = 320;
-    aiCanvas.height = 240;
-    const aiCtx = aiCanvas.getContext('2d');
+    const aiCtx = aiCanvas.getContext('2d', { willReadFrequently: true });
 
-    const targetFps = streamFpsRef.current || 10;
-    const minInterval = Math.max(50, Math.round(1000 / targetFps)); // min ms between sends
+    const targetFps = streamFpsRef.current || 15;
+    const minInterval = Math.max(33, Math.round(1000 / targetFps)); // min ms between sends
 
     const sendFrame = () => {
       if (!videoRef.current || videoRef.current.readyState < 2) {
-        frameIntervalRef.current = setTimeout(sendFrame, 50);
+        frameIntervalRef.current = setTimeout(sendFrame, 40);
         return;
       }
       if (!ws || ws.readyState !== WebSocket.OPEN) {
-        frameIntervalRef.current = setTimeout(sendFrame, 200);
+        frameIntervalRef.current = setTimeout(sendFrame, 150);
         return;
       }
 
       const now = performance.now();
 
-      // BACKPRESSURE: if still waiting for AI result, retry after minInterval
-      if (waitingForResultRef.current) {
-        frameIntervalRef.current = setTimeout(sendFrame, minInterval);
+      // Backpressure failsafe: if waiting for AI result took > 600ms, unlock to prevent stall
+      if (waitingForResultRef.current && (now - lastSendTimeRef.current < 600)) {
+        frameIntervalRef.current = setTimeout(sendFrame, 20);
         return;
       }
 
@@ -654,9 +666,22 @@ export default function Monitor() {
         return;
       }
 
-      // Downsample frame to 320×240 for AI (faster inference, lower bandwidth)
-      aiCtx.drawImage(videoRef.current, 0, 0, 320, 240);
-      const jpegBase64 = aiCanvas.toDataURL('image/jpeg', 0.70);
+      // Calculate aspect-ratio preserving dimensions (max 480px)
+      const vW = videoRef.current.videoWidth || 640;
+      const vH = videoRef.current.videoHeight || 480;
+      const maxDim = 480;
+      const scale = Math.min(maxDim / vW, maxDim / vH, 1.0);
+      const targetW = Math.max(160, Math.round((vW * scale) / 2) * 2);
+      const targetH = Math.max(120, Math.round((vH * scale) / 2) * 2);
+
+      if (aiCanvas.width !== targetW || aiCanvas.height !== targetH) {
+        aiCanvas.width = targetW;
+        aiCanvas.height = targetH;
+        aiResolutionRef.current = { width: targetW, height: targetH };
+      }
+
+      aiCtx.drawImage(videoRef.current, 0, 0, targetW, targetH);
+      const jpegBase64 = aiCanvas.toDataURL('image/jpeg', 0.55);
 
       waitingForResultRef.current = true;
       lastSendTimeRef.current = now;
@@ -675,8 +700,6 @@ export default function Monitor() {
 
     sendFrame();
   };
-
-  const heartbeatIntervalRef = useRef(null);
 
   const startHeartbeat = (ws) => {
     if (heartbeatIntervalRef.current) clearInterval(heartbeatIntervalRef.current);
@@ -724,7 +747,7 @@ export default function Monitor() {
 
       ws.onopen = () => {
         setConnectionStatus('CONNECTED');
-        const deviceToken = localStorage.getItem('safehome_device_token');
+        const deviceToken = localStorage.getItem('safehome_device_token') || localStorage.getItem('safehome_token');
         ws.send(JSON.stringify({
           type: 'register_phone',
           device_token: deviceToken,
@@ -781,7 +804,7 @@ export default function Monitor() {
                 lastMaskAlertTriggerRef.current = now;
                 playAlarmSound('noise');
                 if ('vibrate' in navigator) navigator.vibrate([300, 100, 300, 100, 500]);
-                const alertTitle = maskedDet.face_status === 'half_face' ? '⚠️ HALF-FACE VISIBLE DETECTED' : '🚨 MASKED PERSON DETECTED';
+                const alertTitle = maskedDet.face_status === 'half_face' ? 'HALF-FACE VISIBLE DETECTED' : 'MASKED PERSON DETECTED';
                 const alertMsg = maskedDet.anomaly_reason || maskedDet.face_reason || 'Person with face mask or half-face visible detected on camera.';
                 setActiveAlarm({ type: 'threat', title: alertTitle, message: alertMsg });
               }
@@ -819,7 +842,7 @@ export default function Monitor() {
           if (msg.type === 'safety_alert') {
             playAlarmSound(msg.severity === 'CRITICAL' ? 'noise' : 'loitering');
             if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-            setActiveAlarm({ type: 'safety', title: msg.title || '🚨 SAFETY ALERT', message: msg.message || 'Alert triggered.' });
+            setActiveAlarm({ type: 'safety', title: msg.title || 'SAFETY ALERT', message: msg.message || 'Alert triggered.' });
           }
 
           if (msg.type === 'error' && msg.code === 'AUTH_FAILED') {
@@ -1068,21 +1091,34 @@ export default function Monitor() {
         )}
 
         {/* ── CAMERA VIEWPORT ── */}
-        <div className={`relative bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl ${
+        <div className={`relative bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-2xl flex items-center justify-center ${
           isFullscreen ? 'fixed inset-0 z-50 rounded-none border-none w-screen h-screen' : 'aspect-video'
         }`}>
           <video
             ref={videoRef}
             playsInline muted autoPlay
-            className={`w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+            className={`w-full h-full object-contain ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
           />
           <canvas
             ref={canvasRef}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            className="absolute inset-0 w-full h-full object-contain pointer-events-none"
           />
 
           {/* HUD Badges — top left */}
           <div className="absolute top-2 left-2 flex flex-wrap items-center gap-1 pointer-events-none">
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold border flex items-center gap-1 ${
+              covertStealthMode ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' : 'bg-slate-900/60 text-slate-400 border-slate-800'
+            }`}>
+              {covertStealthMode ? (
+                <>
+                  <VolumeX className="w-2.5 h-2.5" /> Stealth (Silent)
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-2.5 h-2.5" /> Phone Sounds
+                </>
+              )}
+            </span>
             <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold border flex items-center gap-0.5 ${
               wakeLockActive ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-slate-900/60 text-slate-400 border-slate-800'
             }`}>
@@ -1442,6 +1478,28 @@ export default function Monitor() {
             </button>
           </div>
 
+          {/* Covert Stealth Surveillance Toggle */}
+          <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`p-1.5 rounded-lg ${covertStealthMode ? 'bg-indigo-500/20 text-indigo-300' : 'bg-slate-800 text-slate-400'}`}>
+                <VolumeX className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-[11px] font-bold text-slate-200">Covert Stealth Mode (Phone Silent)</h4>
+                <p className="text-[10px] text-slate-400">Keeps phone silent so intruder isn't alerted. Laptop sounds alarms.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCovertStealthMode(!covertStealthMode)}
+              className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold font-mono transition ${
+                covertStealthMode ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40' : 'bg-slate-900 text-slate-500 border border-slate-800'
+              }`}
+            >
+              {covertStealthMode ? 'ON (SILENT)' : 'OFF'}
+            </button>
+          </div>
+
           {/* Anti-Tamper Shake / Displacement Guard Toggle */}
           <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -1502,8 +1560,9 @@ export default function Monitor() {
         </div>
 
         {/* Safety & Sensor Disclaimer */}
-        <div className="p-3 rounded-xl bg-slate-900/50 border border-slate-800 text-[11px] text-slate-400 text-center leading-relaxed">
-          🛡️ <span className="font-semibold text-slate-300">Safety Notice:</span> A phone camera is not a replacement for dedicated smoke, gas, fire, door or professional security sensors. AI results can be wrong.
+        <div className="p-3 rounded-xl bg-slate-900/50 border border-slate-800 text-[11px] text-slate-400 text-center leading-relaxed flex items-center justify-center gap-1.5 flex-wrap">
+          <ShieldAlert className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span><span className="font-semibold text-slate-300">Safety Notice:</span> A phone camera is not a replacement for dedicated smoke, gas, fire, door or professional security sensors. AI results can be wrong.</span>
         </div>
 
       </div>

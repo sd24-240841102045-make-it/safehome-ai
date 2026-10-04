@@ -43,7 +43,7 @@ class YoloV8OnnxDetector(BaseDetector):
         self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
         self.input_size = (640, 640)
 
-    def detect(self, img: np.ndarray, min_confidence: float = 0.45) -> List[Dict[str, Any]]:
+    def detect(self, img: np.ndarray, min_confidence: float = 0.35) -> List[Dict[str, Any]]:
         orig_h, orig_w = img.shape[:2]
         if orig_h == 0 or orig_w == 0:
             return []
@@ -63,59 +63,57 @@ class YoloV8OnnxDetector(BaseDetector):
         # Output shape is (1, 84, 8400) -> transpose to (8400, 84)
         predictions = np.transpose(outputs[0])
 
-        boxes = []
-        confidences = []
-        class_ids = []
-
         scale_x = orig_w / float(self.input_size[0])
         scale_y = orig_h / float(self.input_size[1])
 
-        # Filter candidate anchor boxes
-        for row in predictions:
-            classes_scores = row[4:]
-            class_id = int(np.argmax(classes_scores))
-            confidence = float(classes_scores[class_id])
+        classes_scores = predictions[:, 4:]
+        class_ids = np.argmax(classes_scores, axis=1)
+        confidences = np.max(classes_scores, axis=1)
 
-            if confidence >= min_confidence:
-                cx, cy, w, h = row[0], row[1], row[2], row[3]
-                x = int((cx - w / 2.0) * scale_x)
-                y = int((cy - h / 2.0) * scale_y)
-                width = int(w * scale_x)
-                height = int(h * scale_y)
-
-                boxes.append([x, y, width, height])
-                confidences.append(confidence)
-                class_ids.append(class_id)
-
-        if not boxes:
+        mask = confidences >= min_confidence
+        if not np.any(mask):
             return []
 
-        # Apply Non-Maximum Suppression (NMS) to eliminate duplicate overlapping boxes
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, min_confidence, 0.45)
+        filtered_preds = predictions[mask]
+        filtered_cids = class_ids[mask]
+        filtered_confs = confidences[mask]
+
+        cx = filtered_preds[:, 0]
+        cy = filtered_preds[:, 1]
+        w = filtered_preds[:, 2]
+        h = filtered_preds[:, 3]
+
+        xs = ((cx - w / 2.0) * scale_x).astype(int)
+        ys = ((cy - h / 2.0) * scale_y).astype(int)
+        ws = (w * scale_x).astype(int)
+        hs = (h * scale_y).astype(int)
+
+        boxes = [[int(xs[i]), int(ys[i]), int(ws[i]), int(hs[i])] for i in range(len(xs))]
+        conf_list = [float(c) for c in filtered_confs]
+
+        # NMS with 0.50 IoU threshold preserves distinct people even in crowded scenes
+        indices = cv2.dnn.NMSBoxes(boxes, conf_list, min_confidence, 0.50)
+        if len(indices) == 0:
+            return []
+
+        indices_flat = np.asarray(indices).flatten()
 
         detections = []
-        if len(indices) > 0:
-            for idx in indices.flatten():
-                x, y, w, h = boxes[idx]
-                cid = class_ids[idx]
-                class_name = COCO_CLASSES[cid] if cid < len(COCO_CLASSES) else f"object_{cid}"
-                
-                # Constrain bounding box to original frame bounds
-                bounded_x = max(0, min(x, orig_w - 1))
-                bounded_y = max(0, min(y, orig_h - 1))
-                bounded_w = max(1, min(w, orig_w - bounded_x))
-                bounded_h = max(1, min(h, orig_h - bounded_y))
+        for idx in indices_flat:
+            bx, by, bw, bh = boxes[int(idx)]
+            cid = int(filtered_cids[int(idx)])
+            class_name = COCO_CLASSES[cid] if cid < len(COCO_CLASSES) else f"object_{cid}"
 
-                detections.append({
-                    "class": class_name,
-                    "confidence": round(float(confidences[idx]), 2),
-                    "bounding_box": {
-                        "x": bounded_x,
-                        "y": bounded_y,
-                        "width": bounded_w,
-                        "height": bounded_h
-                    }
-                })
+            detections.append({
+                "class": class_name,
+                "confidence": round(conf_list[int(idx)], 2),
+                "bounding_box": {
+                    "x": max(0, min(bx, orig_w - 1)),
+                    "y": max(0, min(by, orig_h - 1)),
+                    "width": max(1, min(bw, orig_w - max(0, bx))),
+                    "height": max(1, min(bh, orig_h - max(0, by)))
+                }
+            })
 
         return detections
 
@@ -225,7 +223,7 @@ class DetectorEngine:
         # Motion is detected if > 1.5% of pixels changed
         return motion_score > 1.5
 
-    def detect(self, img: np.ndarray, min_confidence: float = 0.50, motion_gate: bool = False) -> Dict[str, Any]:
+    def detect(self, img: np.ndarray, min_confidence: float = 0.35, motion_gate: bool = False) -> Dict[str, Any]:
         start = time.time()
         
         if motion_gate and not self.check_motion(img):

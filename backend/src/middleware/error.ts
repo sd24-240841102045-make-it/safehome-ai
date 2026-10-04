@@ -1,8 +1,30 @@
 import { Request, Response, NextFunction } from 'express';
+import { ZodError } from 'zod';
 import { logger } from '../services/logger.js';
 import { config } from '../config.js';
 
 export function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
+  // 1. Handle Zod Validation Errors cleanly as 400 Bad Request
+  if (err instanceof ZodError || err.name === 'ZodError') {
+    const formattedErrors = err.errors?.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ') || 'Validation error';
+    logger.warn(`[Validation Error] ${req.method} ${req.url} - ${formattedErrors}`);
+    return res.status(400).json({
+      success: false,
+      error: formattedErrors,
+      details: err.errors
+    });
+  }
+
+  // 2. Handle Body Parser JSON Syntax Errors
+  if (err instanceof SyntaxError && 'body' in err) {
+    logger.warn(`[JSON Syntax Error] ${req.method} ${req.url}`);
+    return res.status(400).json({
+      success: false,
+      error: 'Malformed JSON payload in request body'
+    });
+  }
+
+  // 3. Unhandled Server Errors
   logger.error(`Unhandled error during ${req.method} ${req.url}`, err);
 
   const statusCode = err.statusCode || (res.statusCode !== 200 ? res.statusCode : 500);
@@ -20,3 +42,4 @@ export function notFoundHandler(req: Request, res: Response) {
     error: `Endpoint not found: ${req.method} ${req.originalUrl}`
   });
 }
+

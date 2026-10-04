@@ -36,7 +36,7 @@ export function createAuditRouter(db: DatabaseService, authMiddleware: any): Rou
         details: typeof r.details === 'string' ? safeJsonParse(r.details) : r.details
       }));
 
-      res.json({ success: true, logs });
+      res.json({ success: true, logs, data: logs });
     } catch (err) {
       next(err);
     }

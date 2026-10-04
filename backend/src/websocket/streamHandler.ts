@@ -33,10 +33,9 @@ export class StreamWebSocketHandler {
   private db: DatabaseService;
   private authService: AuthService;
 
-  // Active sessions mapped by userId
-  private phonesByUser = new Map<string, Map<string, PhoneSession>>(); // userId -> (deviceId -> PhoneSession)
-  private dashboardsByUser = new Map<string, Set<DashboardSession>>(); // userId -> Set<DashboardSession>
-  private lastEventCooldownMap = new Map<string, number>(); // `${userId}_${category}` -> timestamp
+  private phonesByUser = new Map<string, Map<string, PhoneSession>>();
+  private dashboardsByUser = new Map<string, Set<DashboardSession>>();
+  private lastEventCooldownMap = new Map<string, number>();
 
   constructor(wss: WebSocketServer, db: DatabaseService, authService: AuthService) {
     this.wss = wss;
@@ -51,10 +50,7 @@ export class StreamWebSocketHandler {
       let currentDeviceId: string | null = null;
       let currentUserId: string | null = null;
       let currentSessionId: string | null = null;
-      // Per-connection backpressure: drop frame if previous is still being processed
       let frameInFlight = false;
-
-      logger.info('[WS] New incoming WebSocket connection');
 
       ws.on('message', async (data: Buffer | string) => {
         try {
@@ -64,11 +60,7 @@ export class StreamWebSocketHandler {
           if (msg.type === 'register_phone') {
             const authResult = await this.authenticatePhone(msg);
             if (!authResult) {
-              ws.send(JSON.stringify({
-                type: 'error',
-                code: 'AUTH_FAILED',
-                message: 'Phone authentication failed. Valid token required.'
-              }));
+              ws.send(JSON.stringify({ type: 'error', code: 'AUTH_FAILED', message: 'Valid token required.' }));
               return;
             }
 
@@ -77,76 +69,53 @@ export class StreamWebSocketHandler {
             currentUserId = authResult.userId;
             currentSessionId = crypto.randomUUID();
 
-            if (!this.phonesByUser.has(currentUserId)) {
-              this.phonesByUser.set(currentUserId, new Map());
-            }
+            const uid = authResult.userId;
+            const devId = authResult.deviceId;
+            const sessId = currentSessionId;
+
+            if (!this.phonesByUser.has(uid)) this.phonesByUser.set(uid, new Map());
 
             const phoneSession: PhoneSession = {
               ws,
-              deviceId: currentDeviceId,
-              userId: currentUserId,
+              deviceId: devId,
+              userId: uid,
               homeId: authResult.homeId,
               deviceName: msg.device_name || 'Android Phone Sensor',
-              sessionId: currentSessionId,
+              sessionId: sessId,
               startedAt: Date.now(),
               frameCount: 0,
               dropCount: 0,
               lastHeartbeat: Date.now()
             };
 
-            this.phonesByUser.get(currentUserId)!.set(currentDeviceId, phoneSession);
+            this.phonesByUser.get(uid)!.set(devId, phoneSession);
 
-            logger.info(`[WS] Phone paired & connected: ${currentDeviceId} for user ${currentUserId}`);
-
-            // Update database status and monitoring sessions
             const now = new Date().toISOString();
             await this.db.run(
               `UPDATE devices SET status = 'online', last_seen = ?, last_heartbeat_at = ?, network_online = 1 WHERE id = ?`,
-              [now, now, currentDeviceId]
+              [now, now, devId]
             );
-
-            // Upsert device_status record
             await this.db.run(
               `INSERT INTO device_status (device_id, user_id, home_id, status, last_heartbeat_at, last_frame_at, updated_at)
                VALUES (?, ?, ?, 'online', ?, ?, ?)
-               ON CONFLICT(device_id) DO UPDATE SET
-                 status = 'online',
-                 last_heartbeat_at = excluded.last_heartbeat_at,
-                 last_frame_at = excluded.last_frame_at,
-                 updated_at = excluded.updated_at`,
-              [currentDeviceId, currentUserId, authResult.homeId || null, now, now, now]
+               ON CONFLICT(device_id) DO UPDATE SET status = 'online', last_heartbeat_at = excluded.last_heartbeat_at, updated_at = excluded.updated_at`,
+              [devId, uid, authResult.homeId || null, now, now, now]
             );
-
-            // Insert new monitoring session
             await this.db.run(
-              `INSERT INTO monitoring_sessions (id, user_id, home_id, device_id, started_at)
-               VALUES (?, ?, ?, ?, ?)`,
-              [currentSessionId, currentUserId, authResult.homeId || null, currentDeviceId, now]
+              `INSERT INTO monitoring_sessions (id, user_id, home_id, device_id, started_at) VALUES (?, ?, ?, ?, ?)`,
+              [sessId, uid, authResult.homeId || null, devId, now]
             );
-
-            // Log security audit event
             await logSecurityEvent(this.db, {
-              userId: currentUserId,
+              userId: uid,
               homeId: authResult.homeId,
               eventType: 'monitoring_started',
               resourceType: 'device',
-              resourceId: currentDeviceId,
-              details: { device_name: phoneSession.deviceName, session_id: currentSessionId }
+              resourceId: devId,
+              details: { device_name: phoneSession.deviceName, session_id: sessId }
             });
 
-            ws.send(JSON.stringify({
-              type: 'registered',
-              device_id: currentDeviceId,
-              status: 'online',
-              message: 'Phone camera registered with SafeHome AI backend.'
-            }));
-
-            // Notify user's dashboards of camera coming online
-            this.broadcastToUserDashboards(currentUserId, {
-              type: 'device_status_change',
-              device_id: currentDeviceId,
-              status: 'online'
-            });
+            ws.send(JSON.stringify({ type: 'registered', device_id: devId, status: 'online' }));
+            this.broadcastToUserDashboards(uid, { type: 'device_status_change', device_id: devId, status: 'online' });
             return;
           }
 
@@ -154,78 +123,42 @@ export class StreamWebSocketHandler {
           if (msg.type === 'register_dashboard') {
             const userId = await this.authenticateDashboard(msg);
             if (!userId) {
-              ws.send(JSON.stringify({
-                type: 'error',
-                code: 'AUTH_FAILED',
-                message: 'Dashboard authentication failed. Valid token required.'
-              }));
+              ws.send(JSON.stringify({ type: 'error', code: 'AUTH_FAILED', message: 'Valid token required.' }));
               return;
             }
 
             clientRole = 'dashboard';
             currentUserId = userId;
 
-            if (!this.dashboardsByUser.has(userId)) {
-              this.dashboardsByUser.set(userId, new Set());
-            }
-
-            const dashSession: DashboardSession = { ws, userId };
-            this.dashboardsByUser.get(userId)!.add(dashSession);
+            if (!this.dashboardsByUser.has(userId)) this.dashboardsByUser.set(userId, new Set());
+            this.dashboardsByUser.get(userId)!.add({ ws, userId });
 
             const activeCameras = this.phonesByUser.get(userId)?.size || 0;
-            logger.info(`[WS] Dashboard registered for user ${userId}. Active cameras: ${activeCameras}`);
-
-            ws.send(JSON.stringify({
-              type: 'dashboard_registered',
-              active_cameras: activeCameras
-            }));
+            ws.send(JSON.stringify({ type: 'dashboard_registered', active_cameras: activeCameras }));
             return;
           }
 
-          // 3. Live Frame Ingestion from Phone Camera
-          if (msg.type === 'frame') {
-            if (!currentUserId || !currentDeviceId || !msg.image) return;
-
-            // SERVER-SIDE BACKPRESSURE: drop frame if AI is still processing previous one.
-            // This is the main server-side guard against latency pile-up.
-            // Update frame counts and telemetry on session
-            if (currentUserId && currentDeviceId) {
-              const userPhones = this.phonesByUser.get(currentUserId);
-              const session = userPhones?.get(currentDeviceId);
-              if (session) {
-                session.frameCount += 1;
-                session.lastHeartbeat = Date.now();
-              }
-              // Update last_frame_at in device_status
-              await this.db.run(
-                `UPDATE device_status SET last_frame_at = ?, fps = ?, status = 'online', updated_at = ? WHERE device_id = ?`,
-                [new Date().toISOString(), msg.fps || 0, new Date().toISOString(), currentDeviceId]
-              );
+          // 3. Live Video Frame from Camera
+          if (msg.type === 'frame' && currentUserId && currentDeviceId && msg.image) {
+            const uid = currentUserId;
+            const devId = currentDeviceId;
+            const userPhones = this.phonesByUser.get(uid);
+            const session = userPhones?.get(devId);
+            if (session) {
+              session.frameCount += 1;
+              session.lastHeartbeat = Date.now();
             }
 
             if (frameInFlight) {
-              if (currentUserId && currentDeviceId) {
-                const userPhones = this.phonesByUser.get(currentUserId);
-                const session = userPhones?.get(currentDeviceId);
-                if (session) session.dropCount += 1;
-              }
-              // Still send back an echo so the client can release its own gate
+              if (session) session.dropCount += 1;
               if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                  type: 'detection_result',
-                  client_time: msg.client_time,
-                  detections: [],
-                  latency_ms: 0,
-                  dropped: true
-                }));
+                ws.send(JSON.stringify({ type: 'detection_result', client_time: msg.client_time, detections: [], latency_ms: 0, dropped: true }));
               }
               return;
             }
 
             frameInFlight = true;
             const frameStart = Date.now();
-
-            // Forward to Python AI detection service
             let detections: any[] = [];
             let aiProcessingTimeMs = 0;
             let aiAccelerator = 'CPU';
@@ -234,15 +167,9 @@ export class StreamWebSocketHandler {
             try {
               const pyRes = await fetch(`${config.PYTHON_SERVICE_URL}/detect`, {
                 method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-Internal-Secret': config.AI_SERVICE_SECRET
-                },
-                body: JSON.stringify({
-                  image: msg.image,
-                  min_confidence: 0.45
-                }),
-                signal: AbortSignal.timeout(1500)  // Reduced from 2500ms — fail fast
+                headers: { 'Content-Type': 'application/json', 'X-Internal-Secret': config.AI_SERVICE_SECRET },
+                body: JSON.stringify({ image: msg.image, min_confidence: 0.45 }),
+                signal: AbortSignal.timeout(1500)
               });
 
               if (pyRes.ok) {
@@ -253,15 +180,12 @@ export class StreamWebSocketHandler {
                 aiDevice = pyData.device || 'cpu';
               }
             } catch (pyErr: any) {
-              logger.warn(`[WS] AI Detection service error: ${pyErr.message}`);
+              logger.warn(`[WS] Detection error: ${pyErr.message}`);
             } finally {
-              // CRITICAL: always release the in-flight lock, even on error/timeout
               frameInFlight = false;
             }
 
             const serverPipelineMs = Date.now() - frameStart;
-
-            // Return detection overlay to phone screen (includes echoed client_time for RTT measurement)
             if (ws.readyState === WebSocket.OPEN) {
               ws.send(JSON.stringify({
                 type: 'detection_result',
@@ -274,10 +198,9 @@ export class StreamWebSocketHandler {
               }));
             }
 
-            // Broadcast live frame + bounding boxes strictly to the owner's dashboards
-            this.broadcastToUserDashboards(currentUserId, {
+            this.broadcastToUserDashboards(uid, {
               type: 'live_frame',
-              device_id: currentDeviceId,
+              device_id: devId,
               image: msg.image,
               detections,
               timestamp: new Date().toISOString(),
@@ -287,62 +210,40 @@ export class StreamWebSocketHandler {
               device: aiDevice
             });
 
-            // If safety targets detected, process cooldown and event/alert generation
             if (detections.length > 0) {
-              await this.handleDetections(currentUserId, currentDeviceId, detections, msg.image);
+              await this.handleDetections(uid, devId, detections, msg.image);
             }
             return;
           }
 
-          // 4. Structured Telemetry & Heartbeat from Phone Sensor
+          // 4. Heartbeat & Telemetry
           if (msg.type === 'heartbeat' && currentUserId && currentDeviceId) {
+            const uid = currentUserId;
+            const devId = currentDeviceId;
             const now = new Date().toISOString();
             const batteryLevel = typeof msg.battery_level === 'number' ? msg.battery_level : null;
             const batteryCharging = Boolean(msg.battery_charging);
-            const networkOnline = msg.network_online !== undefined ? (msg.network_online ? 1 : 0) : 1;
             const clientFps = typeof msg.fps === 'number' ? msg.fps : 0.0;
             const clientLatency = typeof msg.latency_ms === 'number' ? msg.latency_ms : 0.0;
 
-            const userPhones = this.phonesByUser.get(currentUserId);
-            const session = userPhones?.get(currentDeviceId);
-            if (session) {
-              session.lastHeartbeat = Date.now();
-            }
+            const session = this.phonesByUser.get(uid)?.get(devId);
+            if (session) session.lastHeartbeat = Date.now();
 
-            // Update device status record
             await this.db.run(
-              `UPDATE device_status SET
-                 status = 'online',
-                 battery_level = ?,
-                 battery_charging = ?,
-                 network_online = ?,
-                 last_heartbeat_at = ?,
-                 fps = ?,
-                 latency_ms = ?,
-                 updated_at = ?
-               WHERE device_id = ?`,
-              [batteryLevel, batteryCharging ? 1 : 0, networkOnline, now, clientFps, clientLatency, now, currentDeviceId]
+              `UPDATE device_status SET status = 'online', battery_level = ?, battery_charging = ?, last_heartbeat_at = ?, fps = ?, latency_ms = ?, updated_at = ? WHERE device_id = ?`,
+              [batteryLevel, batteryCharging ? 1 : 0, now, clientFps, clientLatency, now, devId]
+            );
+            await this.db.run(
+              `UPDATE devices SET last_heartbeat_at = ?, battery_level = ?, battery_charging = ?, status = 'online' WHERE id = ?`,
+              [now, batteryLevel, batteryCharging ? 1 : 0, devId]
             );
 
-            // Update devices table
-            await this.db.run(
-              `UPDATE devices SET
-                 last_heartbeat_at = ?,
-                 battery_level = ?,
-                 battery_charging = ?,
-                 network_online = ?,
-                 status = 'online'
-               WHERE id = ?`,
-              [now, batteryLevel, batteryCharging ? 1 : 0, networkOnline, currentDeviceId]
-            );
-
-            // Broadcast device telemetry to dashboard tiles
-            this.broadcastToUserDashboards(currentUserId, {
+            this.broadcastToUserDashboards(uid, {
               type: 'device_telemetry',
-              device_id: currentDeviceId,
+              device_id: devId,
               battery_level: batteryLevel,
               battery_charging: batteryCharging,
-              network_online: Boolean(networkOnline),
+              network_online: true,
               fps: clientFps,
               latency_ms: clientLatency,
               timestamp: now
@@ -352,81 +253,48 @@ export class StreamWebSocketHandler {
             return;
           }
 
-          // Legacy ping
           if (msg.type === 'ping') {
             ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
             return;
           }
 
-          // 5. WebRTC P2P Signaling: Request Offer (from dashboard to phone)
-          if (msg.type === 'webrtc_request_offer') {
-            if (currentUserId) {
-              this.sendToPhone(currentUserId, msg.device_id, {
-                type: 'webrtc_request_offer',
-                device_id: msg.device_id
-              });
+          // 5. WebRTC P2P Signaling
+          if (msg.type === 'webrtc_request_offer' && currentUserId) {
+            this.sendToPhone(currentUserId, msg.device_id, { type: 'webrtc_request_offer', device_id: msg.device_id });
+            return;
+          }
+          if (msg.type === 'webrtc_offer' && currentUserId) {
+            this.broadcastToUserDashboards(currentUserId, { type: 'webrtc_offer', device_id: currentDeviceId || msg.device_id, sdp: msg.sdp });
+            return;
+          }
+          if (msg.type === 'webrtc_answer' && currentUserId) {
+            this.sendToPhone(currentUserId, msg.device_id, { type: 'webrtc_answer', device_id: msg.device_id, sdp: msg.sdp });
+            return;
+          }
+          if (msg.type === 'webrtc_ice_candidate' && currentUserId) {
+            if (clientRole === 'phone') {
+              this.broadcastToUserDashboards(currentUserId, { type: 'webrtc_ice_candidate', device_id: currentDeviceId || msg.device_id, candidate: msg.candidate });
+            } else {
+              this.sendToPhone(currentUserId, msg.device_id, { type: 'webrtc_ice_candidate', device_id: msg.device_id, candidate: msg.candidate });
             }
             return;
           }
 
-          // 6. WebRTC P2P Signaling: Offer (from phone to dashboard)
-          if (msg.type === 'webrtc_offer') {
-            if (currentUserId) {
-              this.broadcastToUserDashboards(currentUserId, {
-                type: 'webrtc_offer',
-                device_id: currentDeviceId || msg.device_id,
-                sdp: msg.sdp
-              });
-            }
-            return;
-          }
-
-          // 7. WebRTC P2P Signaling: Answer (from dashboard to phone)
-          if (msg.type === 'webrtc_answer') {
-            if (currentUserId) {
-              this.sendToPhone(currentUserId, msg.device_id, {
-                type: 'webrtc_answer',
-                device_id: msg.device_id,
-                sdp: msg.sdp
-              });
-            }
-            return;
-          }
-
-          // 8. WebRTC P2P Signaling: ICE Candidate (bidirectional)
-          if (msg.type === 'webrtc_ice_candidate') {
-            if (clientRole === 'phone' && currentUserId) {
-              this.broadcastToUserDashboards(currentUserId, {
-                type: 'webrtc_ice_candidate',
-                device_id: currentDeviceId || msg.device_id,
-                candidate: msg.candidate
-              });
-            } else if (clientRole === 'dashboard' && currentUserId) {
-              this.sendToPhone(currentUserId, msg.device_id, {
-                type: 'webrtc_ice_candidate',
-                device_id: msg.device_id,
-                candidate: msg.candidate
-              });
-            }
-            return;
-          }
-
-          // 9. Phone Acoustic & Loitering Safety Alerts
+          // 6. Direct Sensor Events (Loitering & Loud Noise)
           if (msg.type === 'loitering_alert' && currentUserId) {
             await this.handleDirectPhoneAlert(currentUserId, currentDeviceId || '', 'person_loitering', {
               title: 'Loitering Detected',
-              message: `Person observed lingering in camera zone for >${msg.duration_sec || 10} seconds.`,
+              message: `Person observed in zone for >${msg.duration_sec || 10} seconds.`,
               severity: 'WARNING',
               image: msg.image,
               metadata: { duration_sec: msg.duration_sec || 10 }
             });
             return;
           }
-
           if (msg.type === 'loud_noise_alert' && currentUserId) {
             await this.handleDirectPhoneAlert(currentUserId, currentDeviceId || '', 'loud_noise', {
               title: 'Loud Noise Detected',
-              message: `Acoustic spike of ${msg.decibels || 80} dB detected by phone sensor.`,
+              message: `Acoustic spike of ${msg.decibels || 80} dB detected.`,
               severity: 'WARNING',
               metadata: { decibels: msg.decibels }
             });
@@ -437,137 +305,74 @@ export class StreamWebSocketHandler {
         }
       });
 
-      // Disconnect handling
+      // Disconnection Handler
       ws.on('close', async () => {
         if (clientRole === 'phone' && currentUserId && currentDeviceId) {
-          const userPhones = this.phonesByUser.get(currentUserId);
-          let closedSession: PhoneSession | undefined;
-          if (userPhones) {
-            closedSession = userPhones.get(currentDeviceId);
-            userPhones.delete(currentDeviceId);
-            if (userPhones.size === 0) {
-              this.phonesByUser.delete(currentUserId);
-            }
-          }
-
-          logger.info(`[WS] Phone disconnected: ${currentDeviceId} for user ${currentUserId}`);
+          const uid = currentUserId;
+          const devId = currentDeviceId;
+          const userPhones = this.phonesByUser.get(uid);
+          const closedSession = userPhones?.get(devId);
+          userPhones?.delete(devId);
+          if (userPhones && userPhones.size === 0) this.phonesByUser.delete(uid);
 
           const now = new Date().toISOString();
           try {
-            await this.db.run(
-              `UPDATE devices SET status = 'offline', last_seen = ? WHERE id = ?`,
-              [now, currentDeviceId]
-            );
+            await this.db.run(`UPDATE devices SET status = 'offline', last_seen = ? WHERE id = ?`, [now, devId]);
+            await this.db.run(`UPDATE device_status SET status = 'offline', updated_at = ? WHERE device_id = ?`, [now, devId]);
 
-            await this.db.run(
-              `UPDATE device_status SET status = 'offline', updated_at = ? WHERE device_id = ?`,
-              [now, currentDeviceId]
-            );
-
-            // Close monitoring session record
             if (closedSession) {
               const durationSec = Math.max(1, Math.round((Date.now() - closedSession.startedAt) / 1000));
               const avgFps = closedSession.frameCount > 0 ? Number((closedSession.frameCount / durationSec).toFixed(1)) : 0;
               await this.db.run(
-                `UPDATE monitoring_sessions SET
-                   ended_at = ?,
-                   duration_seconds = ?,
-                   frame_count = ?,
-                   drop_count = ?,
-                   avg_fps = ?,
-                   end_reason = 'clean_disconnect'
-                 WHERE id = ?`,
+                `UPDATE monitoring_sessions SET ended_at = ?, duration_seconds = ?, frame_count = ?, drop_count = ?, avg_fps = ?, end_reason = 'clean_disconnect' WHERE id = ?`,
                 [now, durationSec, closedSession.frameCount, closedSession.dropCount, avgFps, closedSession.sessionId]
               );
-
-              // Log security audit event
               await logSecurityEvent(this.db, {
-                userId: currentUserId,
+                userId: uid,
                 homeId: closedSession.homeId,
                 eventType: 'monitoring_stopped',
                 resourceType: 'device',
-                resourceId: currentDeviceId,
-                details: {
-                  session_id: closedSession.sessionId,
-                  duration_seconds: durationSec,
-                  frame_count: closedSession.frameCount,
-                  end_reason: 'clean_disconnect'
-                }
+                resourceId: devId,
+                details: { session_id: closedSession.sessionId, duration_seconds: durationSec, frame_count: closedSession.frameCount }
               });
             }
-          } catch (e) {
-            // DB update error
-          }
+          } catch { /* ignore disconnect cleanup err */ }
 
-          // Broadcast offline status to user's dashboards immediately
-          this.broadcastToUserDashboards(currentUserId, {
-            type: 'device_status_change',
-            device_id: currentDeviceId,
-            status: 'offline'
-          });
+          this.broadcastToUserDashboards(uid, { type: 'device_status_change', device_id: devId, status: 'offline' });
         } else if (clientRole === 'dashboard' && currentUserId) {
-          const userDashes = this.dashboardsByUser.get(currentUserId);
+          const uid = currentUserId;
+          const userDashes = this.dashboardsByUser.get(uid);
           if (userDashes) {
-            for (const session of userDashes) {
-              if (session.ws === ws) {
-                userDashes.delete(session);
-                break;
-              }
+            for (const s of userDashes) {
+              if (s.ws === ws) { userDashes.delete(s); break; }
             }
-            if (userDashes.size === 0) {
-              this.dashboardsByUser.delete(currentUserId);
-            }
+            if (userDashes.size === 0) this.dashboardsByUser.delete(uid);
           }
         }
       });
     });
   }
 
-  // Authenticate Phone connection via device_token or user token
-  private async authenticatePhone(msg: any): Promise<{ userId: string; deviceId: string; homeId: string | null } | null> {
+  private async authenticatePhone(msg: any) {
     const token = msg.token || msg.device_token;
-
     if (token) {
       try {
         const decoded: any = jwt.verify(token, config.JWT_SECRET);
-        return {
-          userId: decoded.sub || decoded.id,
-          deviceId: decoded.device_id || msg.device_id || `phone_${Date.now().toString(36)}`,
-          homeId: decoded.home_id || null
-        };
+        return { userId: decoded.sub || decoded.id, deviceId: decoded.device_id || msg.device_id || `phone_${Date.now().toString(36)}`, homeId: decoded.home_id || null };
       } catch {
-        // Fallback to authService check
         const user = await this.authService.verifyToken(token);
-        if (user) {
-          return {
-            userId: user.id,
-            deviceId: msg.device_id || `phone_${Date.now().toString(36)}`,
-            homeId: null
-          };
-        }
+        if (user) return { userId: user.id, deviceId: msg.device_id || `phone_${Date.now().toString(36)}`, homeId: null };
       }
     }
-
-    // Demo/Development fallback if unauthenticated
     if (process.env.NODE_ENV !== 'production') {
-      const demoUser = await this.db.get('SELECT id FROM profiles ORDER BY created_at ASC LIMIT 1');
-      if (demoUser) {
-        const devId = msg.device_id || `phone_local_${Date.now().toString(36)}`;
-        return {
-          userId: demoUser.id,
-          deviceId: devId,
-          homeId: null
-        };
-      }
+      const demo = await this.db.get('SELECT id FROM profiles ORDER BY created_at ASC LIMIT 1');
+      if (demo) return { userId: demo.id, deviceId: msg.device_id || `phone_local_${Date.now().toString(36)}`, homeId: null };
     }
-
     return null;
   }
 
-  // Authenticate Dashboard connection
-  private async authenticateDashboard(msg: any): Promise<string | null> {
+  private async authenticateDashboard(msg: any) {
     const token = msg.token;
-
     if (token) {
       try {
         const decoded: any = jwt.verify(token, config.JWT_SECRET);
@@ -577,50 +382,36 @@ export class StreamWebSocketHandler {
         if (user) return user.id;
       }
     }
-
-    // Demo/Development fallback
     if (process.env.NODE_ENV !== 'production') {
-      const demoUser = await this.db.get('SELECT id FROM profiles ORDER BY created_at ASC LIMIT 1');
-      if (demoUser) return demoUser.id;
+      const demo = await this.db.get('SELECT id FROM profiles ORDER BY created_at ASC LIMIT 1');
+      if (demo) return demo.id;
     }
-
     return null;
   }
 
-  // User-isolated broadcast helper
   public broadcastToUserDashboards(userId: string, payload: any) {
-    const userDashboards = this.dashboardsByUser.get(userId);
-    if (!userDashboards || userDashboards.size === 0) return;
-
+    const sessions = this.dashboardsByUser.get(userId);
+    if (!sessions) return;
     const data = JSON.stringify(payload);
-    for (const session of userDashboards) {
-      if (session.ws.readyState === WebSocket.OPEN) {
-        session.ws.send(data);
-      }
+    for (const s of sessions) {
+      if (s.ws.readyState === WebSocket.OPEN) s.ws.send(data);
     }
   }
 
-  // User-isolated send to phone helper (WebRTC signaling)
   private sendToPhone(userId: string, deviceId: string | undefined, payload: any) {
-    const userPhones = this.phonesByUser.get(userId);
-    if (!userPhones || userPhones.size === 0) return;
-
+    const phones = this.phonesByUser.get(userId);
+    if (!phones) return;
     const data = JSON.stringify(payload);
-    if (deviceId && userPhones.has(deviceId)) {
-      const session = userPhones.get(deviceId);
-      if (session && session.ws.readyState === WebSocket.OPEN) {
-        session.ws.send(data);
-      }
+    if (deviceId && phones.has(deviceId)) {
+      const s = phones.get(deviceId);
+      if (s && s.ws.readyState === WebSocket.OPEN) s.ws.send(data);
     } else {
-      for (const session of userPhones.values()) {
-        if (session.ws.readyState === WebSocket.OPEN) {
-          session.ws.send(data);
-        }
+      for (const s of phones.values()) {
+        if (s.ws.readyState === WebSocket.OPEN) s.ws.send(data);
       }
     }
   }
 
-  // Handle direct acoustic or loitering alerts originating from the phone
   private async handleDirectPhoneAlert(
     userId: string,
     deviceId: string,
@@ -628,87 +419,39 @@ export class StreamWebSocketHandler {
     details: { title: string; message: string; severity: 'INFO' | 'WARNING' | 'CRITICAL'; metadata?: any; image?: string }
   ) {
     const home = await this.db.get('SELECT id FROM homes WHERE user_id = ? LIMIT 1', [userId]);
-    const homeId = home?.id || null;
     const settings = await this.db.get('SELECT save_snapshots FROM user_settings WHERE user_id = ?', [userId]);
     const eventId = crypto.randomUUID();
     const alertId = crypto.randomUUID();
     const timestamp = new Date().toISOString();
-
-    const category = eventType === 'loud_noise' ? 'noise' : 'person';
+    const category = eventType === 'loud_noise' ? 'other' : 'person';
     const objectClass = eventType === 'loud_noise' ? 'acoustic_spike' : 'person_loitering';
 
     let snapshotPath: string | null = null;
     if (settings?.save_snapshots !== 0 && details.image) {
-      try {
-        snapshotPath = await saveSnapshot(eventId, details.image);
-      } catch (sErr: any) {
-        logger.warn(`[WS] Failed to save snapshot for direct alert ${eventId}: ${sErr.message}`);
-      }
+      try { snapshotPath = await saveSnapshot(eventId, details.image); } catch { /* ignore */ }
     }
 
     await this.db.run(
-      `INSERT INTO events (
-        id, user_id, home_id, device_id, event_type, object_class, category,
-        confidence, started_at, last_seen, frame_count, snapshot_path, metadata, is_unusual, anomaly_score
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, 1, 0.88)`,
-      [
-        eventId,
-        userId,
-        homeId,
-        deviceId,
-        eventType,
-        objectClass,
-        category,
-        0.92,
-        timestamp,
-        timestamp,
-        snapshotPath,
-        JSON.stringify(details.metadata || {})
-      ]
+      `INSERT INTO events (id, user_id, home_id, device_id, event_type, object_class, category, confidence, started_at, last_seen, frame_count, snapshot_path, metadata, is_unusual, anomaly_score)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 0.92, ?, ?, 1, ?, ?, 1, 0.88)`,
+      [eventId, userId, home?.id || null, deviceId, eventType, objectClass, category, timestamp, timestamp, snapshotPath, JSON.stringify(details.metadata || {})]
     );
 
     await this.db.run(
-      `INSERT INTO alerts (id, user_id, event_id, severity, category, title, message)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO alerts (id, user_id, event_id, severity, category, title, message) VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [alertId, userId, eventId, details.severity, category, details.title, details.message]
     );
 
     this.broadcastToUserDashboards(userId, {
       type: 'new_event',
-      event: {
-        id: eventId,
-        event_type: eventType,
-        category,
-        object_class: objectClass,
-        started_at: timestamp,
-        snapshot_path: snapshotPath,
-        is_unusual: 1,
-        anomaly_score: 0.88
-      }
-    });
-
-    this.broadcastToUserDashboards(userId, {
-      type: 'new_alert',
-      alert: {
-        id: alertId,
-        user_id: userId,
-        event_id: eventId,
-        severity: details.severity,
-        category,
-        title: details.title,
-        message: details.message,
-        snapshot_path: snapshotPath,
-        is_read: 0,
-        is_resolved: 0,
-        created_at: timestamp
-      }
+      event: { id: eventId, event_type: eventType, category, object_class: objectClass, started_at: timestamp, snapshot_path: snapshotPath, is_unusual: 1, anomaly_score: 0.88 },
+      alert: { id: alertId, event_id: eventId, severity: details.severity, category, title: details.title, message: details.message, snapshot_path: snapshotPath, is_read: 0, is_resolved: 0, created_at: timestamp }
     });
   }
 
-  // Event & Alert handling with cooldown
   private async handleDetections(userId: string, deviceId: string, detections: any[], imageBase64: string) {
     const now = Date.now();
-    const settings = await this.db.get('SELECT event_cooldown_sec, confidence_threshold FROM user_settings WHERE user_id = ?', [userId]);
+    const settings = await this.db.get('SELECT event_cooldown_sec, confidence_threshold, save_snapshots FROM user_settings WHERE user_id = ?', [userId]);
     const cooldownSec = settings?.event_cooldown_sec || 30;
     const minConf = settings?.confidence_threshold || 0.50;
 
@@ -719,130 +462,85 @@ export class StreamWebSocketHandler {
       const cooldownKey = `${userId}_${category}`;
       const lastTriggered = this.lastEventCooldownMap.get(cooldownKey) || 0;
 
-      if (now - lastTriggered < cooldownSec * 1000) {
-        continue; // Respect user-configured cooldown
-      }
+      if (now - lastTriggered < cooldownSec * 1000) continue;
       this.lastEventCooldownMap.set(cooldownKey, now);
 
       const eventId = crypto.randomUUID();
       const timestamp = new Date().toISOString();
-      const home = await this.db.get('SELECT id FROM homes WHERE user_id = ? LIMIT 1', [userId]);
-      const homeId = home?.id || null;
+      const home = await this.db.get('SELECT id, timezone, active_hours_start, active_hours_end, current_mode FROM homes WHERE user_id = ? LIMIT 1', [userId]);
 
-      // Evaluate statistical anomaly via Python /analyze service
+      const timeZone = home?.timezone || 'UTC';
+      let currentHour = new Date().getUTCHours();
+      let currentWeekday = new Date().getUTCDay();
+      try {
+        const formatter = new Intl.DateTimeFormat('en-US', { timeZone, hour: 'numeric', hourCycle: 'h23', weekday: 'short' });
+        const parts = formatter.formatToParts(new Date());
+        const m: Record<string, string> = {};
+        parts.forEach(p => { m[p.type] = p.value; });
+        const dayMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+        currentHour = parseInt(m.hour || '0', 10) % 24;
+        currentWeekday = dayMap[m.weekday || 'Sun'] ?? new Date().getDay();
+      } catch {
+        currentHour = new Date().getHours();
+        currentWeekday = new Date().getDay();
+      }
+
       let isUnusual = 0;
       let anomalyScore = 0.0;
       let anomalyReason = '';
-      const activeStart = home?.active_hours_start || '07:00';
-      const activeEnd = home?.active_hours_end || '23:00';
-      const currentHour = new Date().getUTCHours();
-      const currentWeekday = new Date().getUTCDay();
-      const startH = parseInt(activeStart.split(':')[0], 10);
-      const endH = parseInt(activeEnd.split(':')[0], 10);
+
+      const startH = parseInt((home?.active_hours_start || '07:00').split(':')[0], 10);
+      const endH = parseInt((home?.active_hours_end || '23:00').split(':')[0], 10);
       const isQuiet = currentHour < startH || currentHour >= endH;
 
       try {
-        const pastEvents = await this.db.query(
-          `SELECT category, started_at, user_feedback FROM events WHERE user_id = ? ORDER BY started_at DESC LIMIT 300`,
-          [userId]
-        );
-
+        const pastEvents = await this.db.query(`SELECT category, started_at, user_feedback FROM events WHERE user_id = ? ORDER BY started_at DESC LIMIT 300`, [userId]);
         if (pastEvents.length >= 100) {
           const windowMap = new Map<string, any>();
           for (const pe of pastEvents) {
             const pDt = new Date(pe.started_at);
             const wKey = `${pe.started_at.slice(0, 10)}_${pDt.getUTCHours()}_${pe.category}`;
             if (!windowMap.has(wKey)) {
-              windowMap.set(wKey, {
-                timestamp_utc: pDt.toISOString(),
-                hour: pDt.getUTCHours(),
-                weekday: pDt.getUTCDay(),
-                category: pe.category,
-                event_count: 0,
-                user_feedback: pe.user_feedback || null
-              });
+              windowMap.set(wKey, { timestamp_utc: pDt.toISOString(), hour: pDt.getUTCHours(), weekday: pDt.getUTCDay(), category: pe.category, event_count: 0, user_feedback: pe.user_feedback || null });
             }
             windowMap.get(wKey).event_count += 1;
           }
 
-          const pyAnalyzeRes = await fetch(`${config.PYTHON_SERVICE_URL}/analyze`, {
+          const pyRes = await fetch(`${config.PYTHON_SERVICE_URL}/analyze`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Internal-Secret': config.AI_SERVICE_SECRET
-            },
+            headers: { 'Content-Type': 'application/json', 'X-Internal-Secret': config.AI_SERVICE_SECRET },
             body: JSON.stringify({
-              timezone: home?.timezone || 'UTC',
+              timezone: timeZone,
               time_windows: Array.from(windowMap.values()),
-              current_window: {
-                timestamp_utc: timestamp,
-                hour: currentHour,
-                weekday: currentWeekday,
-                category,
-                event_count: 1,
-                is_quiet_hours: isQuiet
-              }
+              current_window: { timestamp_utc: timestamp, hour: currentHour, weekday: currentWeekday, category, event_count: 1, is_quiet_hours: isQuiet }
             }),
             signal: AbortSignal.timeout(1500)
           });
-
-          if (pyAnalyzeRes.ok) {
-            const pyData: any = await pyAnalyzeRes.json();
+          if (pyRes.ok) {
+            const pyData: any = await pyRes.json();
             if (pyData.is_unusual) {
               isUnusual = 1;
               anomalyScore = pyData.anomaly_score || 0.85;
-              anomalyReason = pyData.reason || 'Unusual activity detected based on historical baseline.';
+              anomalyReason = pyData.reason || 'Unusual activity detected.';
             }
           }
         }
-      } catch {
-        // Fallback gracefully if DS service busy
-      }
+      } catch { /* ignore statistical analysis error */ }
 
-      const meta = JSON.stringify({
-        bounding_box: det.bounding_box,
-        detected_via: 'phone_live_stream',
-        anomaly_reason: anomalyReason || null
-      });
-
-      // Check user privacy settings for snapshot saving
       let snapshotPath: string | null = null;
       if (settings?.save_snapshots !== 0 && imageBase64) {
-        try {
-          snapshotPath = await saveSnapshot(eventId, imageBase64);
-        } catch (sErr: any) {
-          logger.warn(`[WS] Failed to save snapshot for event ${eventId}: ${sErr.message}`);
-        }
+        try { snapshotPath = await saveSnapshot(eventId, imageBase64); } catch { /* ignore */ }
       }
 
-      // Insert event into DB
       await this.db.run(
-        `INSERT INTO events (
-          id, user_id, home_id, device_id, event_type, object_class, category,
-          confidence, started_at, last_seen, frame_count, snapshot_path, metadata, is_unusual, anomaly_score
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)`,
-        [
-          eventId,
-          userId,
-          homeId,
-          deviceId,
-          `${det.class}_detected`,
-          det.class,
-          category,
-          det.confidence,
-          timestamp,
-          timestamp,
-          snapshotPath,
-          meta,
-          isUnusual,
-          anomalyScore
-        ]
+        `INSERT INTO events (id, user_id, home_id, device_id, event_type, object_class, category, confidence, started_at, last_seen, frame_count, snapshot_path, metadata, is_unusual, anomaly_score)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)`,
+        [eventId, userId, home?.id || null, deviceId, `${det.class}_detected`, det.class, category, det.confidence, timestamp, timestamp, snapshotPath, JSON.stringify({ bounding_box: det.bounding_box, anomaly_reason: anomalyReason || null }), isUnusual, anomalyScore]
       );
 
-      // Evaluate typed rules against current home mode & detection context
       const ruleResult = await evaluateDetectionRules(this.db, {
         userId,
-        homeId,
+        homeId: home?.id || null,
         category,
         objectClass: det.class,
         confidence: det.confidence,
@@ -850,61 +548,30 @@ export class StreamWebSocketHandler {
         isQuietHours: isQuiet
       });
 
-      let alertId: string | null = null;
       if (ruleResult.shouldAlert || isUnusual) {
-        alertId = crypto.randomUUID();
+        const alertId = crypto.randomUUID();
         const alertSeverity = isUnusual ? 'WARNING' : ruleResult.severity;
         const alertTitle = isUnusual ? `Unusual ${category.toUpperCase()} Activity` : ruleResult.title;
-        const alertMessage = isUnusual ? (anomalyReason || `Unusual frequency of ${category} activity detected.`) : ruleResult.message;
+        const alertMessage = isUnusual ? (anomalyReason || `Unusual frequency of ${category} activity.`) : ruleResult.message;
 
         await this.db.run(
-          `INSERT INTO alerts (id, user_id, event_id, severity, category, title, message, rule_id)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO alerts (id, user_id, event_id, severity, category, title, message, rule_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           [alertId, userId, eventId, alertSeverity, category, alertTitle, alertMessage, ruleResult.ruleId || null]
         );
 
-        // Notify dashboard
         this.broadcastToUserDashboards(userId, {
           type: 'new_event',
-          event: {
-            id: eventId,
-            object_class: det.class,
-            category,
-            confidence: det.confidence,
-            started_at: timestamp,
-            location_label: 'Phone Camera'
-          },
-          alert: {
-            id: alertId,
-            event_id: eventId,
-            severity: alertSeverity,
-            title: alertTitle,
-            message: alertMessage,
-            created_at: timestamp
-          }
+          event: { id: eventId, object_class: det.class, category, confidence: det.confidence, started_at: timestamp, location_label: 'Phone Camera' },
+          alert: { id: alertId, event_id: eventId, severity: alertSeverity, title: alertTitle, message: alertMessage, created_at: timestamp }
         });
 
-        // If action is alarm or severity is CRITICAL, sound alarm on phone sensor
         if (ruleResult.action === 'alarm' || alertSeverity === 'CRITICAL') {
-          this.sendToPhone(userId, deviceId, {
-            type: 'safety_alert',
-            title: alertTitle,
-            message: alertMessage,
-            severity: alertSeverity
-          });
+          this.sendToPhone(userId, deviceId, { type: 'safety_alert', title: alertTitle, message: alertMessage, severity: alertSeverity });
         }
       } else {
-        // Just broadcast event without alert
         this.broadcastToUserDashboards(userId, {
           type: 'new_event',
-          event: {
-            id: eventId,
-            object_class: det.class,
-            category,
-            confidence: det.confidence,
-            started_at: timestamp,
-            location_label: 'Phone Camera'
-          }
+          event: { id: eventId, object_class: det.class, category, confidence: det.confidence, started_at: timestamp, location_label: 'Phone Camera' }
         });
       }
     }

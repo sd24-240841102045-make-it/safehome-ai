@@ -13,7 +13,8 @@ import {
   ChevronRight,
   Info,
   Camera,
-  Image as ImageIcon
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import { eventService } from '../services/api';
 
@@ -286,9 +287,10 @@ export default function Events() {
               <h3 className="font-bold text-base text-white">Event Details</h3>
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="text-slate-400 hover:text-white text-sm"
+                className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+                title="Close"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -384,8 +386,9 @@ export default function Events() {
               Are you sure you want to permanently delete event{' '}
               <span className="font-mono text-sky-400">{deleteModalEvent.id.slice(0, 8)}...</span>?
               {deleteModalEvent.snapshot_path && (
-                <span className="block mt-1 text-[11px] text-amber-400">
-                  ⚠️ The associated snapshot file on local disk will also be unlinked.
+                <span className="mt-1 text-[11px] text-amber-400 flex items-center gap-1">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>The associated snapshot file on local disk will also be unlinked.</span>
                 </span>
               )}
             </p>

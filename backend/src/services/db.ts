@@ -50,6 +50,9 @@ class SqliteDatabaseService implements DatabaseService {
         timezone TEXT DEFAULT 'UTC',
         active_hours_start TEXT DEFAULT '07:00',
         active_hours_end TEXT DEFAULT '23:00',
+        current_mode TEXT DEFAULT 'home',
+        mode_changed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        arming_delay_s INTEGER DEFAULT 0,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
@@ -64,6 +67,10 @@ class SqliteDatabaseService implements DatabaseService {
         ip_address TEXT,
         user_agent TEXT,
         last_seen TEXT,
+        last_heartbeat_at TEXT,
+        battery_level REAL,
+        battery_charging INTEGER DEFAULT 0,
+        network_online INTEGER DEFAULT 1,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
       )`,
@@ -93,6 +100,7 @@ class SqliteDatabaseService implements DatabaseService {
         snapshot_path TEXT,
         is_unusual INTEGER DEFAULT 0,
         anomaly_score REAL DEFAULT 0.0,
+        anomaly_reason TEXT,
         user_feedback TEXT,
         feedback_reason TEXT,
         bbox_x REAL,
@@ -322,13 +330,15 @@ class SqliteDatabaseService implements DatabaseService {
     // Seed default demo profile for testing
     const demo = await this.get('SELECT id FROM profiles WHERE id = ?', ['00000000-0000-0000-0000-000000000001']);
     if (!demo) {
+      // bcrypt hash for 'demo1234'
+      const demoHash = '$2a$10$f/r4t2rX8bXU1yA0pP0d4OGx9j6kM2KxS6Jv8R2F1H0L3K8J5P7Nu';
       await this.run(
-        'INSERT INTO profiles (id, email, full_name) VALUES (?, ?, ?)',
-        ['00000000-0000-0000-0000-000000000001', 'demo@safehome.local', 'Demo Homeowner']
+        'INSERT INTO profiles (id, email, full_name, role, password_hash) VALUES (?, ?, ?, ?, ?)',
+        ['00000000-0000-0000-0000-000000000001', 'demo@safehome.local', 'Demo Homeowner', 'homeowner', demoHash]
       );
       await this.run(
-        'INSERT INTO homes (id, user_id, name, timezone) VALUES (?, ?, ?, ?)',
-        ['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Main Home', 'UTC']
+        'INSERT INTO homes (id, user_id, name, timezone, current_mode) VALUES (?, ?, ?, ?, ?)',
+        ['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Main Home', 'UTC', 'home']
       );
       await this.run(
         'INSERT INTO user_settings (user_id) VALUES (?)',

@@ -86,7 +86,7 @@ export function createAuthRouter(authService: AuthService, db: DatabaseService, 
       );
 
       const home = await db.get(
-        'SELECT id, name, address, timezone, active_hours_start, active_hours_end FROM homes WHERE user_id = ? LIMIT 1',
+        'SELECT id, name, address, timezone, active_hours_start, active_hours_end, current_mode, mode_changed_at FROM homes WHERE user_id = ? LIMIT 1',
         [userId]
       );
 

@@ -18,3 +18,12 @@ const ConfigSchema = z.object({
 });
 
 export const config = ConfigSchema.parse(process.env);
+
+if (config.NODE_ENV === 'production') {
+  if (config.JWT_SECRET === 'safehome_super_secret_jwt_key_2026_change_in_production') {
+    throw new Error('SECURITY ALERT: Default JWT_SECRET is not permitted in production. Set a secure JWT_SECRET in your environment.');
+  }
+  if (config.AI_SERVICE_SECRET === 'safehome_super_internal_ai_secret_key_2026') {
+    throw new Error('SECURITY ALERT: Default AI_SERVICE_SECRET is not permitted in production. Set a secure AI_SERVICE_SECRET in your environment.');
+  }
+}
