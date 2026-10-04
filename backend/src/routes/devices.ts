@@ -5,6 +5,7 @@ import { DatabaseService } from '../services/db.js';
 import { CreatePairingCodeSchema, ExchangePairingCodeSchema } from '../shared/schemas.js';
 import { config } from '../config.js';
 import { pairingLimiter } from '../middleware/rateLimit.js';
+import { logSecurityEvent } from '../services/auditLog.js';
 
 export function createDevicesRouter(db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
@@ -14,7 +15,7 @@ export function createDevicesRouter(db: DatabaseService, authMiddleware: any): R
     try {
       const userId = req.user!.id;
       const devices = await db.query(
-        'SELECT id, home_id, name, device_type, status, ip_address, last_seen, created_at FROM devices WHERE user_id = ? ORDER BY created_at DESC',
+        'SELECT id, home_id, name, device_type, status, ip_address, last_seen, last_heartbeat_at, battery_level, battery_charging, network_online, created_at FROM devices WHERE user_id = ? ORDER BY created_at DESC',
         [userId]
       );
       res.json({ success: true, devices });
@@ -78,15 +79,24 @@ export function createDevicesRouter(db: DatabaseService, authMiddleware: any): R
       // Mark pairing code as used (single-use)
       await db.run('UPDATE pairing_codes SET is_used = 1 WHERE id = ?', [pairing.id]);
 
-      // Create new device record
+      // Create new device record (Privacy: IP is not stored by default)
       const deviceId = crypto.randomUUID();
-      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
 
       await db.run(
-        `INSERT INTO devices (id, user_id, home_id, name, device_type, status, ip_address, last_seen)
-         VALUES (?, ?, ?, ?, 'phone_camera', 'online', ?, ?)`,
-        [deviceId, pairing.user_id, pairing.home_id, pairing.device_name, ip, new Date().toISOString()]
+        `INSERT INTO devices (id, user_id, home_id, name, device_type, status, last_seen, last_heartbeat_at, network_online)
+         VALUES (?, ?, ?, ?, 'phone_camera', 'online', ?, ?, 1)`,
+        [deviceId, pairing.user_id, pairing.home_id, pairing.device_name, new Date().toISOString(), new Date().toISOString()]
       );
+
+      // Log security audit event for device pairing
+      await logSecurityEvent(db, {
+        userId: pairing.user_id,
+        homeId: pairing.home_id,
+        eventType: 'device_paired',
+        resourceType: 'device',
+        resourceId: deviceId,
+        details: { device_name: pairing.device_name }
+      });
 
       // Issue device-scoped JWT token valid strictly for this device
       const deviceToken = jwt.sign(
@@ -117,12 +127,23 @@ export function createDevicesRouter(db: DatabaseService, authMiddleware: any): R
       const { id } = req.params;
       const userId = req.user!.id;
 
-      const device = await db.get('SELECT id FROM devices WHERE id = ? AND user_id = ?', [id, userId]);
+      const device = await db.get('SELECT id, home_id, name FROM devices WHERE id = ? AND user_id = ?', [id, userId]);
       if (!device) {
         return res.status(404).json({ success: false, error: 'Device not found or access denied.' });
       }
 
       await db.run('DELETE FROM devices WHERE id = ?', [id]);
+
+      // Log security audit event for device unpairing
+      await logSecurityEvent(db, {
+        userId,
+        homeId: device.home_id,
+        eventType: 'device_unpaired',
+        resourceType: 'device',
+        resourceId: String(id),
+        details: { device_name: device.name }
+      });
+
       res.json({ success: true, message: 'Device unpaired and deleted.' });
     } catch (err) {
       next(err);

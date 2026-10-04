@@ -42,27 +42,62 @@ export const eventService = {
   getEvents: (params?: any) => api.get('/events', { params }),
   getEventById: (id: string) => api.get(`/events/${id}`),
   createEvent: (data: any) => api.post('/events', data),
-  submitFeedback: (id: string, feedback: 'expected' | 'unexpected' | null) =>
-    api.patch(`/events/${id}/feedback`, { feedback }),
+  submitFeedback: (id: string, feedback: 'correct' | 'false_alert' | 'unknown' | 'expected' | 'unexpected', feedback_reason?: string) =>
+    api.patch(`/events/${id}/feedback`, { feedback, feedback_reason }),
   deleteEvent: (id: string) => api.delete(`/events/${id}`)
 };
 
 export const alertService = {
   getAlerts: (params?: any) => api.get('/alerts', { params }),
   markRead: (id: string) => api.patch(`/alerts/${id}`),
+  resolveAlert: (id: string) => api.patch(`/alerts/${id}/resolve`),
   markAllRead: () => api.patch('/alerts/read-all'),
   deleteAlert: (id: string) => api.delete(`/alerts/${id}`)
 };
 
+export const incidentService = {
+  getIncidents: (params?: any) => api.get('/incidents', { params }),
+  acknowledge: (id: string) => api.patch(`/incidents/${id}/acknowledge`),
+  resolve: (id: string) => api.patch(`/incidents/${id}/resolve`)
+};
+
+export const ruleService = {
+  getRules: () => api.get('/rules'),
+  createRule: (data: any) => api.post('/rules', data),
+  updateRule: (id: string, data: any) => api.patch(`/rules/${id}`, data),
+  deleteRule: (id: string) => api.delete(`/rules/${id}`),
+  getHomeMode: () => api.get('/homes/mode'),
+  setHomeMode: (mode: 'home' | 'away' | 'night' | 'disarmed', arming_delay_s?: number) =>
+    api.post('/homes/mode', { mode, arming_delay_s })
+};
+
+export const timelineService = {
+  getTimeline: (params?: any) => api.get('/timeline', { params })
+};
+
+export const memberService = {
+  getMembers: () => api.get('/homes/members'),
+  getInvites: () => api.get('/homes/invites'),
+  createInvite: (role: string = 'member', email?: string) => api.post('/homes/invites', { role, email }),
+  joinHome: (invite_code: string) => api.post('/homes/join', { invite_code }),
+  removeMember: (id: string) => api.delete(`/homes/members/${id}`),
+  updateRole: (id: string, role: string) => api.patch(`/homes/members/${id}/role`, { role })
+};
+
+export const auditService = {
+  getAuditLogs: (params?: any) => api.get('/audit', { params })
+};
+
 export const analyticsService = {
-  getAnalytics: () => api.get('/analytics')
+  getAnalytics: (params?: any) => api.get('/analytics', { params })
 };
 
 export const settingsService = {
   getSettings: () => api.get('/settings'),
   updateSettings: (data: any) => api.put('/settings', data),
   purgeExpiredData: () => api.post('/settings/purge'),
-  exportData: () => api.get('/settings/export')
+  exportData: () => api.get('/settings/export'),
+  eraseAllData: (confirm_phrase: string) => api.post('/settings/erase-all', { confirm_phrase })
 };
 
 export const deviceService = {

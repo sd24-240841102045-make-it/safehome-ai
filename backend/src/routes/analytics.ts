@@ -3,6 +3,43 @@ import { DatabaseService } from '../services/db.js';
 import { config } from '../config.js';
 import { logger } from '../services/logger.js';
 
+// Helper to extract timezone-accurate date components
+function getLocalTimeComponents(date: Date, timeZone: string) {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: 'numeric',
+      minute: '2-digit',
+      hourCycle: 'h23',
+      weekday: 'short'
+    });
+    const parts = formatter.formatToParts(date);
+    const partMap: Record<string, string> = {};
+    parts.forEach(p => { partMap[p.type] = p.value; });
+
+    const hour = parseInt(partMap.hour || '0', 10) % 24;
+    const year = partMap.year || '1970';
+    const month = partMap.month || '01';
+    const day = partMap.day || '01';
+    const dateStr = `${year}-${month}-${day}`;
+    const weekdayName = partMap.weekday || 'Sun';
+    const weekdayMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+    const weekday = weekdayMap[weekdayName] ?? date.getDay();
+
+    return { hour, weekday, dateStr, weekdayName };
+  } catch {
+    return {
+      hour: isNaN(date.getHours()) ? 0 : date.getHours(),
+      weekday: date.getDay(),
+      dateStr: date.toISOString().slice(0, 10),
+      weekdayName: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()]
+    };
+  }
+}
+
 export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
   router.use('/analytics', authMiddleware);
@@ -10,6 +47,7 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
   router.get('/analytics', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user!.id;
+      const timeRange = (req.query.time_range as string) || 'all';
 
       // 1. Fetch user's home timezone & active hours
       const home = await db.get(
@@ -20,14 +58,31 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
       const activeStart = home?.active_hours_start || '07:00';
       const activeEnd = home?.active_hours_end || '23:00';
 
-      // 2. Fetch all events strictly for this user (Rule 1 & Rule 5)
-      const allEvents = await db.query(
-        `SELECT id, category, object_class, confidence, started_at, is_unusual, anomaly_score, user_feedback
-         FROM events WHERE user_id = ? ORDER BY started_at ASC`,
-        [userId]
-      );
+      // Optional time-range cutoff
+      let cutoffIso: string | null = null;
+      const now = new Date();
+      if (timeRange === '24h') {
+        cutoffIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+      } else if (timeRange === '7d') {
+        cutoffIso = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      } else if (timeRange === '30d') {
+        cutoffIso = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      }
 
-      // Hourly map (24 hours)
+      // 2. Fetch all events strictly for this user (with optional range filter)
+      let allEventsQuery = `SELECT id, category, object_class, confidence, started_at, is_unusual, anomaly_score, user_feedback
+         FROM events WHERE user_id = ?`;
+      const queryParams: any[] = [userId];
+
+      if (cutoffIso) {
+        allEventsQuery += ` AND started_at >= ?`;
+        queryParams.push(cutoffIso);
+      }
+      allEventsQuery += ` ORDER BY started_at ASC`;
+
+      const allEvents = await db.query(allEventsQuery, queryParams);
+
+      // Hourly map (24 hours) in user's home timezone
       const hourlyMap = Array.from({ length: 24 }, (_, i) => ({
         hour: i,
         label: `${String(i).padStart(2, '0')}:00`,
@@ -66,32 +121,17 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
       const uniqueDates = new Set<string>();
 
       // Windows aggregation for Python /analyze service
-      // Key: `${dateStr}_${hour}_${category}` -> window item
       const windowAggregation = new Map<string, any>();
 
       allEvents.forEach((ev: any) => {
         const timeVal = ev.started_at || ev.created_at;
         const dt = new Date(timeVal);
 
-        let hour = 0;
-        let weekday = 0;
-        let dateStr = 'Unknown';
+        const { hour, weekday, dateStr } = getLocalTimeComponents(dt, timeZone);
 
-        try {
-          const hourStr = new Intl.DateTimeFormat('en-US', { timeZone, hour: 'numeric', hour12: false }).format(dt);
-          hour = parseInt(hourStr, 10) % 24;
-          const weekdayStr = new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'narrow' }).format(dt);
-          // 0 = Sunday ... 6 = Saturday
-          weekday = dt.getDay();
-          dateStr = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(dt);
-        } catch {
-          hour = isNaN(dt.getHours()) ? 0 : dt.getHours();
-          weekday = dt.getDay();
-          dateStr = timeVal ? timeVal.slice(0, 10) : 'Unknown';
-        }
-
-        if (dateStr !== 'Unknown') {
+        if (dateStr && dateStr !== 'Unknown') {
           uniqueDates.add(dateStr);
+          dailyMap[dateStr] = (dailyMap[dateStr] || 0) + 1;
         }
 
         // Hourly histogram
@@ -104,7 +144,7 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
           if (ev.is_unusual) hourlyMap[hour].unusual += 1;
         }
 
-        // Heatmap cell
+        // Heatmap cell (timezone-adjusted day & hour)
         if (heatmap[weekday] && heatmap[weekday].hours[hour] !== undefined) {
           heatmap[weekday].hours[hour] += 1;
         }
@@ -122,7 +162,7 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
           unusualCount += 1;
         }
 
-        // Confidence
+        // Confidence distribution
         const conf = parseFloat(ev.confidence) || 0;
         for (const bucket of confidenceBuckets) {
           if (conf >= bucket.min && conf < bucket.max) {
@@ -130,9 +170,6 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
             break;
           }
         }
-
-        // Daily
-        dailyMap[dateStr] = (dailyMap[dateStr] || 0) + 1;
 
         // Aggregate into time windows for Python analyzer
         const windowKey = `${dateStr}_${hour}_${cat}`;
@@ -152,13 +189,21 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
       const dailyActivity = Object.entries(dailyMap)
         .sort((a, b) => a[0].localeCompare(b[0]))
         .slice(-14)
-        .map(([date, count]) => ({ date, count }));
+        .map(([date, count]) => {
+          let label = date;
+          try {
+            const [y, m, d] = date.split('-').map(Number);
+            const dObj = new Date(Date.UTC(y, m - 1, d));
+            label = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' }).format(dObj);
+          } catch {}
+          return { date, label, count };
+        });
 
       const totalEvents = allEvents.length;
       const daysSpanned = uniqueDates.size;
       const unusualPercentage = totalEvents > 0 ? Number(((unusualCount / totalEvents) * 100).toFixed(1)) : 0;
 
-      // Find peak activity hour
+      // Find peak activity hour in user's home timezone
       let peakHour = 0;
       let maxHourlyEvents = 0;
       hourlyMap.forEach((h) => {
@@ -169,7 +214,7 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
       });
       const peakHourStr = `${String(peakHour).padStart(2, '0')}:00 - ${String((peakHour + 1) % 24).padStart(2, '0')}:00`;
 
-      // 3. Call Python Anomaly Analysis Engine
+      // 3. Call Python Anomaly Analysis Engine with timezone-aware current time
       let anomalyAnalysis: any = {
         status: totalEvents >= 100 && daysSpanned >= 7 ? 'analyzed' : 'insufficient_data',
         is_unusual: false,
@@ -185,19 +230,18 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
       };
 
       try {
-        const currentHour = new Date().getUTCHours();
-        const currentWeekday = new Date().getUTCDay();
+        const { hour: currentLocalHour, weekday: currentLocalWeekday } = getLocalTimeComponents(now, timeZone);
         const startH = parseInt(activeStart.split(':')[0], 10);
         const endH = parseInt(activeEnd.split(':')[0], 10);
-        const isQuiet = currentHour < startH || currentHour >= endH;
+        const isQuiet = currentLocalHour < startH || currentLocalHour >= endH;
 
         const pyPayload = {
           timezone: timeZone,
           time_windows: Array.from(windowAggregation.values()),
           current_window: {
-            timestamp_utc: new Date().toISOString(),
-            hour: currentHour,
-            weekday: currentWeekday,
+            timestamp_utc: now.toISOString(),
+            hour: currentLocalHour,
+            weekday: currentLocalWeekday,
             category: 'person',
             event_count: 1,
             is_quiet_hours: isQuiet
@@ -206,7 +250,10 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
 
         const pyRes = await fetch(`${config.PYTHON_SERVICE_URL}/analyze`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Internal-Secret': config.AI_SERVICE_SECRET
+          },
           body: JSON.stringify(pyPayload),
           signal: AbortSignal.timeout(3000)
         });
@@ -228,6 +275,8 @@ export function createAnalyticsRouter(db: DatabaseService, authMiddleware: any):
       res.json({
         success: true,
         analytics: {
+          timezone: timeZone,
+          time_range: timeRange,
           total_events: totalEvents,
           unusual_count: unusualCount,
           unusual_percentage: unusualPercentage,

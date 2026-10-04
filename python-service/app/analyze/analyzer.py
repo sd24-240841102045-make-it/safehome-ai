@@ -47,8 +47,8 @@ class AnomalyAnalyzer:
         # 2. Build baseline dataset filtering out user marked 'unexpected' windows
         records = []
         for w in time_windows:
-            # Exclude flagged unexpected events from polluting normal baseline
-            if w.get("user_feedback") == "unexpected":
+            # Exclude flagged false_alert and legacy unexpected events from polluting normal baseline
+            if w.get("user_feedback") in ["unexpected", "false_alert"]:
                 continue
             records.append({
                 "weekday": w.get("weekday", 0),

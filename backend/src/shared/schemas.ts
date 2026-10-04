@@ -6,6 +6,7 @@ import { z } from 'zod';
 // ==============================================================================
 export const CLASS_TO_CATEGORY_MAP: Record<string, 'person' | 'animal' | 'vehicle' | 'other'> = {
   person: 'person',
+  masked_person: 'person',
   dog: 'animal',
   cat: 'animal',
   bird: 'animal',
@@ -128,8 +129,12 @@ export const CreateEventSchema = z.object({
   snapshot_base64: z.string().optional()
 });
 
+export const EventFeedbackEnum = z.enum(['correct', 'false_alert', 'unknown', 'expected', 'unexpected']);
+export const FeedbackReasonEnum = z.enum(['wrong_detection', 'expected_activity', 'other']);
+
 export const EventFeedbackSchema = z.object({
-  feedback: z.enum(['expected', 'unexpected']).nullable()
+  feedback: EventFeedbackEnum.nullable(),
+  feedback_reason: FeedbackReasonEnum.nullable().optional()
 });
 
 // ==============================================================================
@@ -149,12 +154,42 @@ export const ExchangePairingCodeSchema = z.object({
 // 7. USER SETTINGS SCHEMA
 // ==============================================================================
 export const UpdateSettingsSchema = z.object({
+  home_name: z.string().optional(),
+  home_address: z.string().optional(),
+  timezone: z.string().optional(),
   expected_active_start: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(),
   expected_active_end: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(),
+  notification_quiet_hours_start: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(),
+  notification_quiet_hours_end: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(),
   confidence_threshold: z.number().min(0.1).max(0.99).optional(),
   event_cooldown_sec: z.number().int().min(5).max(300).optional(),
   snapshot_retention_days: z.number().int().min(1).max(365).optional(),
   event_retention_days: z.number().int().min(1).max(365).optional(),
   save_snapshots: z.boolean().optional(),
-  opt_in_live_preview: z.boolean().optional()
+  opt_in_live_preview: z.boolean().optional(),
+  audio_enabled: z.boolean().optional()
+});
+
+// ==============================================================================
+// 8. SECURITY AUDIT LOG SCHEMAS
+// ==============================================================================
+export const AuditEventTypeEnum = z.enum([
+  'device_paired',
+  'device_unpaired',
+  'monitoring_started',
+  'monitoring_stopped',
+  'settings_updated',
+  'feedback_submitted',
+  'alert_resolved',
+  'data_purged',
+  'user_login',
+  'user_registered',
+  'mode_changed'
+]);
+
+export const CreateAuditLogSchema = z.object({
+  event_type: AuditEventTypeEnum,
+  resource_type: z.string(),
+  resource_id: z.string().optional(),
+  details: z.record(z.any()).optional()
 });

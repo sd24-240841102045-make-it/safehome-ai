@@ -85,31 +85,34 @@ export default function Events() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          <History className="w-6 h-6 text-sky-400" /> Event History & Snapshots
+        <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">
+          <div className="p-1.5 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400">
+            <History className="w-5 h-5" />
+          </div>
+          Event History & Snapshots
         </h1>
-        <p className="text-sm text-slate-400">Database audit trail of detected objects, camera snapshots, and privacy controls</p>
+        <p className="text-xs text-slate-400 mt-1">Audit log of detected objects, camera snapshots, and statistical anomalies</p>
       </div>
 
       {notification && (
-        <div className="p-3.5 rounded-xl bg-emerald-950/50 border border-emerald-900/60 text-xs text-emerald-200 flex items-center gap-2">
+        <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-900/50 text-xs text-emerald-300 flex items-center gap-2">
           <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{notification}</span>
         </div>
       )}
 
       {/* Filter and Search Bar */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
-        <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row gap-3">
+      <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-4 shadow-xl shadow-slate-950/30 space-y-3">
+        <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
           {/* Search text */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
             <input
               type="text"
-              placeholder="Search by object label, category..."
+              placeholder="Search object, label..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-sky-500"
+              className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors placeholder:text-slate-500"
             />
           </div>
 
@@ -117,7 +120,7 @@ export default function Events() {
           <select
             value={objectClass}
             onChange={(e) => setObjectClass(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm text-slate-200 focus:outline-none focus:border-sky-500"
+            className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
           >
             <option value="">All Object Classes</option>
             <option value="person">Person</option>
@@ -131,18 +134,18 @@ export default function Events() {
           <select
             value={isUnusual}
             onChange={(e) => setIsUnusual(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm text-slate-200 focus:outline-none focus:border-sky-500"
+            className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
           >
             <option value="">All Patterns</option>
-            <option value="true">Unusual Patterns Only</option>
-            <option value="false">Normal Patterns Only</option>
+            <option value="true">Unusual (Anomaly)</option>
+            <option value="false">Normal Pattern</option>
           </select>
 
           {/* Min Confidence */}
           <select
             value={minConfidence}
             onChange={(e) => setMinConfidence(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm text-slate-200 focus:outline-none focus:border-sky-500"
+            className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-sky-500 transition-colors"
           >
             <option value="">Any Confidence</option>
             <option value="0.7">70%+ Confidence</option>
@@ -153,19 +156,19 @@ export default function Events() {
       </div>
 
       {/* Events Table */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+      <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl shadow-slate-950/40">
         {loading ? (
-          <div className="p-12 text-center text-slate-400 text-sm">Loading events...</div>
+          <div className="p-12 text-center text-slate-400 text-xs font-medium">Loading events...</div>
         ) : events.length === 0 ? (
           <div className="p-12 text-center space-y-2">
-            <CheckCircle className="w-10 h-10 text-slate-600 mx-auto" />
-            <div className="text-sm font-medium text-slate-300">No events found</div>
-            <p className="text-xs text-slate-500">Try adjusting your filters or connect an active camera sensor.</p>
+            <CheckCircle className="w-8 h-8 text-slate-600 mx-auto" />
+            <div className="text-xs font-semibold text-slate-200">No events found</div>
+            <p className="text-[11px] text-slate-500">Try adjusting your filters or connect an active camera sensor.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950/60 text-slate-400 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-800">
+              <thead className="bg-slate-950/70 text-slate-400 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-800/80">
                 <tr>
                   <th className="py-3 px-4">Timestamp</th>
                   <th className="py-3 px-4">Object Class</th>
@@ -175,7 +178,7 @@ export default function Events() {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-slate-800/60">
                 {events.map((ev) => {
                   const dt = new Date(ev.started_at || ev.timestamp);
                   const formattedDate = dt.toLocaleDateString(undefined, {
@@ -186,13 +189,13 @@ export default function Events() {
                   const formattedTime = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                   return (
-                    <tr key={ev.id} className="hover:bg-slate-800/40 transition">
+                    <tr key={ev.id} className="hover:bg-slate-800/30 transition-colors">
                       <td className="py-3 px-4 font-mono text-slate-300">
-                        <div>{formattedDate}</div>
-                        <div className="text-[11px] text-slate-500">{formattedTime}</div>
+                        <div className="text-slate-200">{formattedDate}</div>
+                        <div className="text-[10px] text-slate-500">{formattedTime}</div>
                       </td>
                       <td className="py-3 px-4 font-medium text-white capitalize">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 text-slate-200">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-800/90 text-slate-200 border border-slate-700/60 text-xs">
                           {ev.object_class === 'person' && <User className="w-3.5 h-3.5 text-sky-400" />}
                           {ev.object_class}
                         </span>
@@ -205,20 +208,20 @@ export default function Events() {
                       <td className="py-3 px-4">
                         {ev.snapshot_path ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                            <ImageIcon className="w-3 h-3" /> Snapshot Saved
+                            <ImageIcon className="w-3 h-3" /> Saved
                           </span>
                         ) : (
-                          <span className="text-slate-500 text-[11px]">None</span>
+                          <span className="text-slate-500 text-[10px]">None</span>
                         )}
                       </td>
                       <td className="py-3 px-4">
                         {ev.is_unusual ? (
-                          <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                            YES (Unusual)
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            Unusual
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-slate-800 text-slate-400">
-                            NO (Normal)
+                          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800/80 text-slate-400 border border-slate-700/50">
+                            Normal
                           </span>
                         )}
                       </td>

@@ -1,120 +1,94 @@
-# SafeHome AI - Local Development & Setup Guide
+# SafeHome AI — Local Setup & Development Guide
 
-This guide describes running SafeHome AI locally on Windows using one laptop and one Android smartphone.
-
----
-
-## 1. Prerequisites
-
-* **Node.js**: v18+ (tested on Node v24)
-* **Python**: 3.10+ (tested on Python 3.11)
-* **Wi-Fi Network**: Laptop and phone connected to the same Wi-Fi router / hotspot.
+This guide provides instructions for setting up and running SafeHome AI locally on Windows, macOS, or Linux using a computer (acting as the edge AI hub) and a smartphone (acting as the edge camera).
 
 ---
 
-## 2. Directory Structure
+## 1. System Requirements
 
-```text
-safehome-ai/
-├── frontend/       # React + Vite web dashboard & phone camera UI
-├── backend/        # Express Node.js REST API & WebSocket server
-├── ai-service/     # FastAPI Python computer vision service
-├── data-science/   # FastAPI Python Isolation Forest anomaly detector
-├── database/       # PostgreSQL / Supabase schema.sql & seed.sql
-├── docs/           # Architecture, API, and setup documentation
-└── .env.example    # Environment variable templates
+* **Node.js**: v18.18.0 or newer (Node v20/v24 recommended)
+* **Python**: 3.10 or 3.11 with `venv` support
+* **Network**: Laptop and smartphone connected to the **same Wi-Fi router** or local mobile hotspot.
+
+---
+
+## 2. Quickstart Installation (Single Command Dev)
+
+### Step 1: Clone Repository
+```powershell
+git clone https://github.com/your-username/safehome-ai.git
+cd safehome-ai
 ```
 
----
-
-## 3. Python Services Setup
-
-From the project root:
-
+### Step 2: Install Node Dependencies
+From the repository root:
 ```powershell
-# Create and activate virtual environment (if not already existing)
-python -m venv ..\venv
-..\venv\Scripts\activate
-
-# Install requirements for AI service
-pip install -r ai-service/requirements.txt
-
-# Install requirements for Data Science service
-pip install -r data-science/requirements.txt
-```
-
----
-
-## 4. Backend (Node.js) Setup
-
-```powershell
-cd backend
 npm install
 ```
 
-### Environment Configuration
-The backend comes pre-configured with a zero-friction SQLite fallback:
-* `DATABASE_URL=sqlite:./safehome.sqlite`
-* If you have a PostgreSQL or Supabase instance, change `DATABASE_URL` in `backend/.env`:
-  `DATABASE_URL=postgresql://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres`
-
----
-
-## 5. Frontend (React + Vite) Setup
-
+### Step 3: Configure Python Virtual Environment
 ```powershell
-cd ../frontend
-npm install
+# Create virtual environment in root directory
+python -m venv .venv
+
+# Activate on Windows PowerShell:
+.\.venv\Scripts\activate
+
+# Install Python requirements (FastAPI, OpenCV, NumPy, ONNX Runtime)
+pip install -r python-service/requirements.txt
 ```
 
 ---
 
-## 6. Running the System (4 Terminal Windows)
+## 3. Running All Services
 
-Open 4 separate PowerShell terminals:
+Start the Backend Gateway (`:5000`), Python AI Service (`:8000`), and React Vite Dashboard (`:5173`) simultaneously:
 
-### Terminal 1: AI Service (Port 8000)
 ```powershell
-cd safehome-ai/ai-service
-..\..\venv\Scripts\python.exe main.py
-```
-
-### Terminal 2: Data Science Service (Port 8001)
-```powershell
-cd safehome-ai/data-science
-..\..\venv\Scripts\python.exe main.py
-```
-
-### Terminal 3: Express Backend (Port 5000)
-```powershell
-cd safehome-ai/backend
-npm start
-```
-
-### Terminal 4: React Dashboard (Port 5173)
-```powershell
-cd safehome-ai/frontend
 npm run dev
 ```
 
+### Active Service Ports:
+* **Frontend Web App**: `http://localhost:5173`
+* **Backend Express REST & WS**: `http://localhost:5000`
+* **Python AI Computer Vision Service**: `http://localhost:8000` (API Docs at `http://localhost:8000/docs`)
+
 ---
 
-## 7. Connecting the Android Phone
+## 4. Connecting Your Phone as a Camera Node
 
-1. Verify your phone and laptop are connected to the same Wi-Fi.
-2. In the laptop terminal or on the dashboard, look at the discovered Wi-Fi IP (e.g. `192.168.1.10` or `10.31.145.231`).
-3. On your Android phone, open Chrome and navigate to:
+1. Make sure your smartphone and laptop are connected to the same Wi-Fi.
+2. In your computer browser, open `http://localhost:5173` and log in with the demo account:
+   * **Email**: `demo@safehome.local`
+   * **Password**: `SafeHome@2026`
+3. Check your computer's local Wi-Fi IP address on the dashboard (e.g. `192.168.1.105`).
+4. On your smartphone's browser (Chrome on Android or Safari on iOS), open:
    ```text
    http://<YOUR_LAPTOP_IP>:5173/monitor
    ```
-4. Tap **"Grant Camera Permission"** when prompted.
-5. Tap **"Start Monitoring"**.
-6. Real-time camera frames stream directly to your laptop AI service, which detects objects, evaluates statistical anomalies, stores events in the database, and renders bounding boxes live on both the phone and laptop screens.
+5. Tap **"Grant Permissions"** for camera access.
+6. Tap **"Start Monitoring"**.
+7. The phone's camera feed will stream to the laptop AI engine at ~15-20 FPS, with AI bounding boxes and latency telemetry rendered live on both screens.
 
 ---
 
-## 8. Demo Credentials
+## 5. Running Automated Tests
 
-* **Email:** `demo@safehome.local`
-* **Password:** `SafeHome@2026`
-*(Or click "Quick Demo" on the login screen to auto-fill)*
+```powershell
+# Run all backend unit & integration tests (Vitest)
+npm run test
+
+# Run Python AI service tests (Pytest)
+pytest python-service/tests
+```
+
+---
+
+## 6. Generating Synthetic Data (Testing Anomaly Detection)
+
+To test the statistical baseline anomaly models with 14 days of realistic activity data:
+
+```powershell
+npm run seed:synthetic
+```
+This populates the database with historical patterns so the statistical baseline model can immediately evaluate live events against calibrated distributions.

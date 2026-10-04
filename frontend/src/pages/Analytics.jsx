@@ -13,7 +13,8 @@ import {
   HelpCircle,
   Terminal,
   Layers,
-  Sparkles
+  Sparkles,
+  Globe
 } from 'lucide-react';
 import {
   BarChart,
@@ -32,14 +33,35 @@ import {
 } from 'recharts';
 import { analyticsService, eventService } from '../services/api';
 
+const formatEventDateTime = (isoString, timeZone) => {
+  if (!isoString) return 'Unknown';
+  try {
+    const d = new Date(isoString);
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: timeZone || undefined,
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }).format(d);
+  } catch {
+    return new Date(isoString).toLocaleString();
+  }
+};
+
 export default function Analytics() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState('all');
   const [feedbackLoading, setFeedbackLoading] = useState({});
 
-  const loadAnalytics = async () => {
+  const loadAnalytics = async (selectedRange = timeRange) => {
     try {
-      const res = await analyticsService.getAnalytics();
+      setLoading(true);
+      const res = await analyticsService.getAnalytics({ time_range: selectedRange });
       if (res.data.success) {
         setData(res.data.analytics);
       }
@@ -51,8 +73,8 @@ export default function Analytics() {
   };
 
   useEffect(() => {
-    loadAnalytics();
-  }, []);
+    loadAnalytics(timeRange);
+  }, [timeRange]);
 
   const handleFeedback = async (eventId, feedback) => {
     try {
@@ -73,15 +95,6 @@ export default function Analytics() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-16 text-center text-slate-400 text-sm space-y-2">
-        <div className="inline-block w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full animate-spin"></div>
-        <div>Aggregating historical data science metrics & fitting baselines...</div>
-      </div>
-    );
-  }
-
   const isColdStart =
     data?.anomaly_analysis?.status === 'insufficient_data' ||
     (data?.total_events || 0) < 100 ||
@@ -97,23 +110,63 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Title & Controls */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-sky-400" /> Data Science & Anomaly Analytics
+          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400">
+              <BarChart3 className="w-5 h-5" />
+            </div>
+            Data Science & Anomaly Analytics
           </h1>
-          <p className="text-sm text-slate-400">
-            Statistical baselines, z-score outlier detection, and temporal activity models
-          </p>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mt-1 flex-wrap">
+            <span>Statistical baselines, z-score outlier detection, and temporal activity models</span>
+            {data?.timezone && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-sky-300 font-mono text-[10px]">
+                <Globe className="w-3 h-3 text-sky-400" /> {data.timezone}
+              </span>
+            )}
+          </div>
         </div>
-        <button
-          onClick={loadAnalytics}
-          className="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold self-start sm:self-auto transition"
-        >
-          Refresh Analytics
-        </button>
+
+        {/* Time Range Selector & Refresh */}
+        <div className="flex items-center gap-2 self-start md:self-auto flex-wrap">
+          <div className="flex bg-slate-900/90 border border-slate-800 rounded-lg p-0.5 text-xs font-medium">
+            {[
+              { id: '24h', label: '24H' },
+              { id: '7d', label: '7D' },
+              { id: '30d', label: '30D' },
+              { id: 'all', label: 'All' }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setTimeRange(tab.id)}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition ${
+                  timeRange === tab.id
+                    ? 'bg-sky-500 text-slate-950 font-semibold shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => loadAnalytics(timeRange)}
+            className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-medium transition"
+          >
+            Refresh
+          </button>
+        </div>
       </div>
+
+      {loading && !data && (
+        <div className="p-16 text-center text-slate-400 text-sm space-y-2">
+          <div className="inline-block w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full animate-spin"></div>
+          <div>Aggregating historical data science metrics & fitting baselines...</div>
+        </div>
+      )}
 
       {/* Cold-Start Guard Banner */}
       {isColdStart && (
@@ -377,8 +430,8 @@ export default function Analytics() {
                     <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] border border-amber-500/30">
                       Score: {ev.anomaly_score ? Number(ev.anomaly_score).toFixed(2) : '0.85'}
                     </span>
-                    <span className="text-slate-500 text-[11px] font-mono">
-                      {new Date(ev.started_at).toLocaleString()}
+                    <span className="text-slate-400 text-[11px] font-mono">
+                      {formatEventDateTime(ev.started_at, data?.timezone)}
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-400">

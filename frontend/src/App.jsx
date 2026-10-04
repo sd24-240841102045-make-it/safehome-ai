@@ -10,6 +10,10 @@ import Events from './pages/Events';
 import Alerts from './pages/Alerts';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import Timeline from './pages/Timeline';
+import Rules from './pages/Rules';
+import AuditLogs from './pages/AuditLogs';
+import Members from './pages/Members';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
@@ -38,6 +42,10 @@ export default function App() {
             <Route index element={<Dashboard />} />
             <Route path="events" element={<Events />} />
             <Route path="alerts" element={<Alerts />} />
+            <Route path="timeline" element={<Timeline />} />
+            <Route path="rules" element={<Rules />} />
+            <Route path="members" element={<Members />} />
+            <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="settings" element={<Settings />} />
           </Route>

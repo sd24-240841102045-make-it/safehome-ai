@@ -51,6 +51,7 @@ class SqliteDatabaseService implements DatabaseService {
         active_hours_start TEXT DEFAULT '07:00',
         active_hours_end TEXT DEFAULT '23:00',
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
       )`,
       `CREATE TABLE IF NOT EXISTS devices (
@@ -93,6 +94,13 @@ class SqliteDatabaseService implements DatabaseService {
         is_unusual INTEGER DEFAULT 0,
         anomaly_score REAL DEFAULT 0.0,
         user_feedback TEXT,
+        feedback_reason TEXT,
+        bbox_x REAL,
+        bbox_y REAL,
+        bbox_w REAL,
+        bbox_h REAL,
+        frame_width INTEGER,
+        frame_height INTEGER,
         metadata TEXT,
         FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
       )`,
@@ -105,6 +113,13 @@ class SqliteDatabaseService implements DatabaseService {
         title TEXT NOT NULL,
         message TEXT NOT NULL,
         is_read INTEGER DEFAULT 0,
+        is_resolved INTEGER DEFAULT 0,
+        resolved_at TEXT,
+        occurrence_count INTEGER DEFAULT 1,
+        dedupe_key TEXT,
+        last_seen TEXT,
+        rule_id TEXT,
+        suppressed_reason TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
       )`,
@@ -112,30 +127,196 @@ class SqliteDatabaseService implements DatabaseService {
         user_id TEXT PRIMARY KEY,
         expected_active_start TEXT DEFAULT '07:00',
         expected_active_end TEXT DEFAULT '23:00',
+        notification_quiet_hours_start TEXT DEFAULT '22:00',
+        notification_quiet_hours_end TEXT DEFAULT '07:00',
         confidence_threshold REAL DEFAULT 0.50,
         event_cooldown_sec INTEGER DEFAULT 30,
         snapshot_retention_days INTEGER DEFAULT 7,
         event_retention_days INTEGER DEFAULT 90,
         save_snapshots INTEGER DEFAULT 1,
         opt_in_live_preview INTEGER DEFAULT 0,
+        audio_enabled INTEGER DEFAULT 0,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS security_audit_log (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        home_id TEXT,
+        event_type TEXT NOT NULL,
+        resource_type TEXT NOT NULL,
+        resource_id TEXT,
+        details TEXT,
+        ip_address TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS metric_rollups (
+        id TEXT PRIMARY KEY,
+        home_id TEXT NOT NULL,
+        device_id TEXT,
+        period_start TEXT NOT NULL,
+        period_type TEXT NOT NULL,
+        event_count INTEGER DEFAULT 0,
+        alert_count INTEGER DEFAULT 0,
+        avg_processing_time_ms REAL DEFAULT 0.0,
+        uptime_seconds INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (home_id) REFERENCES homes(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS monitoring_sessions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        home_id TEXT,
+        device_id TEXT,
+        started_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        ended_at TEXT,
+        duration_seconds INTEGER DEFAULT 0,
+        frame_count INTEGER DEFAULT 0,
+        drop_count INTEGER DEFAULT 0,
+        avg_fps REAL DEFAULT 0.0,
+        avg_latency_ms REAL DEFAULT 0.0,
+        end_reason TEXT DEFAULT 'clean_disconnect',
+        FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS device_status (
+        device_id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        home_id TEXT,
+        status TEXT DEFAULT 'offline',
+        battery_level REAL,
+        battery_charging INTEGER DEFAULT 0,
+        network_online INTEGER DEFAULT 1,
+        last_heartbeat_at TEXT,
+        last_frame_at TEXT,
+        fps REAL DEFAULT 0.0,
+        latency_ms REAL DEFAULT 0.0,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS incidents (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        home_id TEXT,
+        device_id TEXT,
+        incident_type TEXT NOT NULL,
+        severity TEXT NOT NULL DEFAULT 'WARNING',
+        title TEXT NOT NULL,
+        message TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'open',
+        opened_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        acknowledged_at TEXT,
+        resolved_at TEXT,
+        metadata TEXT,
+        FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS rules (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        home_id TEXT,
+        name TEXT NOT NULL,
+        description TEXT,
+        is_enabled INTEGER DEFAULT 1,
+        modes TEXT DEFAULT '["home", "away", "night"]',
+        target_categories TEXT DEFAULT '["person"]',
+        min_confidence REAL DEFAULT 0.50,
+        severity TEXT NOT NULL DEFAULT 'WARNING',
+        action TEXT NOT NULL DEFAULT 'alert',
+        cooldown_sec INTEGER DEFAULT 30,
+        is_default INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS mode_profiles (
+        id TEXT PRIMARY KEY,
+        home_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        mode TEXT NOT NULL,
+        arming_delay_s INTEGER DEFAULT 0,
+        push_notifications_enabled INTEGER DEFAULT 1,
+        audible_alarm_enabled INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (home_id) REFERENCES homes(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS home_members (
+        id TEXT PRIMARY KEY,
+        home_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        role TEXT DEFAULT 'member',
+        invited_by TEXT,
+        joined_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (home_id) REFERENCES homes(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS home_invites (
+        id TEXT PRIMARY KEY,
+        home_id TEXT NOT NULL,
+        invite_code TEXT NOT NULL UNIQUE,
+        email TEXT,
+        role TEXT DEFAULT 'member',
+        created_by TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        is_accepted INTEGER DEFAULT 0,
+        accepted_by TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (home_id) REFERENCES homes(id) ON DELETE CASCADE,
+        FOREIGN KEY (created_by) REFERENCES profiles(id) ON DELETE CASCADE
       )`,
       `CREATE INDEX IF NOT EXISTS idx_events_user_id ON events (user_id)`,
       `CREATE INDEX IF NOT EXISTS idx_events_started_at ON events (started_at DESC)`,
       `CREATE INDEX IF NOT EXISTS idx_events_category ON events (category)`,
       `CREATE INDEX IF NOT EXISTS idx_events_is_unusual ON events (is_unusual)`,
-      `CREATE INDEX IF NOT EXISTS idx_pairing_codes_code ON pairing_codes (code)`
+      `CREATE INDEX IF NOT EXISTS idx_pairing_codes_code ON pairing_codes (code)`,
+      `CREATE INDEX IF NOT EXISTS idx_security_audit_log_user ON security_audit_log (user_id, created_at DESC)`,
+      `CREATE INDEX IF NOT EXISTS idx_metric_rollups_period ON metric_rollups (home_id, period_start DESC)`,
+      `CREATE INDEX IF NOT EXISTS idx_monitoring_sessions_user ON monitoring_sessions (user_id, started_at DESC)`,
+      `CREATE INDEX IF NOT EXISTS idx_incidents_user_status ON incidents (user_id, status, opened_at DESC)`,
+      `CREATE INDEX IF NOT EXISTS idx_rules_user_home ON rules (user_id, is_enabled)`,
+      `CREATE INDEX IF NOT EXISTS idx_home_members_home ON home_members (home_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_home_invites_code ON home_invites (invite_code)`
     ];
 
     for (const s of stmts) {
       await this.run(s);
     }
 
-    try {
-      await this.run('ALTER TABLE profiles ADD COLUMN password_hash TEXT');
-    } catch {
-      // Column already exists
+    // Run graceful schema migrations for existing SQLite databases
+    const migrations = [
+      'ALTER TABLE profiles ADD COLUMN password_hash TEXT',
+      'ALTER TABLE homes ADD COLUMN current_mode TEXT DEFAULT "home"',
+      'ALTER TABLE homes ADD COLUMN mode_changed_at TEXT',
+      'ALTER TABLE homes ADD COLUMN arming_delay_s INTEGER DEFAULT 0',
+      'ALTER TABLE devices ADD COLUMN last_heartbeat_at TEXT',
+      'ALTER TABLE devices ADD COLUMN battery_level REAL',
+      'ALTER TABLE devices ADD COLUMN battery_charging INTEGER DEFAULT 0',
+      'ALTER TABLE devices ADD COLUMN network_online INTEGER DEFAULT 1',
+      'ALTER TABLE events ADD COLUMN feedback_reason TEXT',
+      'ALTER TABLE events ADD COLUMN bbox_x REAL',
+      'ALTER TABLE events ADD COLUMN bbox_y REAL',
+      'ALTER TABLE events ADD COLUMN bbox_w REAL',
+      'ALTER TABLE events ADD COLUMN bbox_h REAL',
+      'ALTER TABLE events ADD COLUMN frame_width INTEGER',
+      'ALTER TABLE events ADD COLUMN frame_height INTEGER',
+      'ALTER TABLE alerts ADD COLUMN is_resolved INTEGER DEFAULT 0',
+      'ALTER TABLE alerts ADD COLUMN resolved_at TEXT',
+      'ALTER TABLE alerts ADD COLUMN occurrence_count INTEGER DEFAULT 1',
+      'ALTER TABLE alerts ADD COLUMN dedupe_key TEXT',
+      'ALTER TABLE alerts ADD COLUMN last_seen TEXT',
+      'ALTER TABLE alerts ADD COLUMN rule_id TEXT',
+      'ALTER TABLE alerts ADD COLUMN suppressed_reason TEXT',
+      'ALTER TABLE user_settings ADD COLUMN notification_quiet_hours_start TEXT DEFAULT "22:00"',
+      'ALTER TABLE user_settings ADD COLUMN notification_quiet_hours_end TEXT DEFAULT "07:00"',
+      'ALTER TABLE user_settings ADD COLUMN audio_enabled INTEGER DEFAULT 0',
+      'ALTER TABLE homes ADD COLUMN updated_at TEXT'
+    ];
+
+    for (const migration of migrations) {
+      try {
+        await this.run(migration);
+      } catch {
+        // Column already exists or already migrated
+      }
     }
 
     // Seed default demo profile for testing

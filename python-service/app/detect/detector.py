@@ -6,6 +6,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from app.detect.hardware import hardware_manager
+from app.detect.face_analyzer import face_analyzer
 
 # Complete COCO 80 Class Labels for YOLOv8
 COCO_CLASSES = [
@@ -235,7 +236,36 @@ class DetectorEngine:
                 "skipped_due_to_motion": True
             }
 
-        detections = self.detector.detect(img, min_confidence=min_confidence)
+        raw_detections = self.detector.detect(img, min_confidence=min_confidence)
+        
+        # Analyze persons for face mask or half-face concealment
+        detections = []
+        for det in raw_detections:
+            detections.append(det)
+            if det.get("class") == "person" and "bounding_box" in det:
+                try:
+                    face_info = face_analyzer.analyze_head_region(img, det["bounding_box"])
+                    if face_info and face_info.get("is_masked"):
+                        det["face_status"] = face_info["face_status"]
+                        det["is_masked"] = True
+                        det["occlusion_type"] = face_info["occlusion_type"]
+                        det["face_reason"] = face_info["reason"]
+
+                        # Insert high-priority security alert detection
+                        detections.append({
+                            "class": "masked_person",
+                            "category": "threat",
+                            "confidence": face_info["confidence"],
+                            "bounding_box": face_info.get("face_box", det["bounding_box"]),
+                            "face_status": face_info["face_status"],
+                            "occlusion_type": face_info["occlusion_type"],
+                            "is_masked": True,
+                            "is_unusual": True,
+                            "anomaly_reason": face_info["reason"]
+                        })
+                except Exception as fe:
+                    pass
+
         duration_ms = int((time.time() - start) * 1000)
         hw = hardware_manager.get_hardware_telemetry()
 

@@ -47,6 +47,9 @@ export function createHealthRouter(db: DatabaseService): Router {
   router.get('/system/hardware', async (req: Request, res: Response) => {
     try {
       const resp = await fetch(`${config.PYTHON_SERVICE_URL}/hardware`, {
+        headers: {
+          'X-Internal-Secret': config.AI_SERVICE_SECRET
+        },
         signal: AbortSignal.timeout(2000)
       });
       if (resp.ok) {

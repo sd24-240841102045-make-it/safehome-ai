@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { DatabaseService } from '../services/db.js';
 import { mapClassToCategory, CreateEventSchema, EventFeedbackSchema } from '../shared/schemas.js';
 import { saveSnapshot, deleteSnapshot } from '../services/snapshots.js';
+import { logSecurityEvent } from '../services/auditLog.js';
 
 export function createEventsRouter(db: DatabaseService, authMiddleware: any): Router {
   const router = Router();
@@ -59,7 +60,7 @@ export function createEventsRouter(db: DatabaseService, authMiddleware: any): Ro
       const querySql = `
         SELECT id, home_id, device_id, event_type, object_class, category, confidence,
                started_at, last_seen, frame_count, snapshot_path, is_unusual, anomaly_score,
-               user_feedback, metadata
+               user_feedback, feedback_reason, bbox_x, bbox_y, bbox_w, bbox_h, frame_width, frame_height, metadata
         FROM events
         ${whereClause}
         ORDER BY started_at DESC
@@ -173,20 +174,39 @@ export function createEventsRouter(db: DatabaseService, authMiddleware: any): Ro
     }
   });
 
-  // 4. Submit User Feedback on Event (expected / unexpected)
+  // 4. Submit User Feedback on Event (correct / false_alert / unknown / expected_activity / wrong_detection)
   router.patch('/events/:id/feedback', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const userId = req.user!.id;
-      const { feedback } = EventFeedbackSchema.parse(req.body);
+      const { feedback, feedback_reason } = EventFeedbackSchema.parse(req.body);
 
-      const event = await db.get('SELECT id FROM events WHERE id = ? AND user_id = ?', [id, userId]);
+      const event = await db.get('SELECT id, home_id, object_class, category FROM events WHERE id = ? AND user_id = ?', [id, userId]);
       if (!event) {
         return res.status(404).json({ success: false, error: 'Event not found or access denied.' });
       }
 
-      await db.run('UPDATE events SET user_feedback = ? WHERE id = ?', [feedback, id]);
-      res.json({ success: true, message: 'Event feedback recorded.', user_feedback: feedback });
+      await db.run(
+        'UPDATE events SET user_feedback = ?, feedback_reason = ? WHERE id = ?',
+        [feedback, feedback_reason || null, id]
+      );
+
+      // Log security audit event
+      await logSecurityEvent(db, {
+        userId,
+        homeId: event.home_id,
+        eventType: 'feedback_submitted',
+        resourceType: 'event',
+        resourceId: String(id),
+        details: { feedback, feedback_reason, category: event.category, object_class: event.object_class }
+      });
+
+      res.json({
+        success: true,
+        message: 'Event feedback recorded.',
+        user_feedback: feedback,
+        feedback_reason: feedback_reason || null
+      });
     } catch (err: any) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({ success: false, error: err.errors[0].message });

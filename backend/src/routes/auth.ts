@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { AuthService } from '../services/supabase.js';
 import { DatabaseService } from '../services/db.js';
 import { authLimiter } from '../middleware/rateLimit.js';
+import { logSecurityEvent } from '../services/auditLog.js';
 
 const RegisterSchema = z.object({
   email: z.string().email('Invalid email address format'),
@@ -24,6 +25,14 @@ export function createAuthRouter(authService: AuthService, db: DatabaseService, 
       const validated = RegisterSchema.parse(req.body);
       const result = await authService.register(validated.email, validated.password, validated.full_name);
 
+      await logSecurityEvent(db, {
+        userId: result.user.id,
+        eventType: 'user_registered',
+        resourceType: 'user',
+        resourceId: result.user.id,
+        details: { email: validated.email, full_name: validated.full_name }
+      });
+
       res.status(201).json({
         success: true,
         message: 'Account registered successfully.',
@@ -43,6 +52,14 @@ export function createAuthRouter(authService: AuthService, db: DatabaseService, 
     try {
       const validated = LoginSchema.parse(req.body);
       const result = await authService.login(validated.email, validated.password);
+
+      await logSecurityEvent(db, {
+        userId: result.user.id,
+        eventType: 'user_login',
+        resourceType: 'user',
+        resourceId: result.user.id,
+        details: { email: validated.email }
+      });
 
       res.json({
         success: true,

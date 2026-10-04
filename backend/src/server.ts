@@ -19,10 +19,16 @@ import { createDevicesRouter } from './routes/devices.js';
 import { createAlertsRouter } from './routes/alerts.js';
 import { createSettingsRouter } from './routes/settings.js';
 import { createAnalyticsRouter } from './routes/analytics.js';
+import { createAuditRouter } from './routes/audit.js';
+import { createIncidentsRouter } from './routes/incidents.js';
+import { createRulesRouter } from './routes/rules.js';
+import { createTimelineRouter } from './routes/timeline.js';
+import { createMembersRouter } from './routes/members.js';
 import { StreamWebSocketHandler } from './websocket/streamHandler.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 import { ensureSnapshotDirExists, getSnapshotFilePath } from './services/snapshots.js';
 import { scheduleRetentionJob } from './services/retention.js';
+import { MonitoringWatchdog } from './services/watchdog.js';
 
 export async function bootstrap() {
   const app = express();
@@ -96,6 +102,11 @@ export async function bootstrap() {
   app.use('/api', createAlertsRouter(db, authMiddleware));
   app.use('/api', createSettingsRouter(db, authMiddleware));
   app.use('/api', createAnalyticsRouter(db, authMiddleware));
+  app.use('/api', createAuditRouter(db, authMiddleware));
+  app.use('/api', createIncidentsRouter(db, authMiddleware));
+  app.use('/api', createRulesRouter(db, authMiddleware, (userId, payload) => streamHandler?.broadcastToUserDashboards(userId, payload)));
+  app.use('/api', createTimelineRouter(db, authMiddleware));
+  app.use('/api', createMembersRouter(db, authMiddleware));
 
   app.get('/', (req, res) => {
     res.json({
@@ -114,7 +125,17 @@ export async function bootstrap() {
   const wss = new WebSocketServer({ server, path: '/ws' });
   const streamHandler = new StreamWebSocketHandler(wss, db, authService);
 
-  // 9. Start Server (skip listening during automated tests)
+  // 9. Monitoring Health Watchdog Service
+  const watchdog = new MonitoringWatchdog(db);
+  watchdog.setBroadcastHandler((userId, payload) => {
+    streamHandler.broadcastToUserDashboards(userId, payload);
+  });
+  if (process.env.NODE_ENV !== 'test') {
+    watchdog.start(10000); // Check every 10s
+    scheduleRetentionJob(db, 24); // Run automated retention purge every 24h
+  }
+
+  // 10. Start Server (skip listening during automated tests)
   if (process.env.NODE_ENV !== 'test') {
     server.listen(config.PORT, config.HOST, () => {
       logger.info(`====================================================`);

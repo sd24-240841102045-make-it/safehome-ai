@@ -64,3 +64,12 @@ def test_analyze_insufficient_data():
     assert data["status"] == "insufficient_data"
     assert data["is_unusual"] is False
     assert "Not enough historical data for reliable anomaly analysis." in data["reason"]
+
+def test_face_occlusion_analyzer():
+    from app.detect.face_analyzer import FaceOcclusionAnalyzer
+    import numpy as np
+    analyzer = FaceOcclusionAnalyzer()
+    dummy_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    res = analyzer.analyze_head_region(dummy_frame, {"x": 50, "y": 50, "width": 100, "height": 200})
+    # Blank frame should return None (no false positive on empty darkness)
+    assert res is None
