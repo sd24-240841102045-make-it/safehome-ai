@@ -15,8 +15,11 @@
     "test": "npm run test:backend && npm run test:python",
     "test:backend": "cd backend && npm test",
     "test:python": "cd python-service && ..\\.venv\\Scripts\\pytest",
-    "db:init": "cd backend && npm run db:init",
-    "db:reset": "cd backend && npm run db:reset",
+    "build": "cd backend && npm install && npm run build && npm run db:init",
+    "start": "cd backend && npm run start",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "start:backend": "cd backend && npm run start",
     "seed:synthetic": "cd python-service && ..\\.venv\\Scripts\\python.exe -m tests.synthetic_generator"
   },
   "devDependencies": {
