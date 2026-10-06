@@ -1,9 +1,19 @@
 import axios from 'axios';
 
-// Relative API URLs through the Vite proxy (Specification 1)
-export const API_BASE = '/api';
+// Relative API URLs or deployed backend URL via environment variables
+export const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL.replace(/\/+$/, '')}/api`
+  : '/api';
 
 export const WS_BASE = (() => {
+  if (import.meta.env.VITE_WS_URL) {
+    return import.meta.env.VITE_WS_URL;
+  }
+  if (import.meta.env.VITE_API_URL) {
+    const wsProto = import.meta.env.VITE_API_URL.startsWith('https') ? 'wss:' : 'ws:';
+    const host = import.meta.env.VITE_API_URL.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+    return `${wsProto}//${host}/ws`;
+  }
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = window.location.host;
   return `${protocol}//${host}/ws`;
