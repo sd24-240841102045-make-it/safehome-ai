@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Settings as SettingsIcon,
   Shield,
@@ -15,11 +16,14 @@ import {
   FileText,
   Lock,
   Zap,
-  Target
+  Target,
+  CreditCard,
+  ChevronRight
 } from 'lucide-react';
-import { settingsService } from '../services/api';
+import { settingsService, paymentService } from '../services/api';
 
 export default function Settings() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [purging, setPurging] = useState(false);
@@ -30,6 +34,7 @@ export default function Settings() {
   const [eraseModalOpen, setEraseModalOpen] = useState(false);
   const [erasePhrase, setErasePhrase] = useState('');
   const [erasing, setErasing] = useState(false);
+  const [subscription, setSubscription] = useState(null);
 
   const [formData, setFormData] = useState({
     home_name: 'Suburban Residence',
@@ -51,10 +56,14 @@ export default function Settings() {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const res = await settingsService.getSettings();
-        if (res.data.success) {
-          const s = res.data.settings;
-          const h = res.data.home;
+        const [settingsRes, subRes] = await Promise.allSettled([
+          settingsService.getSettings(),
+          paymentService.getSubscription()
+        ]);
+
+        if (settingsRes.status === 'fulfilled' && settingsRes.value.data.success) {
+          const s = settingsRes.value.data.settings;
+          const h = settingsRes.value.data.home;
           setFormData({
             home_name: h?.name || 'Suburban Residence',
             home_address: h?.address || '',
@@ -71,6 +80,10 @@ export default function Settings() {
             opt_in_live_preview: Boolean(s?.opt_in_live_preview),
             audio_enabled: Boolean(s?.audio_enabled)
           });
+        }
+
+        if (subRes.status === 'fulfilled' && subRes.value.data.success) {
+          setSubscription(subRes.value.data.data);
         }
       } catch (err) {
         console.error('Error loading settings:', err);
@@ -191,6 +204,31 @@ export default function Settings() {
           <span>{errorMsg}</span>
         </div>
       )}
+
+      {/* Subscription & Plan Status Quick Card */}
+      <div className="bg-gradient-to-r from-slate-900 to-sky-950/40 border border-sky-500/20 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-sky-400" />
+            <span className="text-xs font-bold text-white uppercase tracking-wider">Active Subscription</span>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              {subscription?.plan_name || 'Community Guard (Free)'}
+            </span>
+          </div>
+          <p className="text-xs text-slate-400">
+            {subscription?.max_devices ? `${subscription.max_devices} Camera Sensor Nodes` : '1 Sensor Node'} •{' '}
+            {subscription?.history_days ? `${subscription.history_days} Days Cloud Retention` : '24h History'} • Razorpay Gateway Protected.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/billing')}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition shadow-lg shadow-sky-500/20 shrink-0 cursor-pointer"
+        >
+          <span>Manage Plan &amp; Billing</span>
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 1. Home Activity Profile */}

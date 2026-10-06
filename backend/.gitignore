@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.*
+*.env
+*.sqlite
+*.sqlite3
+*.db
+logs/
+snapshots/
+*.key
+*.pem
+credentials/

@@ -24,6 +24,7 @@ import { createIncidentsRouter } from './routes/incidents.js';
 import { createRulesRouter } from './routes/rules.js';
 import { createTimelineRouter } from './routes/timeline.js';
 import { createMembersRouter } from './routes/members.js';
+import { createPaymentsRouter } from './routes/payments.js';
 import { StreamWebSocketHandler } from './websocket/streamHandler.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 import { ensureSnapshotDirExists, getSnapshotFilePath } from './services/snapshots.js';
@@ -107,6 +108,7 @@ export async function bootstrap() {
   app.use('/api', createRulesRouter(db, authMiddleware, (userId, payload) => streamHandler?.broadcastToUserDashboards(userId, payload)));
   app.use('/api', createTimelineRouter(db, authMiddleware));
   app.use('/api', createMembersRouter(db, authMiddleware));
+  app.use('/api', createPaymentsRouter(db, authMiddleware));
 
   app.get('/', (req, res) => {
     res.json({

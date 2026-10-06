@@ -19,7 +19,8 @@ import {
   Clock,
   Sliders,
   Users,
-  ShieldAlert
+  ShieldAlert,
+  CreditCard
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { systemService, alertService } from '../services/api';
@@ -80,6 +81,7 @@ export default function Layout() {
     { to: '/events', label: 'Event History', icon: History },
     { to: '/alerts', label: 'Security Alerts', icon: Bell, count: unreadAlerts },
     { to: '/rules', label: 'Modes & Rules', icon: Sliders },
+    { to: '/billing', label: 'Plans & Billing', icon: CreditCard, badge: 'Razorpay' },
     { to: '/members', label: 'Home Members', icon: Users },
     { to: '/audit-logs', label: 'Audit Logs', icon: ShieldAlert },
     { to: '/settings', label: 'Settings & Privacy', icon: Settings }

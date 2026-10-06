@@ -271,6 +271,42 @@ class SqliteDatabaseService implements DatabaseService {
         FOREIGN KEY (home_id) REFERENCES homes(id) ON DELETE CASCADE,
         FOREIGN KEY (created_by) REFERENCES profiles(id) ON DELETE CASCADE
       )`,
+      `CREATE TABLE IF NOT EXISTS payments (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        home_id TEXT,
+        razorpay_order_id TEXT NOT NULL UNIQUE,
+        razorpay_payment_id TEXT,
+        razorpay_signature TEXT,
+        amount INTEGER NOT NULL,
+        currency TEXT DEFAULT 'INR',
+        status TEXT NOT NULL DEFAULT 'created',
+        plan_id TEXT NOT NULL,
+        plan_name TEXT NOT NULL,
+        billing_cycle TEXT NOT NULL DEFAULT 'monthly',
+        receipt TEXT,
+        notes TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+      )`,
+      `CREATE TABLE IF NOT EXISTS subscriptions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL UNIQUE,
+        plan_id TEXT NOT NULL DEFAULT 'free',
+        plan_name TEXT NOT NULL DEFAULT 'Free Community Guard',
+        status TEXT NOT NULL DEFAULT 'active',
+        billing_cycle TEXT NOT NULL DEFAULT 'monthly',
+        amount INTEGER NOT NULL DEFAULT 0,
+        currency TEXT DEFAULT 'INR',
+        current_period_start TEXT DEFAULT CURRENT_TIMESTAMP,
+        current_period_end TEXT,
+        latest_payment_id TEXT,
+        features TEXT,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE
+      )`,
       `CREATE INDEX IF NOT EXISTS idx_events_user_id ON events (user_id)`,
       `CREATE INDEX IF NOT EXISTS idx_events_started_at ON events (started_at DESC)`,
       `CREATE INDEX IF NOT EXISTS idx_events_category ON events (category)`,
@@ -282,7 +318,10 @@ class SqliteDatabaseService implements DatabaseService {
       `CREATE INDEX IF NOT EXISTS idx_incidents_user_status ON incidents (user_id, status, opened_at DESC)`,
       `CREATE INDEX IF NOT EXISTS idx_rules_user_home ON rules (user_id, is_enabled)`,
       `CREATE INDEX IF NOT EXISTS idx_home_members_home ON home_members (home_id)`,
-      `CREATE INDEX IF NOT EXISTS idx_home_invites_code ON home_invites (invite_code)`
+      `CREATE INDEX IF NOT EXISTS idx_home_invites_code ON home_invites (invite_code)`,
+      `CREATE INDEX IF NOT EXISTS idx_payments_user ON payments (user_id, created_at DESC)`,
+      `CREATE INDEX IF NOT EXISTS idx_payments_order ON payments (razorpay_order_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions (user_id)`
     ];
 
     for (const s of stmts) {

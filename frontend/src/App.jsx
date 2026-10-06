@@ -11,6 +11,7 @@ import Events from './pages/Events';
 import Alerts from './pages/Alerts';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import Billing from './pages/Billing';
 import Timeline from './pages/Timeline';
 import Rules from './pages/Rules';
 import AuditLogs from './pages/AuditLogs';
@@ -49,6 +50,8 @@ export default function App() {
             <Route path="members" element={<Members />} />
             <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="analytics" element={<Analytics />} />
+            <Route path="billing" element={<Billing />} />
+            <Route path="pricing" element={<Billing />} />
             <Route path="settings" element={<Settings />} />
           </Route>
 

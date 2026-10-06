@@ -108,4 +108,21 @@ export const deviceService = {
   deleteDevice: (id: string) => api.delete(`/devices/${id}`)
 };
 
+export const paymentService = {
+  getConfig: () => api.get('/payments/config'),
+  getPlans: () => api.get('/payments/plans'),
+  getSubscription: () => api.get('/payments/subscription'),
+  getHistory: () => api.get('/payments/history'),
+  getInvoice: (id: string) => api.get(`/payments/invoice/${id}`),
+  createOrder: (data: { plan_id: string; billing_cycle: 'monthly' | 'yearly'; home_id?: string }) =>
+    api.post('/payments/create-order', data),
+  verifyPayment: (data: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) => api.post('/payments/verify', data),
+  cancelSubscription: (reason?: string) => api.post('/payments/cancel-subscription', { reason })
+};
+
 export default api;
+
