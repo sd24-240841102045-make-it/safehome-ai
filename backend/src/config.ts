@@ -7,7 +7,10 @@ const ConfigSchema = z.object({
   PORT: z.coerce.number().default(5000),
   HOST: z.string().default('0.0.0.0'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  // DATABASE_URL must be a postgres:// URL in production — SQLite is for local dev only
   DATABASE_URL: z.string().default('sqlite:./safehome.sqlite'),
+  DB_POOL_MAX: z.coerce.number().default(10),
+  DB_SSL: z.string().default('true'),
   SUPABASE_URL: z.string().optional().default(''),
   SUPABASE_ANON_KEY: z.string().optional().default(''),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional().default(''),
@@ -23,6 +26,15 @@ const ConfigSchema = z.object({
 export const config = ConfigSchema.parse(process.env);
 
 if (config.NODE_ENV === 'production') {
+  // Enforce PostgreSQL in production — SQLite is not suitable for cloud deployments
+  const isPostgres = config.DATABASE_URL.startsWith('postgres://') || config.DATABASE_URL.startsWith('postgresql://');
+  if (!isPostgres) {
+    throw new Error(
+      'SECURITY ALERT: DATABASE_URL must be a PostgreSQL connection string in production. ' +
+      'Set DATABASE_URL to your postgres://... URL in Render environment variables.'
+    );
+  }
+
   if (config.JWT_SECRET === 'safehome_super_secret_jwt_key_2026_change_in_production') {
     throw new Error('SECURITY ALERT: Default JWT_SECRET is not permitted in production. Set a secure JWT_SECRET in your environment.');
   }

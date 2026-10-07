@@ -29,7 +29,11 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: sqlite:./safehome.sqlite
+        sync: false  # Set this to your PostgreSQL connection string from Render/Supabase/Neon
+      - key: DB_POOL_MAX
+        value: "10"
+      - key: DB_SSL
+        value: "true"
       - key: JWT_SECRET
         generateValue: true
       - key: AI_SERVICE_SECRET

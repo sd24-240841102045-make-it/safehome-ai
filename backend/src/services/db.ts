@@ -423,9 +423,20 @@ class PostgresDatabaseService implements DatabaseService {
   private pool!: pg.Pool;
 
   constructor(connStr: string) {
+    const sslEnabled = config.DB_SSL !== 'false';
     this.pool = new pg.Pool({
       connectionString: connStr,
-      ssl: config.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      max: config.DB_POOL_MAX,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+      ssl: config.NODE_ENV === 'production' && sslEnabled
+        ? { rejectUnauthorized: false }
+        : false
+    });
+
+    // Log unexpected pool errors (prevents uncaught exceptions crashing the server)
+    this.pool.on('error', (err) => {
+      logger.error(`[DB] Unexpected PostgreSQL pool error: ${err.message}`);
     });
   }
 
